@@ -1,0 +1,3 @@
+# ignore data and checkpoints folders
+./1/
+./data/
