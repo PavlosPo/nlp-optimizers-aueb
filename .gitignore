@@ -1,3 +1,6 @@
 # ignore data and checkpoints folders
 ./1/
 ./data/
+MNIST/
+nlp-optimizers/lightning-experiments/MNIST/
+
