@@ -9,30 +9,34 @@ import lightning as L
 from torch.utils.data import DataLoader
 import torch.utils.data as data
 from torchvision import datasets
+from transformers import BertModel, BertTokenizer
 
 
 
 class Encoder(nn.Module):
     def __init__(self):
         super().__init__()
-        self.l1 = nn.Sequential(nn.Linear(28 * 28, 64), nn.ReLU(), nn.Linear(64, 3))
+        # self.example_input_array = torch.Tensor(32, 1, 28, 28)
+        # self.l1 = nn.Sequential(nn.Linear(28 * 28, 64), nn.ReLU(), nn.Linear(64, 3))
+        self.l1 = BertModel.from_pretrained('bert-base-uncased')
 
     def forward(self, x):
-        return self.l1(x)
+        return self.l1(x)[0]
 
 
 class Decoder(nn.Module):
     def __init__(self):
         super().__init__()
+        # self.example_input_array = torch.Tensor(32, 1, 28, 28)
         self.l1 = nn.Sequential(nn.Linear(3, 64), nn.ReLU(), nn.Linear(64, 28 * 28))
 
     def forward(self, x):
         return self.l1(x)
-    
 
 class LitAutoEncoder(L.LightningModule):
-    def __init__(self, encoder, decoder,  fast_dev_run=True, max_epoch=1):
+    def __init__(self, encoder, decoder):
         super().__init__()
+        # self.example_input_array = torch.Tensor(32, 1, 28, 28)
         self.encoder = encoder
         self.decoder = decoder
 
