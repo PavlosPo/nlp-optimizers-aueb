@@ -7,7 +7,7 @@ import torchmetrics
 from ScoresModule import MyAccuracy
 import torch.nn.functional as F
 import pytorch_lightning as pl
-from transformers import BertModel, BertTokenizer, AutoModelForSequenceClassification, AutoTokenizer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 
 class LLMModule(pl.LightningModule):
@@ -43,7 +43,9 @@ class LLMModule(pl.LightningModule):
         return loss
 
     def _common_step(self, batch, batch_idx):
-        input_ids, attention_mask, y = batch
+        input_ids = batch['input_ids']
+        attention_mask = batch['attention_mask']
+        y = batch['label']
         scores = self.forward(input_ids, attention_mask)[0]
         loss = self.loss_fn(scores, y)
         return loss, scores, y
