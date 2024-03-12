@@ -5,7 +5,6 @@ import torch
 from torch import nn, optim
 import torchmetrics
 from ScoresModule import MyAccuracy
-import torch.nn.functional as F
 import pytorch_lightning as pl
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 

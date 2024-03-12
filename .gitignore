@@ -3,4 +3,5 @@
 ./data/
 ../MNIST/
 ../nlp-optimizers/lightning-experiments/MNIST/
+../nlp-optimizers/lightning-experiments-2/logs/
 
