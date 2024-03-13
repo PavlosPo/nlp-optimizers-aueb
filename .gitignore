@@ -5,3 +5,6 @@
 ../nlp-optimizers/lightning-experiments/MNIST/
 ../nlp-optimizers/lightning-experiments-2/logs/
 
+# ignore any log folder
+**/logs/**
+```

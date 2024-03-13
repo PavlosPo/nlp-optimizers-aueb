@@ -2,6 +2,7 @@ import torch
 from LLMDataModule import LLMDataModule
 from LLMModule import LLMModule
 import pytorch_lightning as pl
+from lightning.pytorch import seed_everything
 
 # Make this code to run on main check name
 if __name__ == "__main__":
@@ -11,9 +12,9 @@ if __name__ == "__main__":
     # Hyperparameters
     input_size = 784
     num_classes = 10
-    learning_rate = 0.001
     batch_size = 64
-    num_epochs = 3
+
+    seed_everything(42, workers=True)
 
     # model = NN(input_size=input_size, num_classes=num_classes)
     model = LLMModule(num_classes=num_classes, model_name="google-bert/bert-base-cased")

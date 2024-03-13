@@ -11,7 +11,7 @@ if __name__ == "__main__":
     logger = TensorBoardLogger("logs", name="my_model")
 
     dm = DataModule(model_name_or_path="albert-base-v2", 
-                    task_name="cola", 
+                    task_name="sst2", 
                     max_seq_length=128, 
                     train_batch_size=32, 
                     eval_batch_size=32, 
@@ -24,11 +24,11 @@ if __name__ == "__main__":
                     task_name=dm.task_name)
 
     trainer = Trainer(
-                    max_epochs=2,
+                    max_epochs=3,
                     accelerator="auto",
                     devices=1,  # limiting got iPython runs
-                    logger=logger,
-                    strategy="fsdp")
+                    logger=logger,)
+                    # strategy="fsdp")
     trainer.fit(model, datamodule=dm)
     
     # We also have validate

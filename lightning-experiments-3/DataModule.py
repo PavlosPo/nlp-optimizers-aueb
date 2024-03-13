@@ -72,7 +72,7 @@ class DataModule(LightningDataModule):
         for split in self.dataset.keys():
             self.dataset[split] = self.dataset[split].map(
                 self.convert_to_features,
-                batched=True,
+                batched=True,  
                 remove_columns=["label"],
             )
             self.columns = [c for c in self.dataset[split].column_names if c in self.loader_columns]
@@ -89,7 +89,8 @@ class DataModule(LightningDataModule):
                             batch_size=self.train_batch_size, 
                             shuffle=True,
                             num_workers=self.num_workers,
-                            collate_fn=self.data_collator  # Dynamic padding
+                            collate_fn=self.data_collator,  # Dynamic padding
+                            persistent_workers=True
                             )
 
     def val_dataloader(self):
@@ -98,13 +99,13 @@ class DataModule(LightningDataModule):
                                 batch_size=self.eval_batch_size,
                                 num_workers=self.num_workers,
                                 collate_fn=self.data_collator,  # Dynamic padding
-                                )
+                                persistent_workers=True)
         elif len(self.eval_splits) > 1:
             return [DataLoader(self.dataset[x], 
                                 batch_size=self.eval_batch_size,  
                                 num_workers=self.num_workers,
                                 collate_fn=self.data_collator , # Dynamic padding
-                                )
+                                persistent_workers=True)
                             for x in self.eval_splits
                             ]
 
@@ -113,14 +114,14 @@ class DataModule(LightningDataModule):
             return DataLoader(self.dataset["test"], 
                               batch_size=self.eval_batch_size,
                               num_workers=self.num_workers,
-                              collate_fn=self.data_collator # Dynamic padding
-                              )
+                              collate_fn=self.data_collator, # Dynamic padding
+                              persistent_workers=True)
         elif len(self.eval_splits) > 1:
             return [DataLoader(self.dataset[x], 
                                 batch_size=self.eval_batch_size,
                                 num_workers=self.num_workers,
-                                collate_fn=self.data_collator  # Dynamic padding
-                                )
+                                collate_fn=self.data_collator,  # Dynamic padding
+                                persistent_workers=True)
                             for x in self.eval_splits
                             ]
 
