@@ -1,4 +1,5 @@
 from typing import Optional
+from fosi import fosi_adam
 import torch
 import evaluate
 from pytorch_lightning import LightningModule
@@ -87,5 +88,6 @@ class Transformer(LightningModule):
         self.log_dict({f'{mode}_loss': loss, f'{mode}_accuracy': acc['accuracy'], f'{mode}_f1': f1['f1'], f'{mode}_precision': precision['precision']}, on_step=False, on_epoch=True, prog_bar=True)
         return {"loss": loss, "acc": acc['accuracy'], "f1": f1['f1'], "precision": precision['precision']}
 
-    def configure_optimizers(self):
-        return torch.optim.LBFGS(self.parameters())
+    def configure_optimizers(self, ):
+        # return (self.parameters())
+        return fosi_adam(torch.optim.Adam(self.parameters()), loss_fn=self.loss_fn) # How to insert batch ??
