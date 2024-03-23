@@ -42,11 +42,7 @@ testloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, sh
 # Define loss function
 loss_fn = torch.nn.CrossEntropyLoss()
 
-# Define optimizer
-base_optimizer = torchopt.adam(lr=0.001)
-optimizer = fosi_adam_torch(base_optimizer, loss_fn, next(iter(trainloader)), num_iters_to_approx_eigs=500, alpha=0.01)
-model, params, buffers = functorch.make_functional_with_buffers(model=model)
-opt_state = optimizer.init(params)
+
 
 # def loss_fn(params, batch):
 #     preds = model(params, batch['input_ids'], batch['attention_mask']).logits
@@ -79,6 +75,18 @@ for epoch in range(1):
     
     running_loss = 0.0
     for i, data in enumerate(trainloader, 0):
+
+        if i == 0:  # Run only once to initialize optimizer
+            # Define optimizer
+            base_optimizer = torchopt.adam(lr=0.001)
+            optimizer = fosi_adam_torch(base_optimizer, 
+                                        loss_fn, 
+                                        data, 
+                                        num_iters_to_approx_eigs=500, 
+                                        alpha=0.01)
+            model, params, buffers = functorch.make_functional_with_buffers(model=model)
+            opt_state = optimizer.init(params)
+
         print(f"\nNumber of Epoch: {i}\n")
         print(f"Data Example: {data}")
         input_ids = data['input_ids'].to(device)
