@@ -1,29 +1,43 @@
 import torch
-from torch.utils.data.dataloader import default_collate
-import torchvision.transforms as transforms
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, DataCollatorWithPadding, Trainer, TrainingArguments
-from torch.optim import Adam
+import random
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, DataCollatorWithPadding
 import torch.nn as nn
 import torchopt
 import functorch
 import evaluate
-import torch.nn.functional as F
+import numpy as np
 from tqdm import tqdm
+from datasets import load_dataset, concatenate_datasets
+from sklearn.metrics import f1_score, precision_recall_curve, auc
 
-from datasets import load_dataset
 from fosi import fosi_adam_torch
-import torch
-import torch.nn as nn
-from transformers import AutoModelForSequenceClassification, AutoTokenizer, DataCollatorWithPadding
-import subprocess
 
 # Load pre-trained BERT model and tokenizer
 BERT_MODEL_NAME = "bert-base-uncased"
-NUM_CLASSES = 1
+
 EPOCHS = 2
 BATCH_SIZE = 8
 DATASET_FROM = 'glue'
 DATASET_TASK = 'sst2'
+SEED_NUM = 42
+NUM_CLASSES = 1
+
+
+GLUE_TASKS = ["cola", "mnli", "mnli-mm", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
+task_to_keys = {
+    "cola": ("sentence", None),
+    "mnli": ("premise", "hypothesis"),
+    "mnli-mm": ("premise", "hypothesis"),
+    "mrpc": ("sentence1", "sentence2"),
+    "qnli": ("question", "sentence"),
+    "qqp": ("question1", "question2"),
+    "rte": ("sentence1", "sentence2"),
+    "sst2": ("sentence", None),
+    "stsb": ("sentence1", "sentence2"),
+    "wnli": ("sentence1", "sentence2"),
+}
+
+sentence1_key, sentence2_key = task_to_keys[DATASET_TASK]
 
 # Fetching pretrained model
 bert_model = AutoModelForSequenceClassification.from_pretrained(BERT_MODEL_NAME, num_labels=NUM_CLASSES)
@@ -47,24 +61,73 @@ classifier = BertClassifier(bert_model, NUM_CLASSES)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 classifier.to(device)
 
+def set_seed(seed: int):
+    """
+    Set random seed for reproducibility across multiple libraries.
+
+    Args:
+        seed (int): The seed value to set.
+    """
+    # Set seed for random and numpy
+    random.seed(seed)
+    np.random.seed(seed)
+    
+    # Set seed for torch
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+    # Set seed for tensorflow (if available)
+    if torch.cuda.is_available():
+        try:
+            import tensorflow as tf
+            tf.random.set_seed(seed)
+        except ImportError:
+            pass  # TensorFlow is not available
+
+# Usage
+set_seed(SEED_NUM)
 
 # Define a function to preprocess the dataset
-def prepare_dataset(example):
-    return tokenizer(example['sentence'], add_special_tokens=True, truncation=True, padding=True, return_tensors='pt')
+# def prepare_dataset(example):
+#     return tokenizer(example['sentence'], add_special_tokens=True, truncation=True, padding=True, return_tensors='pt')  # noqa: F821
+
+def prepare_dataset(examples, tokenizer=tokenizer):
+    if sentence2_key is None:
+        return tokenizer(examples[sentence1_key], truncation=True)
+    return tokenizer(examples[sentence1_key], examples[sentence2_key], truncation=True)
 
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer, padding=True)
 
 dataset = load_dataset(DATASET_FROM, DATASET_TASK).map(prepare_dataset, batched=True)
+dataset = concatenate_datasets([dataset["train"], dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=SEED_NUM, stratify_by_column='label')
 metric = evaluate.load(DATASET_FROM, DATASET_TASK)
 
 # Split dataset into train and test sets, we use the train category because the test one has labels -1 only.
+
 train_dataset = dataset['train'].select(range(0,500)).remove_columns(['sentence', 'idx']).rename_column('label', 'labels')
-test_dataset = dataset['train'].select(range(500, 1000)).remove_columns(['sentence', 'idx']).rename_column('label', 'labels')
+test_dataset = dataset['test'].select(range(500, 1000)).remove_columns(['sentence', 'idx']).rename_column('label', 'labels')
 
 # Define data loaders
-batch_size = BATCH_SIZE
-trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=data_collator)
-testloader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True, collate_fn=data_collator)
+trainloader = torch.utils.data.DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=data_collator)
+testloader = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=data_collator)
+
+def compute_metrics(predictions, labels, metric=metric):
+    predictions = np.argmax(predictions, axis=1)
+    matthews = metric.compute(predictions=predictions, references=labels)['matthews_correlation']
+
+    f1_pos = f1_score(y_true=labels, y_pred=predictions, pos_label=1)
+    f1_neg = f1_score(y_true=labels, y_pred=predictions, pos_label=0)
+    f1_macro = f1_score(y_true=labels, y_pred=predictions, average='macro')
+    f1_micro = f1_score(y_true=labels, y_pred=predictions, average='micro')
+
+    return {
+        'matthews_correlation': matthews,
+        'f1_positive': f1_pos,
+        'f1_negative': f1_neg,
+        'macro_f1': f1_macro,
+        'micro_f1': f1_micro
+    }
 
 
 def loss_fn(functional_model, params, buffers, input_ids, attention_mask, labels):
