@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 class BertClassifier(nn.Module):
@@ -17,9 +18,6 @@ class BertClassifier(nn.Module):
         # Load the pretrained model
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name, num_labels=self.num_classes)
         
-        # Initialize the sigmoid activation function
-        self.sigmoid = nn.Sigmoid()
-        
         # Get the tokenizer associated with the model
         self.tokenizer = self._get_tokenizer()
 
@@ -37,8 +35,13 @@ class BertClassifier(nn.Module):
         # Perform forward pass through the model
         logits = self.model(input_ids=input_ids, attention_mask=attention_mask).logits
         
-        # Apply sigmoid activation
-        probability = self.sigmoid(logits.squeeze())
+        # Apply activation based on the number of classes
+        if self.num_classes == 1:
+            # Apply sigmoid activation
+            probability = torch.sigmoid(logits.squeeze())
+        else:
+            # Apply softmax activation
+            probability = nn.functional.softmax(logits, dim=1)
         return probability
     
     def _get_tokenizer(self):
