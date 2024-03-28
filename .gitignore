@@ -8,3 +8,5 @@
 # ignore any log folder
 **/logs/**
 ```
+# Ignore all `__pycache__` folders.
+**/__pycache__/**
