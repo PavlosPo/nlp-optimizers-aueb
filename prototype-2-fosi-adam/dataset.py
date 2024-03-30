@@ -44,12 +44,12 @@ class CustomDataLoader:
         self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer, padding=True)
         self.metric = evaluate.load(self.dataset_from, self.dataset_task)
 
-    def get_custom_data_loaders(self) -> Tuple[DataLoader, DataLoader, evaluate.Metric]:
+    def get_custom_data_loaders(self) -> Tuple[DataLoader, DataLoader, DataLoader, evaluate.Metric]:
         """
         Get custom data loaders for training and testing.
 
         Returns:
-            Tuple[DataLoader, DataLoader, evaluate.Metric]: Tuple containing train loader, test loader, and metric.
+            Tuple[DataLoader, DataLoader, DataLoader, evaluate.Metric]: Tuple containing train loader, val_loader, test loader, and metric.
         """
         dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
         dataset = concatenate_datasets([dataset["train"], dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
@@ -58,12 +58,14 @@ class CustomDataLoader:
         # test_dataset = dataset['test'].select(range(self.range_to_select)).remove_columns(['sentence', 'idx']).rename_column('label', 'labels')
 
         train_dataset = dataset['train'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+        val_dataset = dataset['train'].select(range(self.range_to_select, 2*self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
         test_dataset = dataset['test'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
 
 
         train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
+        val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
         test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
-        return train_loader, test_loader, self.metric
+        return train_loader, val_loader, test_loader, self.metric
 
     def _prepare_dataset(self, examples) -> dict:
         """

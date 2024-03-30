@@ -5,13 +5,13 @@ from evaluation import CustomEvaluator
 from utils import set_seed
 
 # Prompt user for dataset choice
-dataset_from = input("Enter the dataset you want to use (e.g., 'glue'): ")
+dataset_from = input("Enter the dataset you want to use (e.g., 'glue'): ") or 'glue'
 
 # Prompt user for model name
-model_name = input("Enter the model name (e.g., 'bert-base-uncased'): ")
+model_name = input("Enter the model name (e.g., 'bert-base-uncased'): ") or 'bert-base-uncased'
 
 # Prompt user for dataset task
-dataset_task = input("Enter the dataset task (e.g., 'sst2'): ")
+dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
 
 # Prompt user for seed number
 seed_num = int(input("Enter the seed number (default is 42): ") or '42')
@@ -37,22 +37,13 @@ custom_dataloader = CustomDataLoader(
     range_to_select=100,  # Default value for now, you can prompt the user for this too if needed
     batch_size=8  # Default value for now, you can prompt the user for this too if needed
 )
-train_loader, test_loader, metric = custom_dataloader.get_custom_data_loaders()
+train_loader, val_loader, test_loader, metric = custom_dataloader.get_custom_data_loaders()
 
 # Train model
-trainer = CustomTrainer(original_model, train_loader, epochs=epochs)
+trainer = CustomTrainer(original_model, 
+    train_loader, 
+    val_loader, 
+    epochs=epochs)
 functional_model, params, buffers = trainer.train()  # Get functional model, params, and buffers
 
-# Evaluate model
-evaluator = CustomEvaluator(
-    original_model=original_model,
-    functional_model=functional_model,
-    params=params,
-    buffers=buffers,
-    test_loader=test_loader,
-    metric=metric
-)
-
-evaluation_results = evaluator.evaluate()
-
-print("Evaluation results:", evaluation_results)
+trainer.test(test_loader=test_loader)
