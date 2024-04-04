@@ -31,32 +31,37 @@ class CustomTrainer:
         opt_state = optimizer.init(self.params)   
 
         self.original_model.train()
+        # self.functional_model.train()
         for epoch in range(self.epochs):
             epoch_loss = 0.0  # Reset epoch loss for each epoch
             epoch_preds = []
             epoch_labels = []
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, data in progress_bar:
+                self.original_model.train()
                 progress_bar.set_description(f'Epoch {epoch+1}/{self.epochs}, Step {i}/{len(self.train_loader)}')
 
                 input_ids = data['input_ids'].squeeze().to(self.device)
                 attention_mask = data['attention_mask'].squeeze().to(self.device)
                 labels = data['labels'].squeeze().to(self.device)
 
-                # loss = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
-                loss = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
+                # Calculate loss, with params from previous iteration
+                loss, _ = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
                 epoch_loss += loss.item()  # Accumulate loss for each batch
 
+                # Calculate gradients based on loss value
                 grads = torch.autograd.grad(loss, self.params)
                 updates, opt_state = optimizer.update(grads, opt_state, self.params)
                 self.params = torchopt.apply_updates(self.params, updates, inplace=True)
 
+                # Bar responsible
                 progress_bar.set_postfix(loss=loss.item())
 
-                fmodel, _, __ = self.make_functional_with_buffers(mod=self.original_model, new_params_values=self.params, new_buffers_values=self.buffers)
-                preds = fmodel(input_ids=input_ids, attention_mask = attention_mask)
-
+                # Get predictions with updated params
+                self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(mod=self.original_model, new_params_values=self.params, new_buffers_values=self.buffers)
+                preds = self.functional_model(input_ids=input_ids, attention_mask = attention_mask)
                 predictions = torch.round(preds).to(torch.float32)
+
                 epoch_preds.extend(predictions.detach().cpu().numpy())
                 epoch_labels.extend(labels.detach().cpu().numpy())
 
@@ -81,12 +86,12 @@ class CustomTrainer:
         fmodel, _, __ = self.make_functional_with_buffers(mod=self.original_model, new_params_values=params, new_buffers_values=buffers)
         preds = fmodel(input_ids=input_ids, attention_mask = attention_mask)
         loss = torch.nn.functional.binary_cross_entropy(preds.squeeze().to(torch.float32), labels.squeeze().to(torch.float32))
-        return loss
+        return loss, preds
 
     def validate(self) -> Tuple[float, list, list]:
         # Implement validation check here, this will run per epoch, it is NOT a test functionality.
         # This function should return validation loss, predictions, and labels for validation set
-        self.original_model.eval()  # Set model to evaluation mode
+        # self.original_model.eval()  # Set model to evaluation mode
         val_loss = 0.0
         val_preds = []
         val_labels = []
@@ -99,9 +104,9 @@ class CustomTrainer:
                 attention_mask = data['attention_mask'].squeeze().to(self.device)
                 labels = data['labels'].squeeze().to(self.device)
 
-                fmodel, _, __ = self.make_functional_with_buffers(mod=self.original_model, new_params_values=self.params, new_buffers_values=self.buffers)
-                preds = fmodel(input_ids=input_ids, attention_mask = attention_mask)
-                loss = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
+                # fmodel, _, __ = self.make_functional_with_buffers(mod=self.original_model, new_params_values=self.params, new_buffers_values=self.buffers)
+                # preds = fmodel(input_ids=input_ids, attention_mask = attention_mask)
+                loss, preds = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
                 val_loss += loss.item()  # Accumulate validation loss
 
                 predictions = torch.round(preds).to(torch.float32)
@@ -128,9 +133,9 @@ class CustomTrainer:
                 attention_mask = data['attention_mask'].squeeze().to(self.device)
                 labels = data['labels'].squeeze().to(self.device)
 
-                fmodel, _, __ = self.make_functional_with_buffers(mod=self.original_model, new_params_values=self.params, new_buffers_values=self.buffers)
-                preds = fmodel(input_ids=input_ids, attention_mask = attention_mask)
-                loss = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
+                # fmodel, _, __ = self.make_functional_with_buffers(mod=self.original_model, new_params_values=self.params, new_buffers_values=self.buffers)
+                # preds = fmodel(input_ids=input_ids, attention_mask = attention_mask)
+                loss, preds = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
                 test_loss += loss.item()  # Accumulate test loss
 
                 predictions = torch.round(preds).to(torch.float32)
@@ -138,7 +143,7 @@ class CustomTrainer:
                 test_labels.extend(labels.detach().cpu().numpy())
 
         test_loss /= len(self.test_loader)  # Calculate average test loss
-        self.original_model.train() # Make train mode again for the next loop, if there is any
+        # self.original_model.train() # Make train mode again for the next loop, if there is any
 
         # Log test metrics
         self.logger.log_test_metrics(test_loss, test_preds, test_labels)
@@ -221,4 +226,6 @@ class CustomTrainer:
 
         if disable_autograd_tracking:
             params_values = torch.utils._pytree.tree_map(torch.Tensor.detach, params_values)
+
+        # del stateless_mod
         return fmodel, params_values, buffers_values
