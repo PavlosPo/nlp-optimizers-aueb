@@ -46,7 +46,7 @@ class CustomTrainer:
                 labels = data['labels'].squeeze().to(self.device)
 
                 # Calculate loss, with params from previous iteration
-                loss, _ = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
+                loss, _ = self.loss_fn(self.params, self.buffers, input_ids, attention_mask, labels)
                 epoch_loss += loss.item()  # Accumulate loss for each batch
 
                 # Calculate gradients based on loss value
