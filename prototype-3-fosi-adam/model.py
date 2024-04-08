@@ -41,7 +41,7 @@ class BertClassifier(nn.Module):
             probability = torch.sigmoid(logits.squeeze())
         else:
             # Apply softmax activation
-            probability = nn.functional.softmax(logits, dim=1)
+            probability = nn.functional.softmax(logits.squeeze(), dim=1)
         return probability
     
     def _get_tokenizer(self):
