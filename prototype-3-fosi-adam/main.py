@@ -25,7 +25,7 @@ set_seed(seed_num)
 # Load model
 original_model = BertClassifier(
     model_name=model_name,
-    num_classes=3 if dataset_task.startswith("mnli") else 1 if dataset_task == "stsb" else 2
+    num_classes=1
 )
 
 # Prepare dataset

@@ -38,6 +38,7 @@ class CustomDataLoader:
             "stsb": ("sentence1", "sentence2"),
             "wnli": ("sentence1", "sentence2"),
         }
+        
         self.sentence1_key, self.sentence2_key = self.task_to_keys[self.dataset_task]
 
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)

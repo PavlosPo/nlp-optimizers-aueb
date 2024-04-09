@@ -13,3 +13,5 @@
 
 # Ignore all the runs
 **/runs/**
+
+**/MNIST/** 

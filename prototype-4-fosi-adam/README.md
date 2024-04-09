@@ -1,0 +1,1 @@
+This is created in order to rebuild the functionality of prototype-3-fosi-adam experiment such that it will handle everything with a softmax, and not a sigmoid at the end. Leaving space for multi label classification and more.

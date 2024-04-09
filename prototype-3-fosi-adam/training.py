@@ -135,7 +135,7 @@ class CustomTrainer:
 
                 # fmodel, _, __ = self.make_functional_with_buffers(mod=self.original_model, new_params_values=self.params, new_buffers_values=self.buffers)
                 # preds = fmodel(input_ids=input_ids, attention_mask = attention_mask)
-                loss, preds = self.loss_fn(self.functional_model, self.params, self.buffers, input_ids, attention_mask, labels)
+                loss, preds = self.loss_fn(self.params, self.buffers, input_ids, attention_mask, labels)
                 test_loss += loss.item()  # Accumulate test loss
 
                 predictions = torch.round(preds).to(torch.float32)
