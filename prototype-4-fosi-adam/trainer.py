@@ -2,14 +2,16 @@ import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch import Tensor
+from jax import value_and_grad
 from typing import Tuple
 import torchopt
 from fosi import fosi_adam_torch
+import copy
 
 class CustomTrainer:
     def __init__(self, original_model: torch.nn.Module, 
                 train_loader: DataLoader, val_loader: DataLoader, test_loader: DataLoader,
-                criterion: torch.nn.Module,
+                criterion,
                 base_optimizer: torchopt.Optimizer = torchopt.adam(lr=0.01),
                 epochs: int = 1):
         self.original_model = original_model
@@ -17,57 +19,113 @@ class CustomTrainer:
         self.criterion = criterion
         self.train_loader = train_loader
         self.val_loader = val_loader
+        self.test_loader = test_loader
         self.epochs = epochs
+        self.params = None
+        self.buffers = None
+        self.optimizer = None
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def train(self):
+        
         self.original_model.train()
         self.original_model.to(self.device)
-
-        
+        # Get a batch of data to initialize the optimizer
+        # This is required to initialize the FOSI optimizer 
         data = next(iter(self.train_loader))
         self.optimizer = fosi_adam_torch(self.base_optimizer, self.loss_fn, data, num_iters_to_approx_eigs=500, alpha=0.01)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        
-        opt_state = self.optimizer.init(self.params) 
-
+        self.opt_state = self.optimizer.init(self.params)
+        val_loss_in_this_epoch = 0
         for epoch in range(self.epochs):
-            self.original_model.train()
-
+            # torch.set_grad_enabled(True)
             # Use tqdm for progress bar
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, batch in progress_bar:
+                torch.set_grad_enabled(True)
+                self.original_model.train()
+                self.params, self.opt_state, loss = self.step(self.params, self.buffers, batch, self.opt_state)
+                updates, self.opt_state = self.optimizer.update(self.grads, self.opt_state, self.params)
+                self.params = torchopt.apply_updates(self.params, updates, inplace=True)
 
-                self.params, opt_state, loss = self.step(self.params, batch, opt_state)
-                
+
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
-            self.evaluate(self.val_loader)
+            val_loss_in_this_epoch = self.evaluate(self.val_loader)
+            print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
+        test_loss = self.test(self.test_loader)
+        print(f"Test Loss: {test_loss}")
 
     def loss_fn(self, params: Tuple[Tensor], buffers: Tuple[Tensor], input_ids: Tensor, attention_mask: Tensor, labels: Tensor) -> Tensor:
-      # x, y = batch
-      # y_pred = apply_fn(params, x)
-      y_preds = self._get_preds(input_ids, attention_mask, params, buffers)
-      loss = self.criterion(y_preds, labels)  # Calculate the loss
-      return loss
+        apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
+        y_probs = apply_fn(input_ids=input_ids, attention_mask=attention_mask)
+        y_preds = torch.argmax(y_probs, axis=1)
+        loss = self.criterion(y_preds.to(torch.float32), labels.to(torch.float32))
+        return loss.to(device=self.device)
     
-    def step(self, params, batch, opt_state):
+    def step(self, params, buffers, batch, opt_state):
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
+        self.original_model.train()
+        # Calculate loss
+        loss = self.loss_fn(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
 
-        loss = self.loss_fn(params, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        print(f"Loss in step() method: {loss}")
+
+        print(f"Loss type in step() method: {type(loss)}")
+        print(f"params type in step() method: {type(params)}")
+        print(f"buffers type in step() method: {type(buffers)}")
         grads = torch.autograd.grad(loss, params)
+        # grads = value_and_grad(self.loss_fn)(params, buffers, input_ids, attention_mask, labels)[1]
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
-        new_params = torchopt.apply_updates(params, updates, inplace=True)
-        return new_params, opt_state, loss
+        params = torchopt.apply_updates(params, updates, inplace=True)
+
+        return params, opt_state, loss
+
     
-    def _get_preds(self, input_ids: Tensor, attention_mask: Tensor, params: Tuple[Tensor], buffers: Tuple[Tensor]) -> Tensor:
-      self.original_model.to(self.device)
-      self.original_model.eval()
-      with torch.no_grad():
-          apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers)
-          y_preds = apply_fn(input_ids, attention_mask)
-      return y_preds
+    def evaluate(self, val_loader: DataLoader = None):
+        assert val_loader is None, "Validation loader is required for evaluation"
+        progress_bar = tqdm(enumerate(val_loader, 0), total=len(val_loader))
+        self.original_model.eval()
+        total_loss = 0
+        for i, batch in progress_bar:
+            loss = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
+            total_loss += loss.item()
+            progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
+            # print(f"Validation Loss: {total_loss/len(val_loader)}")
+        return torch.mean(total_loss/len(val_loader))
+            
+    def test(self, test_loader: DataLoader = None):
+        assert test_loader is None, "Test loader is required for testing"
+        progress_bar = tqdm(enumerate(test_loader, 0), total=len(test_loader))
+        self.original_model.eval()
+        total_loss = 0
+        for i, batch in progress_bar:
+            loss = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
+            total_loss += loss.item()
+            progress_bar.set_description(f"Test Epoch: {i+1}, Test Loss: {loss.item():.4f}")
+            # print(f"Test Loss: {total_loss/len(test_loader)}")
+        return torch.mean(total_loss/len(test_loader))
+
+
+
+    
+    def _get_preds(self, input_ids: Tensor, attention_mask: Tensor, new_params: Tuple[Tensor], new_buffers: Tuple[Tensor]) -> Tensor:
+    #   self.original_model.eval()
+        apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=new_params, new_buffers_values=new_buffers, disable_autograd_tracking=False)
+        y_probs = apply_fn(input_ids=input_ids, attention_mask=attention_mask)
+        # y_probs = apply_fn(input_ids=input_ids, attention_mask=attention_mask).logits
+
+        # print params without grad_fn
+        # print(f"Params without grad_fn: {self.check_params_without_grad_fn(params)}")
+        # print params with grad_fn
+        # print(f"Params with grad_fn: {self.check_params_with_grad_fn(params)}")
+
+        print(f"\ny_probs in _get_preds() method: {y_probs}")
+        print(f"\ny_probs shape in _get_preds() method: {y_probs.shape}")
+        y_preds = torch.argmax(y_probs, axis=1)
+        print(f"\ny_preds in _get_preds() method: {y_preds}")
+        return y_preds
 
     def make_functional_with_buffers(self, mod, new_params_values=None, new_buffers_values=None, disable_autograd_tracking=False):
 
@@ -127,5 +185,19 @@ class CustomTrainer:
         if disable_autograd_tracking:
             params_values = torch.utils._pytree.tree_map(torch.Tensor.detach, params_values)
 
-        # del stateless_mod
         return fmodel, params_values, buffers_values
+    
+    def check_params_without_grad_fn(self, params):
+        params_without_grad_fn = []
+        for param in params:
+            if param.grad_fn is None:
+                params_without_grad_fn.append(param)
+        return params_without_grad_fn
+
+    def check_params_with_grad_fn(self, params):
+        params_with_grad_fn = []
+        for param in params:
+            if param.grad_fn is not None:
+                params_with_grad_fn.append(param)
+        return params_with_grad_fn
+    

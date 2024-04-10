@@ -5,17 +5,22 @@ from datasets import load_dataset, concatenate_datasets
 import evaluate
 from typing import Tuple
 
+torch.set_default_dtype(torch.float32)
+
 class CustomDataLoader:
-    def __init__(self, dataset_task : str = "cola", 
+    def __init__(self, 
+                dataset_from :str = "glue",
+                dataset_task : str = "cola", 
                 model_name: str = "distilbert-base-uncased",
                 tokenizer: AutoTokenizer = None, 
                 seed_num: int = 1, range_to_select: int | None = None, batch_size: int = 8) -> None:
       self.dataset_task = dataset_task
+      self.dataset_from = dataset_from
       self.model_name = model_name
       self.seed_num = seed_num
       self.range_to_select = range_to_select
       self.batch_size = batch_size
-      self.tokenizer = tokenizer
+      self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
       self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer, padding=True)
       self.metric = evaluate.load(self.dataset_from, self.dataset_task)
 
@@ -39,9 +44,18 @@ class CustomDataLoader:
       dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
       dataset = concatenate_datasets([dataset["train"], dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
        
-      train_dataset = dataset['train'].select(range(self.range_to_select)).rename_column('label', 'labels')
-      val_dataset = dataset['train'].select(range(self.range_to_select, 2*self.range_to_select)).rename_column('label', 'labels')
-      test_dataset = dataset['test'].select(range(self.range_to_select)).rename_column('label', 'labels')
+      # train_dataset = dataset['train'].select(range(self.range_to_select)).rename_column('label', 'labels')
+      # val_dataset = dataset['train'].select(range(self.range_to_select, 2*self.range_to_select)).rename_column('label', 'labels')
+      # test_dataset = dataset['test'].select(range(self.range_to_select)).rename_column('label', 'labels')
+
+      train_dataset = dataset['train'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+      val_dataset = dataset['train'].select(range(self.range_to_select, 2*self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+      test_dataset = dataset['train'].select(range(2*self.range_to_select, 3*self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+      # We should not use the test dataset for training
+      # Because we do not know the real labels of the test dataset
+      # because this is a benchmark, only known to the creators of the dataset
+      # test_dataset = dataset['test'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+
 
       train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
       val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
