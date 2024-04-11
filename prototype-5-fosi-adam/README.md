@@ -1,0 +1,1 @@
+Here we will try to make the prototype-3 model as a softmax, This is copied and altered from prototype-3 because the prototype-4 has problem calculating gradients for some reason.

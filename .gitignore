@@ -1,0 +1,21 @@
+# ignore data and checkpoints folders
+./1/
+./data/
+../MNIST/
+../nlp-optimizers/lightning-experiments/MNIST/
+../nlp-optimizers/lightning-experiments-2/logs/
+
+# ignore any log folder
+**/logs/**
+```
+# Ignore all `__pycache__` folders.
+**/__pycache__/**
+
+# Ignore all the runs
+**/runs/**
+
+**/MNIST/** 
+
+**/datasets/** 
+
+fosi.zip
