@@ -28,7 +28,7 @@ original_model = BertClassifier(
     num_labels=2
 )
 
-print(f"Model: {original_model}")
+# print(f"Model: {original_model}")
 
 # Prepare dataset
 custom_dataloader = CustomDataLoader(
@@ -46,8 +46,7 @@ trainer = CustomTrainer(original_model,
     train_loader, 
     val_loader,
     test_loader,
-    criterion=torch.nn.functional.binary_cross_entropy,
+    criterion=torch.nn.CrossEntropyLoss(),
     epochs=epochs)
-functional_model, params, buffers = trainer.train()  # Get functional model, params, and buffers
 
-trainer.test(test_loader=test_loader)
+trainer.train_val_test()  # Get functional model, params, and buffers
