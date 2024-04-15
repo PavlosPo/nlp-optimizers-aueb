@@ -36,8 +36,8 @@ custom_dataloader = CustomDataLoader(
     model_name=model_name,
     dataset_task=dataset_task,
     seed_num=seed_num,
-    range_to_select=200,  # Default value for now, you can prompt the user for this too if needed
-    batch_size=8  # Default value for now, you can prompt the user for this too if needed
+    range_to_select=1000,  # Default value for now, you can prompt the user for this too if needed
+    batch_size=64  # Default value for now, you can prompt the user for this too if needed
 )
 train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loaders()
 
