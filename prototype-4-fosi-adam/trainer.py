@@ -7,13 +7,15 @@ from typing import Tuple
 import torchopt
 from fosi import fosi_adam_torch
 import copy
+from icecream import ic
 
 class CustomTrainer:
     def __init__(self, original_model: torch.nn.Module, 
                 train_loader: DataLoader, val_loader: DataLoader, test_loader: DataLoader,
                 criterion,
                 base_optimizer = torchopt.adam(lr=0.01),
-                epochs: int = 1):
+                epochs: int = 1,
+                num_classes: int = 2):
         self.original_model = original_model
         self.base_optimizer = base_optimizer
         self.criterion = criterion
@@ -24,6 +26,7 @@ class CustomTrainer:
         self.params = None
         self.buffers = None
         self.optimizer = None
+        self.num_classes = num_classes
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     def train_val_test(self):
@@ -55,17 +58,11 @@ class CustomTrainer:
 
     def loss_fn(self, params: Tuple[Tensor], buffers: Tuple[Tensor], input_ids: Tensor, attention_mask: Tensor, labels: Tensor) -> Tensor:
         apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
-        logits = apply_fn(input_ids=input_ids, attention_mask=attention_mask).squeeze().to(self.device)
-        one_hot = torch.nn.functional.one_hot(labels, num_classes=2).to(self.device)
-        y_preds, y_probs = self._get_preds(input_ids, attention_mask, params, buffers)
-        # print(f"y_probs in train_val_test() method: {y_probs}")
-        print(f"\ny_preds in train_val_test() method: {y_preds}")
-
-
-        print(f"Labels: {one_hot}")
-        loss = torch.nn.CrossEntropyLoss()(logits, one_hot).to(device=self.device)
+        preds = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        loss = torch.nn.CrossEntropyLoss()(preds.squeeze(), labels.squeeze()).to(self.device)
         return loss
     
+
     def step(self, params, buffers, batch, opt_state):
         self.original_model.train()
         input_ids = batch['input_ids'].to(self.device)
@@ -73,7 +70,7 @@ class CustomTrainer:
         labels = batch['labels'].to(self.device)
         # Calculate loss
         loss = self.loss_fn(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-        grads = torch.autograd.grad(loss, params, retain_graph=True, create_graph=True)
+        grads = torch.autograd.grad(loss, params)
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
         params = torchopt.apply_updates(params, updates, inplace=True)
         return params, opt_state, loss
@@ -107,12 +104,12 @@ class CustomTrainer:
 
 
     
-    def _get_preds(self, input_ids: Tensor, attention_mask: Tensor, new_params: Tuple[Tensor], new_buffers: Tuple[Tensor]) -> Tensor:
-        with torch.no_grad():
-            apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=new_params, new_buffers_values=new_buffers, disable_autograd_tracking=False)
-            y_probs = apply_fn(input_ids=input_ids, attention_mask=attention_mask)
-            y_preds = torch.argmax(y_probs.squeeze(), dim=0).to(device=self.device)
-            return y_preds, y_probs
+    # def _get_preds(self, input_ids: Tensor, attention_mask: Tensor, new_params: Tuple[Tensor], new_buffers: Tuple[Tensor]) -> Tensor:
+    #     with torch.no_grad():
+    #         apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=new_params, new_buffers_values=new_buffers, disable_autograd_tracking=False)
+    #         y_probs = apply_fn(input_ids=input_ids, attention_mask=attention_mask)
+    #         y_preds = torch.argmax(y_probs.squeeze(), dim=1).to(torch.float32).to(device=self.device)
+    #         return  y_preds, y_probs
 
     def make_functional_with_buffers(self, mod, new_params_values=None, new_buffers_values=None, disable_autograd_tracking=False):
 
