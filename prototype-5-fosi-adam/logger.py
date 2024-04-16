@@ -42,12 +42,12 @@ class CustomLogger:
 
     def custom_log(self, epoch, batch_idx, loss, outputs, labels):
         # Clone outputs and labels to avoid modifying the original tensors
-        ic(outputs)
+        # ic(outputs)
         outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
         labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
         # Apply softmax to the outputs and then take argmax
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
-        ic(outputs_softmax)
+        # ic(outputs_softmax)
         outputs_argmax = np.argmax(outputs_softmax, axis=1)
         ic(outputs_argmax)
         ic(labels)
@@ -81,13 +81,13 @@ class CustomLogger:
 
     def custom_log_validation(self, epoch, batch_idx, loss, outputs, labels):
         # Clone outputs and labels to avoid modifying the original tensors
-        ic(outputs)
+        # ic(outputs)
         outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
         labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
         
         # Apply softmax to the outputs and then take argmax
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
-        ic(outputs_softmax)
+        # ic(outputs_softmax)
         outputs_argmax = np.argmax(outputs_softmax, axis=1)
         ic(outputs_argmax)
         ic(labels)
@@ -119,13 +119,13 @@ class CustomLogger:
 
     def custom_log_test(self, batch_idx, loss, outputs, labels, epoch=0):
         # Clone outputs and labels to avoid modifying the original tensors
-        ic(outputs)
+        # ic(outputs)
         outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
         labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
         
         # Apply softmax to the outputs and then take argmax
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
-        ic(outputs_softmax)
+        # ic(outputs_softmax)
         outputs_argmax = np.argmax(outputs_softmax, axis=1)
         ic(outputs_argmax)
         ic(labels)
