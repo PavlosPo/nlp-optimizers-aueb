@@ -1,6 +1,6 @@
 import torch
-import torch_xla    # This is the PyTorch-XLA package that works onluy in the server not need to install in the local machine
-import torch_xla.core.xla_model as xm # This is the PyTorch-XLA package that works onluy in the server not need to install in the local machine
+# import torch_xla    # This is the PyTorch-XLA package that works onluy in the server not need to install in the local machine
+# import torch_xla.core.xla_model as xm # This is the PyTorch-XLA package that works onluy in the server not need to install in the local machine
 import random
 import numpy as np
 from icecream import ic
@@ -33,8 +33,8 @@ def set_seed(seed: int):
 def select_device():
     if torch.cuda.is_available():
         device = torch.device("cuda")
-    elif xm.xla_device():
-        device = torch.device("xla")
+    # elif xm.xla_device():
+    #     device = torch.device("xla")
     else:
         device = torch.device("cpu")
     ic(device)
