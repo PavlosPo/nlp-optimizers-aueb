@@ -27,7 +27,9 @@ class CustomTrainer:
         self.optimizer = None
         self.num_classes = num_classes
         self.device = device
-        self.logger = CustomLogger(len_train_loader=len(self.train_loader))
+        self.logger = CustomLogger(len_train_loader=len(self.train_loader), 
+                                   len_validation_loader=len(self.val_loader), 
+                                   len_test_loader=len(self.test_loader))
 
 
     def train_val_test(self):
@@ -57,6 +59,7 @@ class CustomTrainer:
             val_loss_in_this_epoch = self.evaluate(self.val_loader)
             print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
         test_loss = self.test(self.test_loader)
+        self.logger.close()
         print(f"Test Loss: {test_loss}")
 
     def loss_fn(self, params: Tuple[Tensor], buffers: Tuple[Tensor], input_ids: Tensor, attention_mask: Tensor, labels: Tensor) -> Tensor:
@@ -88,6 +91,7 @@ class CustomTrainer:
             with torch.no_grad():
                 loss, logits = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 total_loss += loss.item()
+                self.logger.custom_log_validation(epoch=0, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
             progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
         return torch.mean(torch.tensor(total_loss).to(self.device)/len(val_loader))
             
@@ -99,6 +103,7 @@ class CustomTrainer:
         for i, batch in progress_bar:
             with torch.no_grad():
                 loss, logits = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
+                self.logger.custom_log_test(batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
             total_loss += loss.item()
             progress_bar.set_description(f"Test Epoch: {i+1}, Test Loss: {loss.item():.4f}")
             # print(f"Test Loss: {total_loss/len(test_loader)}")

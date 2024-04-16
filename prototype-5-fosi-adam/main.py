@@ -14,7 +14,7 @@ model_name = input("Enter the model name (e.g., 'bert-base-uncased'): ") or 'ber
 dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
 
 # Prompt user for seed number
-seed_num = int(input("Enter the seed number (default is 42): ") or '42')
+seed_num = int(input("Enter the seed number (default is 42): ") or '1')
 
 try:
     range_to_select = int(input("Enter the range to select (default is None): ")) 
