@@ -2,7 +2,6 @@ from transformers import AutoTokenizer, DataCollatorWithPadding
 from torch.utils.data import DataLoader
 import torch
 from datasets import load_dataset, concatenate_datasets
-import evaluate
 from typing import Tuple
 
 torch.set_default_dtype(torch.float32)
@@ -22,7 +21,7 @@ class CustomDataLoader:
       self.batch_size = batch_size
       self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
       self.data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer, padding=True)
-      self.metric = evaluate.load(self.dataset_from, self.dataset_task)
+      # self.metric = evaluate.load(self.dataset_from, self.dataset_task)
 
       self.GLUE_TASKS = ["cola", "mnli", "mnli-mm", "mrpc", "qnli", "qqp", "rte", "sst2", "stsb", "wnli"]
       self.task_to_keys = {
@@ -40,7 +39,7 @@ class CustomDataLoader:
       
       self.sentence1_key, self.sentence2_key = self.task_to_keys[self.dataset_task]
 
-    def get_custom_data_loaders(self) -> Tuple[DataLoader, DataLoader, DataLoader, evaluate.Metric]:
+    def get_custom_data_loaders(self) -> Tuple[DataLoader, DataLoader, DataLoader]:
       dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
       dataset = concatenate_datasets([dataset["train"], dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
 

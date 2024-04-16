@@ -2,12 +2,10 @@ import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torch import Tensor
-from jax import value_and_grad
 from typing import Tuple
 import torchopt
 from fosi import fosi_adam_torch
 import copy
-from icecream import ic
 
 class CustomTrainer:
     def __init__(self, original_model: torch.nn.Module, 

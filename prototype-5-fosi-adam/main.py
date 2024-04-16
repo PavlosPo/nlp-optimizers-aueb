@@ -2,7 +2,7 @@ import torch
 from model import BertClassifier
 from dataset import CustomDataLoader
 from trainer import CustomTrainer
-from utils import set_seed, select_device
+from utils import set_seed
 
 # Prompt user for dataset choice
 dataset_from = input("Enter the dataset you want to use (e.g., 'glue'): ") or 'glue'
@@ -16,6 +16,8 @@ dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
 # Prompt user for seed number
 seed_num = int(input("Enter the seed number (default is 42): ") or '42')
 
+range_to_select = input("Enter the range to select (default is None): ") or None
+
 # Prompt user for number of epochs
 epochs = int(input("Enter the number of epochs (default is 2): ") or '2')
 
@@ -23,7 +25,7 @@ epochs = int(input("Enter the number of epochs (default is 2): ") or '2')
 set_seed(seed_num)
 
 # Set device
-device = select_device()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Load model
 original_model = BertClassifier(
@@ -40,7 +42,7 @@ custom_dataloader = CustomDataLoader(
     model_name=model_name,
     dataset_task=dataset_task,
     seed_num=seed_num,
-    range_to_select=None,  # Default value for now, you can prompt the user for this too if needed
+    range_to_select=range_to_select,  # Default value for now, you can prompt the user for this too if needed
     batch_size=256  # Default value for now, you can prompt the user for this too if needed
 )
 train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loaders()
