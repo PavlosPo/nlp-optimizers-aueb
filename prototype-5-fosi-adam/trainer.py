@@ -6,6 +6,7 @@ from typing import Tuple
 import torchopt
 from fosi import fosi_adam_torch
 import copy
+from logger import CustomLogger
 
 class CustomTrainer:
     def __init__(self, original_model: torch.nn.Module, 
@@ -26,6 +27,7 @@ class CustomTrainer:
         self.optimizer = None
         self.num_classes = num_classes
         self.device = device
+        self.logger = CustomLogger(len_train_loader=len(self.train_loader))
 
 
     def train_val_test(self):
@@ -46,8 +48,10 @@ class CustomTrainer:
             for i, batch in progress_bar:
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.original_model.train()
-                self.params, self.opt_state, loss = self.step(self.params, self.buffers, batch, self.opt_state)
-                # print how many 1s, 0s the model correctly predicted
+                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+
+                # Log metrics for the current batch
+                self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
 
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
             val_loss_in_this_epoch = self.evaluate(self.val_loader)
@@ -57,9 +61,9 @@ class CustomTrainer:
 
     def loss_fn(self, params: Tuple[Tensor], buffers: Tuple[Tensor], input_ids: Tensor, attention_mask: Tensor, labels: Tensor) -> Tensor:
         apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
-        preds = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
-        loss = torch.nn.CrossEntropyLoss()(preds.squeeze(), labels.squeeze()).to(self.device)
-        return loss
+        logits = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
+        return loss, logits
     
 
     def step(self, params, buffers, batch, opt_state):
@@ -68,11 +72,11 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         # Calculate loss
-        loss = self.loss_fn(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        loss, logits = self.loss_fn(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         grads = torch.autograd.grad(loss, params)
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
         params = torchopt.apply_updates(params, updates, inplace=True)
-        return params, opt_state, loss
+        return params, opt_state, loss, logits
 
     
     def evaluate(self, val_loader: DataLoader = None):
@@ -82,7 +86,7 @@ class CustomTrainer:
         total_loss = 0
         for i, batch in progress_bar:
             with torch.no_grad():
-                loss = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
+                loss, logits = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 total_loss += loss.item()
             progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
         return torch.mean(torch.tensor(total_loss).to(self.device)/len(val_loader))
@@ -94,7 +98,7 @@ class CustomTrainer:
         total_loss = 0
         for i, batch in progress_bar:
             with torch.no_grad():
-                loss = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
+                loss, logits = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
             total_loss += loss.item()
             progress_bar.set_description(f"Test Epoch: {i+1}, Test Loss: {loss.item():.4f}")
             # print(f"Test Loss: {total_loss/len(test_loader)}")

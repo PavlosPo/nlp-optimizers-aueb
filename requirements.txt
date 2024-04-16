@@ -9,3 +9,5 @@ jaxlib
 optax
 matplotlib
 scikit-learn
+icecream
+tensorboard

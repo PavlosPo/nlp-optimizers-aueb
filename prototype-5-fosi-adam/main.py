@@ -16,7 +16,12 @@ dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
 # Prompt user for seed number
 seed_num = int(input("Enter the seed number (default is 42): ") or '42')
 
-range_to_select = input("Enter the range to select (default is None): ") or None
+try:
+    range_to_select = int(input("Enter the range to select (default is None): ")) 
+except ValueError:
+    range_to_select = None
+
+batch_size = int(input("Enter the batch size (default is 8): ") or '8')
 
 # Prompt user for number of epochs
 epochs = int(input("Enter the number of epochs (default is 2): ") or '2')
@@ -43,7 +48,7 @@ custom_dataloader = CustomDataLoader(
     dataset_task=dataset_task,
     seed_num=seed_num,
     range_to_select=range_to_select,  # Default value for now, you can prompt the user for this too if needed
-    batch_size=256  # Default value for now, you can prompt the user for this too if needed
+    batch_size=batch_size  # Default value for now, you can prompt the user for this too if needed
 )
 train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loaders()
 
