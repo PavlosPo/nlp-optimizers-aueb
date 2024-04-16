@@ -1,7 +1,6 @@
 torch
 torchvision
 torchopt
-torch_xla
 transformers
 datasets
 evaluate
@@ -10,4 +9,3 @@ jaxlib
 optax
 matplotlib
 scikit-learn
-
