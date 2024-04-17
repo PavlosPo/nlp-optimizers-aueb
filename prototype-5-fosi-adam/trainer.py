@@ -62,7 +62,7 @@ class CustomTrainer:
         self.logger.close()
         print(f"Test Loss: {test_loss}")
 
-    def loss_fn(self, params: Tuple[Tensor], buffers: Tuple[Tensor], input_ids: Tensor, attention_mask: Tensor, labels: Tensor) -> Tensor:
+    def loss_fn(self, params: Tuple[Tensor], buffers: Tuple[Tensor], input_ids: Tensor, attention_mask: Tensor, labels: Tensor) -> Tuple[Tensor, Tensor]:
         apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
         logits = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)

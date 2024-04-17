@@ -11,9 +11,6 @@
 # Ignore all `__pycache__` folders.
 **/__pycache__/**
 
-# Ignore all the runs
-**/runs/**
-
 **/MNIST/** 
 
 **/datasets/** 
