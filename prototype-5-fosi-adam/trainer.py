@@ -14,7 +14,8 @@ class CustomTrainer:
                 criterion, device: torch.device,
                 base_optimizer = torchopt.adam(lr=0.00001),
                 epochs: int = 1,
-                num_classes: int = 2):
+                num_classes: int = 2,
+                approx_k = 20):
         self.original_model = original_model
         self.base_optimizer = base_optimizer
         self.criterion = criterion
@@ -27,6 +28,7 @@ class CustomTrainer:
         self.optimizer = None
         self.num_classes = num_classes
         self.device = device
+        self.approx_k = approx_k
         self.logger = CustomLogger(len_train_loader=len(self.train_loader), 
                                    len_validation_loader=len(self.val_loader), 
                                    len_test_loader=len(self.test_loader))
@@ -40,7 +42,7 @@ class CustomTrainer:
         # Get a batch of data to initialize the optimizer
         # This is required to initialize the FOSI optimizer 
         data = next(iter(self.train_loader))
-        self.optimizer = fosi_adam_torch(self.base_optimizer, self.loss_fn, data, approx_k=20 ,num_iters_to_approx_eigs=500, alpha=0.01)
+        self.optimizer = fosi_adam_torch(self.base_optimizer, self.loss_fn, data, approx_k=self.approx_k ,num_iters_to_approx_eigs=500, alpha=0.01)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)

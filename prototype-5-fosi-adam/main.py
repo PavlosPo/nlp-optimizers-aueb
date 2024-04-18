@@ -16,6 +16,8 @@ dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
 # Prompt user for seed number
 seed_num = int(input("Enter the seed number (default is 42): ") or '1')
 
+approx_k = int(input("Enter the number of max eigenvalues to approximate (default is 20): ") or '20')
+
 try:
     range_to_select = int(input("Enter the range to select (default is None): ")) 
 except ValueError:
@@ -59,6 +61,7 @@ trainer = CustomTrainer(original_model,
     test_loader,
     epochs=epochs,
     criterion=torch.nn.CrossEntropyLoss(),  # This is not be applied , it is hardcoded for now
-    device=device)
+    device=device,
+    approx_k=approx_k)
 
 trainer.train_val_test()  # Get functional model, params, and buffers
