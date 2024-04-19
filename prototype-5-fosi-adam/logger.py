@@ -169,8 +169,8 @@ class CustomLogger:
                          epochs: int, 
                          k_approx: int, 
                          num_of_optimizer_iterations: int, 
-                         range_to_select: int, 
-                         seed_num: int):
+                         seed_num: int,
+                         range_to_select: int):
         # Log dataset information
         self.writer.add_text('Dataset Information', f'Dataset Name: {dataset_name}')
         self.writer.add_text('Dataset Information', f'Dataset Task: {dataset_task}')

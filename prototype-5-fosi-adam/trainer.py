@@ -168,6 +168,8 @@ class CustomTrainer:
         optimizer_name = self.optimizer.__name__
         num_of_optimizer_iterations = self.num_of_fosi_optimizer_iterations
         num_classes = self.num_classes
+        if range_to_select is None:
+            range_to_select = 'All Dataset'
         # Create a dictionary using locals() = local variables
         self.additional_information = {key: value for key, value in locals().items() if key != 'self' and value is not None}
         ic(self.additional_information)
