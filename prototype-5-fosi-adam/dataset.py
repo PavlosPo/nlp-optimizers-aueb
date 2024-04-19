@@ -57,11 +57,8 @@ class CustomDataLoader:
         test_dataset = dataset['test'].remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
       else: # Use a subset of the dataset
         train_dataset = dataset['train'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
-        val_dataset = dataset['validation'].select(range(self.range_to_select, 2*self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["validation"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
-        test_dataset = dataset['test'].select(range(self.range_to_select, 2*self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
-
-      # ic(len(train_dataset), len(val_dataset), len(test_dataset))
-      # ic(train_dataset.column_names, val_dataset.column_names, test_dataset.column_names)
+        val_dataset = dataset['validation'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["validation"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+        test_dataset = dataset['test'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
 
       train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
       val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)

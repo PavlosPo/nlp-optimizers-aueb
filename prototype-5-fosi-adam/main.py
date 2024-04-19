@@ -16,10 +16,10 @@ dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
 # Prompt user for seed number
 seed_num = int(input("Enter the seed number (default is 42): ") or '1')
 
-approx_k = int(input("Enter the number of max eigenvalues to approximate (default is 20): ") or '20')
+k_approx = int(input("Enter the number of max eigenvalues to approximate (default is 20): ") or '20')
 
 try:
-    range_to_select = int(input("Enter the range to select (default is None): ")) 
+    range_to_select = int(input("Enter the range to select (default is All Dataset): ")) 
 except ValueError:
     range_to_select = None
 
@@ -62,6 +62,23 @@ trainer = CustomTrainer(original_model,
     epochs=epochs,
     criterion=torch.nn.CrossEntropyLoss(),  # This is not be applied , it is hardcoded for now
     device=device,
-    approx_k=approx_k)
+    approx_k=k_approx)
+
+trainer.give_additional_data_for_logging(
+        dataset_name=dataset_from,
+        dataset_task=dataset_task,
+        dataset_size=len(train_loader.dataset) + len(val_loader.dataset) + len(test_loader.dataset),
+        test_dataset_size=len(test_loader.dataset),
+        validation_dataset_size=len(val_loader.dataset),
+        train_dataset_size=len(train_loader.dataset),
+        k_approx=k_approx,
+        seed_num=seed_num,
+        range_to_select=range_to_select,
+        batch_size=batch_size,
+        epochs=epochs,
+    )
+trainer.init_information_logger()
+
+
 
 trainer.train_val_test()  # Get functional model, params, and buffers

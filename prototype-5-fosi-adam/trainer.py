@@ -7,17 +7,22 @@ import torchopt
 from fosi import fosi_adam_torch
 import copy
 from logger import CustomLogger
+from icecream import ic
 
 class CustomTrainer:
     def __init__(self, original_model: torch.nn.Module, 
                 train_loader: DataLoader, val_loader: DataLoader, test_loader: DataLoader,
                 criterion, device: torch.device,
-                base_optimizer = torchopt.adam(lr=0.00001),
+                base_optimizer = torchopt.adam,
+                base_optimizer_lr: float = 0.0001,
+                num_of_fosi_optimizer_iterations: int = 500,
                 epochs: int = 1,
                 num_classes: int = 2,
                 approx_k = 20):
         self.original_model = original_model
-        self.base_optimizer = base_optimizer
+        self.base_optimizer_lr = base_optimizer_lr
+        self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
+        self.num_of_fosi_optimizer_iterations = num_of_fosi_optimizer_iterations
         self.criterion = criterion
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -25,13 +30,16 @@ class CustomTrainer:
         self.epochs = epochs
         self.params = None
         self.buffers = None
-        self.optimizer = None
+        self.optimizer = fosi_adam_torch
         self.num_classes = num_classes
         self.device = device
         self.approx_k = approx_k
         self.logger = CustomLogger(len_train_loader=len(self.train_loader), 
                                    len_validation_loader=len(self.val_loader), 
                                    len_test_loader=len(self.test_loader))
+        self.additional_information = {}
+        
+
 
 
     def train_val_test(self):
@@ -42,7 +50,12 @@ class CustomTrainer:
         # Get a batch of data to initialize the optimizer
         # This is required to initialize the FOSI optimizer 
         data = next(iter(self.train_loader))
-        self.optimizer = fosi_adam_torch(self.base_optimizer, self.loss_fn, data, approx_k=self.approx_k ,num_iters_to_approx_eigs=500, alpha=0.01)
+        self.optimizer = self.optimizer(self.base_optimizer, 
+                                         self.loss_fn, 
+                                         data, 
+                                         approx_k=self.approx_k ,
+                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, 
+                                         alpha=0.01)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
@@ -110,16 +123,61 @@ class CustomTrainer:
             progress_bar.set_description(f"Test Epoch: {i+1}, Test Loss: {loss.item():.4f}")
             # print(f"Test Loss: {total_loss/len(test_loader)}")
         return torch.mean(torch.tensor(total_loss).to(self.device)/len(test_loader))
-
-
-
     
-    # def _get_preds(self, input_ids: Tensor, attention_mask: Tensor, new_params: Tuple[Tensor], new_buffers: Tuple[Tensor]) -> Tensor:
-    #     with torch.no_grad():
-    #         apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=new_params, new_buffers_values=new_buffers, disable_autograd_tracking=False)
-    #         y_probs = apply_fn(input_ids=input_ids, attention_mask=attention_mask)
-    #         y_preds = torch.argmax(y_probs.squeeze(), dim=1).to(torch.float32).to(device=self.device)
-    #         return  y_preds, y_probs
+    def give_additional_data_for_logging(self, 
+                                        dataset_name: str = None,
+                                        dataset_task: str = None,
+                                        dataset_size: int = None,
+                                        test_dataset_size: int = None,
+                                        validation_dataset_size: int = None,
+                                        train_dataset_size: int = None,
+                                        num_classes: int = None,
+                                        optimizer_name: str = None,
+                                        base_optimizer_name: str = None,
+                                        learning_rate_of_base_optimizer: float = None,
+                                        batch_size: int = None,
+                                        epochs: int = None,
+                                        k_approx: int = None,
+                                        num_of_optimizer_iterations: int = None,
+                                        range_to_select: int = None,
+                                        seed_num: int = None) -> None: 
+        """Creates config file for the experiment
+
+        Args:
+            dataset_name (str, optional): _description_. Defaults to None.
+            dataset_task (str, optional): _description_. Defaults to None.
+            dataset_size (int, optional): _description_. Defaults to None.
+            test_dataset_size (int, optional): _description_. Defaults to None.
+            validation_dataset_size (int, optional): _description_. Defaults to None.
+            train_dataset_size (int, optional): _description_. Defaults to None.
+            num_labels (int, optional): _description_. Defaults to None.
+            num_classes (int, optional): _description_. Defaults to None.
+            optimizer_name (str, optional): _description_. Defaults to None.
+            base_optimizer_name (str, optional): _description_. Defaults to None.
+            learning_rate_of_base_optimizer (float, optional): _description_. Defaults to None.
+            batch_size (int, optional): _description_. Defaults to None.
+            epochs (int, optional): _description_. Defaults to None.
+            k_approx (int, optional): _description_. Defaults to None.
+            num_of_optimizer_iterations (int, optional): _description_. Defaults to None.
+            range_to_select (int, optional): _description_. Defaults to None.
+            seed_num (int, optional): _description_. Defaults to None.
+        """
+
+        base_optimizer_name = type(self.base_optimizer).__name__
+        learning_rate_of_base_optimizer = self.base_optimizer_lr
+        optimizer_name = self.optimizer.__name__
+        num_of_optimizer_iterations = self.num_of_fosi_optimizer_iterations
+        num_classes = self.num_classes
+        # Create a dictionary using locals() = local variables
+        self.additional_information = {key: value for key, value in locals().items() if key != 'self' and value is not None}
+        ic(self.additional_information)
+
+    def init_information_logger(self):
+        # ic(self.additional_information)
+        # ic(**self.additional_information)
+        if self.additional_information:
+            # Dictionary is not empty
+            self.logger.log_additional_information(**self.additional_information)
 
     def make_functional_with_buffers(self, mod, new_params_values=None, new_buffers_values=None, disable_autograd_tracking=False):
 
@@ -152,17 +210,6 @@ class CustomTrainer:
         
         stateless_mod = copy.deepcopy(mod)
         stateless_mod.to('meta')
-
-        # def fmodel(new_params_values=new_buffers_values, new_buffers_values=new_buffers_values, *args, **kwargs):
-        #     if new_params_values is None:
-        #         # This is the first call to the functional model
-        #         new_params_values = params_values
-        #     if new_buffers_values is None:
-        #         # This is the first call to the functional model
-        #         new_buffers_values = buffers_values
-        #     new_params_dict = {name: value for name, value in zip(params_names, new_params_values)}
-        #     new_buffers_dict = {name: value for name, value in zip(buffers_names, new_buffers_values)}
-        #     return torch.func.functional_call(stateless_mod, (new_params_dict, new_buffers_dict), args, kwargs)
         
         # Inner function
         def fmodel(new_params_values=new_params_values, new_buffers_values=new_buffers_values, *args, **kwargs):
@@ -180,18 +227,4 @@ class CustomTrainer:
             params_values = torch.utils._pytree.tree_map(torch.Tensor.detach, params_values)
 
         return fmodel, params_values, buffers_values
-    
-    # def check_params_without_grad_fn(self, params):
-    #     params_without_grad_fn = []
-    #     for param in params:
-    #         if param.grad_fn is None:
-    #             params_without_grad_fn.append(param)
-    #     return params_without_grad_fn
-
-    # def check_params_with_grad_fn(self, params):
-    #     params_with_grad_fn = []
-    #     for param in params:
-    #         if param.grad_fn is not None:
-    #             params_with_grad_fn.append(param)
-    #     return params_with_grad_fn
     
