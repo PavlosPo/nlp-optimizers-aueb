@@ -154,6 +154,42 @@ class CustomLogger:
         self.writer.add_scalar('AUC_ROC/Test', auc_roc, global_step=global_step)
         self.writer.add_scalar('MCC/Test', mcc, global_step=global_step)
 
+
+    def log_additional_information(self, dataset_name: str, 
+                         dataset_task: str, 
+                         dataset_size: int, 
+                         test_dataset_size: int,
+                         validation_dataset_size: int,
+                         train_dataset_size: int,
+                         num_classes: int, 
+                         optimizer_name: str, 
+                         base_optimizer_name: str, 
+                         learning_rate_of_base_optimizer: float, 
+                         batch_size: int, 
+                         epochs: int, 
+                         k_approx: int, 
+                         num_of_optimizer_iterations: int, 
+                         range_to_select: int, 
+                         seed_num: int):
+        # Log dataset information
+        self.writer.add_text('Dataset Information', f'Dataset Name: {dataset_name}')
+        self.writer.add_text('Dataset Information', f'Dataset Task: {dataset_task}')
+        self.writer.add_text('Dataset Information', f'All Dataset Size: {dataset_size}')
+        self.writer.add_text('Dataset Information', f'Test Dataset Size: {test_dataset_size}')
+        self.writer.add_text('Dataset Information', f'Validation Dataset Size: {validation_dataset_size}')
+        self.writer.add_text('Dataset Information', f'Train Dataset Size: {train_dataset_size}')
+        self.writer.add_text('Dataset Information', f'Number of Classes: {num_classes}')
+        self.writer.add_text('Dataset Information', f'Batch Size: {batch_size}')
+        self.writer.add_text('Dataset Information', f'Epochs: {epochs}')
+        self.writer.add_text('Optimization Information', f'Optimizer Name: {optimizer_name}')
+        self.writer.add_text('Optimization Information', f'Base Optimizer Name: {base_optimizer_name}')
+        self.writer.add_text('Optimization Information', f'Learning Rate of Base Optimizer: {learning_rate_of_base_optimizer}')
+        self.writer.add_text('Optimization Information', f'Number of Max Eigenvalues to Approximate: {k_approx}')
+        self.writer.add_text('Optimization Information', f'Number of Optimizer Iterations: {num_of_optimizer_iterations}')
+        self.writer.add_text('Optimization Information', f'Range to Select: {range_to_select}')
+        self.writer.add_text('Optimization Information', f'Seed Number: {seed_num}')
+
+
     def close(self):
         self.writer.close() # Close the SummaryWriter
         
