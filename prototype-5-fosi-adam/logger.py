@@ -186,6 +186,9 @@ class CustomLogger:
         self.writer.add_text('Optimization Information', f'Learning Rate of Base Optimizer: {learning_rate_of_base_optimizer}')
         self.writer.add_text('Optimization Information', f'Number of Max Eigenvalues to Approximate: {k_approx}')
         self.writer.add_text('Optimization Information', f'Number of Optimizer Iterations: {num_of_optimizer_iterations}')
+        # if range to select is None then the entire dataset is used
+        if range_to_select is None:
+            range_to_select = 'All Dataset'
         self.writer.add_text('Optimization Information', f'Range to Select: {range_to_select}')
         self.writer.add_text('Optimization Information', f'Seed Number: {seed_num}')
 
