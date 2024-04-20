@@ -14,9 +14,11 @@ model_name = input("Enter the model name (e.g., 'bert-base-uncased'): ") or 'ber
 dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
 
 # Prompt user for seed number
-seed_num = int(input("Enter the seed number (default is 42): ") or '1')
+seed_num = int(input("Enter the seed number (default is 1): ") or '1')
 
 k_approx = int(input("Enter the number of max eigenvalues to approximate (default is 20): ") or '20')
+
+learning_rate = float(input("Enter the learning rate (default is 5e-5): ") or '5e-5')
 
 try:
     range_to_select = int(input("Enter the range to select (default is All Dataset): ")) 
@@ -34,11 +36,12 @@ set_seed(seed_num)
 # Set device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task=="stsb" else 2
+
 # Load model
 original_model = BertClassifier(
     model_name=model_name,
-    num_labels=2,
-    device=device
+    num_labels=num_classes,
 )
 
 # print(f"Model: {original_model}")
@@ -62,11 +65,13 @@ trainer = CustomTrainer(original_model,
     epochs=epochs,
     criterion=torch.nn.CrossEntropyLoss(),  # This is not be applied , it is hardcoded for now
     device=device,
-    approx_k=k_approx)
+    approx_k=k_approx,
+    base_optimizer_lr=learning_rate)
 
 trainer.give_additional_data_for_logging(
         dataset_name=dataset_from,
         dataset_task=dataset_task,
+        num_classes=num_classes,
         dataset_size=len(train_loader.dataset) + len(val_loader.dataset) + len(test_loader.dataset),
         test_dataset_size=len(test_loader.dataset),
         validation_dataset_size=len(val_loader.dataset),

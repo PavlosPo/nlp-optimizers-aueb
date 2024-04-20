@@ -7,3 +7,6 @@ Make more than just FOSI-Adam, use the other FOSI too.
 
 Research Tips:
 Find a way to not overfit, make the user input the learning rate or use it to fine tune it?
+
+**Problems Found**:
+* The STSB dataset because it is in continuous output and not a classification problem but a regression one, doesn;t work with the rest ofthe code.
