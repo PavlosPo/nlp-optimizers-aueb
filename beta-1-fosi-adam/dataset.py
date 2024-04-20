@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 import torch
 from datasets import load_dataset, concatenate_datasets
 from typing import Tuple
+from datasets import DatasetDict
 from icecream import ic
 
 torch.set_default_dtype(torch.float32)
@@ -43,13 +44,12 @@ class CustomDataLoader:
       # ic(self.task_to_keys[self.dataset_task])
 
     def get_custom_data_loaders(self) -> Tuple[DataLoader, DataLoader, DataLoader]:
-      dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
-      dataset = concatenate_datasets([dataset["train"], dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
-      dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
-      dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
-      # ic(dataset.keys())
-      # ic(len(dataset['train']), len(dataset['validation']), len(dataset['test']))
-      # ic(dataset['train'].select(range(5)), dataset['validation'].select(range(5)), dataset['test'].select(range(5)))
+      # dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
+      # dataset = concatenate_datasets([dataset["train"], dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
+      # dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+      # dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+
+      dataset = self.get_correct_train_test_val_split_based_on_task(self.dataset_task)
 
       if self.range_to_select is None:  # Use the entire dataset
         train_dataset = dataset['train'].remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
@@ -72,3 +72,204 @@ class CustomDataLoader:
           return self.tokenizer(examples[self.sentence1_key], truncation=True)
       # ic(examples[self.sentence1_key][:10], examples[self.sentence2_key][:10])
       return self.tokenizer(examples[self.sentence1_key], examples[self.sentence2_key], truncation=True)
+    
+    def get_correct_train_test_val_split_based_on_task(self, task: str):
+      """
+      This function will return a DatasetDict object splited in train validation and test datasets based on the task
+      """
+      if task == "cola": # 0 or 1
+        """
+        DatasetDict({
+        train: Dataset({
+            features: ['sentence', 'label', 'idx'],
+            num_rows: 8551
+        })
+        validation: Dataset({
+            features: ['sentence', 'label', 'idx'],
+            num_rows: 1043
+        })
+        test: Dataset({
+            features: ['sentence', 'label', 'idx'],
+            num_rows: 1063
+          })
+        })
+        """
+        loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
+        dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label') # in the concat do not include the test dataset
+        dataset['train'] = dataset['train']
+        dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+        dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+        # Prepare the dataset dictionary to return
+        dataset_to_return = DatasetDict({
+              'train': dataset['train'],
+              'validation': dataset['validation'],
+              'test': dataset['test']
+          })
+        ic(dataset_to_return)
+        return dataset_to_return
+      elif task == "mnli": # 0, 1, 2
+          """
+          DatasetDict({
+          train: Dataset({
+              features: ['premise', 'hypothesis', 'label', 'idx'],
+              num_rows: 392702
+          })
+          validation_matched: Dataset({
+              features: ['premise', 'hypothesis', 'label', 'idx'],
+              num_rows: 9815
+          })
+          validation_mismatched: Dataset({
+              features: ['premise', 'hypothesis', 'label', 'idx'],
+              num_rows: 9832
+          })
+          test_matched: Dataset({
+              features: ['premise', 'hypothesis', 'label', 'idx'],
+              num_rows: 9796
+          })
+          test_mismatched: Dataset({
+              features: ['premise', 'hypothesis', 'label', 'idx'],
+              num_rows: 9847
+            })
+          })
+
+          Here are the columns in the MNLI dataset and their purposes:
+          Given a premise sentence and a hypothesis sentence, 
+          the task is to predict whether the premise entails the hypothesis (entailment), contradicts the hypothesis (contradiction), or neither (neutral)
+          """
+          loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
+          a = loaded_dataset["validation_matched"].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+          b = loaded_dataset["validation_mismatched"].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+          c = loaded_dataset["validation_matched"].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+          d = loaded_dataset["validation_mismatched"].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+
+          valid = concatenate_datasets([a, b])
+          test = concatenate_datasets([c, d])
+          train = loaded_dataset["train"].train_test_split(test_size=1 - 50000 / len(loaded_dataset["train"]), seed=self.seed_num, stratify_by_column='label')['train']
+          # Prepare the dataset dictionary to return
+          dataset_to_return = DatasetDict({
+              'train': train,
+              'validation': valid,
+              'test': test
+          })
+          ic(dataset_to_return)
+          return dataset_to_return
+      elif task == "mrpc": # 0 or 1
+          """
+          The Microsoft Research Paraphrase Corpus (Dolan & Brockett, 2005) is a corpus of sentence pairs automatically extracted from online news sources, with human annotations for whether the sentences in the pair are semantically equivalent.
+          DatasetDict({
+              train: Dataset({
+                  features: ['sentence1', 'sentence2', 'label', 'idx'],
+                  num_rows: 3668
+              })
+              validation: Dataset({
+                  features: ['sentence1', 'sentence2', 'label', 'idx'],
+                  num_rows: 408
+              })
+              test: Dataset({
+                  features: ['sentence1', 'sentence2', 'label', 'idx'],
+                  num_rows: 1725
+              })
+          })
+          """
+          loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
+          dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
+          # dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+          # dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+          # Prepare the dataset dictionary to return
+          dataset_to_return = DatasetDict({
+            'train': dataset['train'],
+            'validation': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train'],
+            'test': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+          })
+          ic(dataset_to_return)
+          return dataset_to_return
+      elif task == "qnli": # 0 or 1
+          """
+          DatasetDict({
+              train: Dataset({
+                  features: ['question', 'sentence', 'label', 'idx'],
+                  num_rows: 104743
+              })
+              validation: Dataset({
+                  features: ['question', 'sentence', 'label', 'idx'],
+                  num_rows: 5463
+              })
+              test: Dataset({
+                  features: ['question', 'sentence', 'label', 'idx'],
+                  num_rows: 5463
+              })
+          })
+          """
+          loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
+          dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
+          # dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+          # dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+          # Prepare the dataset dictionary to return
+          dataset_to_return = DatasetDict({
+            'train': dataset['train'],
+            'validation': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train'],
+            'test': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+        })
+          ic(dataset_to_return)
+          return dataset_to_return
+      elif task == "sst2": # 0 or 1
+          """
+          DatasetDict({
+              train: Dataset({
+                  features: ['sentence', 'label', 'idx'],
+                  num_rows: 67349
+              })
+              validation: Dataset({
+                  features: ['sentence', 'label', 'idx'],
+                  num_rows: 872
+              })
+              test: Dataset({
+                  features: ['sentence', 'label', 'idx'],
+                  num_rows: 1821
+              })
+          })
+          """
+          loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
+          dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
+          # dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+          # dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+          # Prepare the dataset dictionary to return
+          dataset_to_return = DatasetDict({
+            'train': dataset['train'],
+            'validation': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train'],
+            'test': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+          })
+          ic(dataset_to_return)
+          return dataset_to_return
+      elif task == "stsb":
+        """
+        DatasetDict({
+              train: Dataset({
+                  features: ['sentence1', 'sentence2', 'label', 'idx'],
+                  num_rows: 5749
+              })
+              validation: Dataset({
+                  features: ['sentence1', 'sentence2', 'label', 'idx'],
+                  num_rows: 1500
+              })
+              test: Dataset({
+                  features: ['sentence1', 'sentence2', 'label', 'idx'],
+                  num_rows: 1379
+              })
+          })
+        """
+        loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
+        dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num)
+        # Prepare the dataset dictionary to return
+        dataset_to_return = DatasetDict({
+            'train': dataset['train'],
+            'validation': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num)['train'],
+            'test': dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num)['test']
+        })
+        ic(dataset_to_return)
+        return dataset_to_return
+      else:
+        raise ValueError("Task not found")
+
+
+       
