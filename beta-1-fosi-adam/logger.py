@@ -53,10 +53,10 @@ class CustomLogger:
         ic(labels)
 
         # Calculate metrics
-        f1 = f1_score(labels, outputs_argmax, average='weighted')
+        f1 = f1_score(labels, outputs_argmax, average='macro')
         accuracy = accuracy_score(labels, outputs_argmax)
-        precision = precision_score(labels, outputs_argmax, average='weighted', zero_division=0)
-        recall = recall_score(labels, outputs_argmax, average='weighted')
+        precision = precision_score(labels, outputs_argmax, average='macro', zero_division=0)
+        recall = recall_score(labels, outputs_argmax, average='macro')
         mae = mean_absolute_error(labels, outputs_argmax)
         try:
             auc_roc = roc_auc_score(labels, outputs_argmax, average='weighted', multi_class='ovr')
