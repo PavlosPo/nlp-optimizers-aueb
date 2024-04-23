@@ -83,7 +83,7 @@ class CustomTrainer:
                 # if counter <= 495:
                 #     counter += 1
                 #     continue
-                batch = {k: v.to(self.device) for k, v in batch.items()}
+                # batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
 
