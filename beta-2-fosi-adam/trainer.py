@@ -80,9 +80,9 @@ class CustomTrainer:
         counter = 0
         for epoch in range(self.epochs):
             for i, batch in enumerate(self.train_loader, 1):
-                if counter <= 495:
-                    counter += 1
-                    continue
+                # if counter <= 495:
+                #     counter += 1
+                #     continue
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
@@ -92,6 +92,8 @@ class CustomTrainer:
 
                 # progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
                 print(f"Epoch: {epoch+1}, Batch: {i}, Loss: {loss.item():.4f}")
+                print(f"Rest of the batch iterations: {len(self.train_loader) - i}")
+                print(f"Rest of the epochs: {self.epochs - epoch}")
 
             val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
             print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
