@@ -85,7 +85,44 @@ class CustomTrainer:
                 #     continue
                 # batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.original_model.train()
-                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                # self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                # self.original_model.train()
+                if i == 499:
+                    print(f"Before Update")
+                    ic(i)
+                    # ic(params)
+                    # ic(self.buffers)
+                    ic(self.opt_state)
+                    ic(input_ids)
+                    ic(attention_mask)
+                    ic(labels)
+                input_ids = batch['input_ids'].to(self.device)
+                attention_mask = batch['attention_mask'].to(self.device)
+                labels = batch['labels'].to(self.device)
+                # Calculate loss
+                loss, logits = self.loss_fn(params, self.buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+                grads = torch.autograd.grad(loss, params)
+                updates, opt_state = self.optimizer.update(grads, opt_state, params)
+                params = torchopt.apply_updates(params, updates)
+
+                if i == 499:
+                    print(f"After Update")
+                    ic(i)
+                    # ic(params)
+                    # ic(self.buffers)
+                    ic(self.opt_state)
+                    ic(input_ids)
+                    ic(attention_mask)
+                    ic(labels)
+
+                # if i == 499:
+                #     ic(i)
+                #     ic(params)
+                #     ic(self.buffers)
+                #     ic(self.opt_state)
+                #     ic(input_ids)
+                #     ic(attention_mask)
+                #     ic(labels)
 
                 # Log metrics for the current batch
                 self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
