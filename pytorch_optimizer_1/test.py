@@ -1,40 +1,54 @@
 import torch
+import torch.nn as nn
 import torch.optim as optim
-from lanczos_optimizer import LanczosOptimizer
+from torch.utils.data import TensorDataset
+from transformers import AutoModel, AutoTokenizer
+from torch.utils.data import DataLoader, RandomSampler
+from fosi_custom import FOSIOptimizer
 
-# Step 1: Define a Dummy Model
-class DummyModel(torch.nn.Module):
-    def __init__(self):
-        super(DummyModel, self).__init__()
-        self.linear = torch.nn.Linear(1, 1)
+# Step 1: Define your model
+model_name = "bert-base-uncased"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModel.from_pretrained(model_name)
 
-    def forward(self, x):
-        return self.linear(x)
+# first batch
+# Generate a dummy training dataset
+num_samples = 1000  # Number of samples in the dataset
+seq_length = 20  # Length of each sequence
+num_classes = 2  # Number of classes
 
-# Step 2: Define a Dummy Loss Function
-def dummy_loss(output, target):
-    return torch.mean((output - target) ** 2)
+# Generate random input sequences
+input_sequences = torch.randint(low=0, high=1000, size=(num_samples, seq_length))
 
-# Step 3: Instantiate the Custom Optimizer
-model = DummyModel()
-loss_fn = dummy_loss
-k_largest = 10
-lanczos_order = 100
-return_precision = '32'
-optimizer = LanczosOptimizer(loss_fn, k_largest, lanczos_order, return_precision)
+# Generate random attention masks
+attention_masks = torch.randint(low=0, high=2, size=(num_samples, seq_length))
 
-# Step 4: Training Loop
-num_epochs = 1000
-learning_rate = 0.01
-target = torch.tensor([3.0])
-for epoch in range(num_epochs):
-    optimizer.zero_grad()
-    output = model(torch.tensor([[1.0]]))  # Dummy input
-    loss = loss_fn(output, target)
-    loss.backward()
-    optimizer.step()
+# Generate random labels
+labels = torch.randint(low=0, high=num_classes, size=(num_samples,))
 
-    if epoch % 100 == 0:
-        print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item()}')
+# Step 4: Prepare your training data and train the model
+train_dataset = TensorDataset(input_sequences, attention_masks, labels)
+batch_size = 32  # Your desired batch size
+num_epochs = 3  # Number of epochs for training
 
-# After training, you can evaluate the model as needed
+train_loader = DataLoader(train_dataset, sampler=RandomSampler(train_dataset), batch_size=batch_size)
+
+batch = next(iter(train_loader))
+
+# Step 2: Create your optimizer
+custom_optimizer = FOSIOptimizer(model.parameters(), base_optimizer=optim.Adam, momentum_func=nn.functional.mse_loss, loss_fn=nn.CrossEntropyLoss(), batch=batch)
+
+# Step 3: Define your training loop
+def train(model, optimizer, train_loader, num_epochs=1):
+    model.train()
+    for epoch in range(num_epochs):
+        for batch in train_loader:
+            input_ids, attention_mask, labels = batch
+            optimizer.zero_grad()
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+            loss = nn.CrossEntropyLoss()(outputs.logits, labels)
+            loss.backward()
+            optimizer.step()
+
+# Train the model
+train(model, custom_optimizer, train_loader, num_epochs)
