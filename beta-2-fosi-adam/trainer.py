@@ -60,9 +60,29 @@ class CustomTrainer:
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
         val_loss_in_this_epoch = 0
+        before_500_counter = 0
+        # for epoch in range(self.epochs):
+        #     progress_bar = tqdm(enumerate(self.train_loader, 0), total=len(self.train_loader))
+        #     for i, batch in progress_bar:
+        #         batch = {k: v.to(self.device) for k, v in batch.items()}
+        #         self.original_model.train()
+        #         self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+
+        #         # Log metrics for the current batch
+        #         self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
+
+        #         progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+
+        #     val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
+        #     print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
+        # progress_bar = tqdm(enumerate(self.train_loader, 0), total=len(self.train_loader) * self.epochs)
+        
+        counter = 0
         for epoch in range(self.epochs):
-            progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
-            for i, batch in progress_bar:
+            for i, batch in enumerate(self.train_loader, 1):
+                if counter <= 495:
+                    counter += 1
+                    continue
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
@@ -70,9 +90,15 @@ class CustomTrainer:
                 # Log metrics for the current batch
                 self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
 
-                progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+                # progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+                print(f"Epoch: {epoch+1}, Batch: {i}, Loss: {loss.item():.4f}")
+
             val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
             print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
+        
+        # Do not run the test function 
+        return None
+    
         test_loss = self.test(self.test_loader)
         self.logger.close()
         print(f"Test Loss: {test_loss}")
@@ -93,7 +119,7 @@ class CustomTrainer:
         loss, logits = self.loss_fn(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         grads = torch.autograd.grad(loss, params)
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
-        params = torchopt.apply_updates(params, updates, inplace=True)
+        params = torchopt.apply_updates(params, updates)
         return params, opt_state, loss, logits
 
     
