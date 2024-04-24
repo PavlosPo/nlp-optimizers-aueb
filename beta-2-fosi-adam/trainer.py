@@ -39,13 +39,9 @@ class CustomTrainer:
                                    len_test_loader=len(self.test_loader))
         self.additional_information = {}
         
-
-
-
     def train_val_test(self):
         self.original_model.to(self.device)
         self.original_model.train()
-        # torch.set_grad_enabled(True)
 
         # Get a batch of data to initialize the optimizer
         # This is required to initialize the FOSI optimizer 
@@ -59,31 +55,31 @@ class CustomTrainer:
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
-        val_loss_in_this_epoch = 0
-        before_500_counter = 0
+        # Train starts here
         for epoch in range(self.epochs):
-            progress_bar = tqdm(enumerate(self.train_loader, 0), total=len(self.train_loader))
+            progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, batch in progress_bar:
-                batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
-
-                # Log metrics for the current batch
                 self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
-
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
-
+            # Evaluation starts Here - at the end of each epoch
             val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
-            print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
+            print(f"Validation Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
+        # Test starts here
         test_loss = self.test(self.test_loader)
         self.logger.close()
         print(f"Test Loss: {test_loss}")
 
     def loss_fn(self, params, batch) -> Tuple[Tensor]:
+        """Loss function that is needed for the initialization of the optimizer.
+        Follows the guidelines of FOSI Implementation.
+        See here : https://github.com/hsivan/fosi/blob/main/examples/fosi_torch_resnet_cifar100.py#L261"""
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-
+        
+        # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
         apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
         logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
@@ -91,11 +87,11 @@ class CustomTrainer:
     
 
     def step(self, params, buffers, batch, opt_state):
-        self.original_model.train()
+        self.original_model.train() # just to be sure
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        # Calculate loss
+        # Calculate loss and return logits too
         loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         grads = torch.autograd.grad(loss, params)
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
@@ -103,6 +99,8 @@ class CustomTrainer:
         return params, opt_state, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
+        """Custom loss function in order to return logits too."""
+        # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
         apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
         logits = apply_fn(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
@@ -112,7 +110,7 @@ class CustomTrainer:
     def evaluate(self, epoch: int, val_loader: DataLoader = None):
         assert val_loader is not None, "Validation loader is required for evaluation"
         progress_bar = tqdm(enumerate(val_loader, 0), total=len(val_loader))
-        self.original_model.eval()
+        self.original_model.eval()  # Set the model to evaluation mode
         total_loss = 0
         for i, batch in progress_bar:
             with torch.no_grad():
@@ -125,7 +123,7 @@ class CustomTrainer:
     def test(self, test_loader: DataLoader = None):
         assert test_loader is not None, "Test loader is required for testing"
         progress_bar = tqdm(enumerate(test_loader, 0), total=len(test_loader))
-        self.original_model.eval()
+        self.original_model.eval()  # Set the model to evaluation mode
         total_loss = 0
         for i, batch in progress_bar:
             with torch.no_grad():
@@ -153,27 +151,7 @@ class CustomTrainer:
                                         num_of_optimizer_iterations: int = None,
                                         range_to_select: int = None,
                                         seed_num: int = None) -> None: 
-        """Creates config file for the experiment
-
-        Args:
-            dataset_name (str, optional): _description_. Defaults to None.
-            dataset_task (str, optional): _description_. Defaults to None.
-            dataset_size (int, optional): _description_. Defaults to None.
-            test_dataset_size (int, optional): _description_. Defaults to None.
-            validation_dataset_size (int, optional): _description_. Defaults to None.
-            train_dataset_size (int, optional): _description_. Defaults to None.
-            num_labels (int, optional): _description_. Defaults to None.
-            num_classes (int, optional): _description_. Defaults to None.
-            optimizer_name (str, optional): _description_. Defaults to None.
-            base_optimizer_name (str, optional): _description_. Defaults to None.
-            learning_rate_of_base_optimizer (float, optional): _description_. Defaults to None.
-            batch_size (int, optional): _description_. Defaults to None.
-            epochs (int, optional): _description_. Defaults to None.
-            k_approx (int, optional): _description_. Defaults to None.
-            num_of_optimizer_iterations (int, optional): _description_. Defaults to None.
-            range_to_select (int, optional): _description_. Defaults to None.
-            seed_num (int, optional): _description_. Defaults to None.
-        """
+        """Creates config file for the experiment and logs it."""
 
         base_optimizer_name = type(self.base_optimizer).__name__
         learning_rate_of_base_optimizer = self.base_optimizer_lr
@@ -187,29 +165,12 @@ class CustomTrainer:
         ic(self.additional_information)
 
     def init_information_logger(self):
-        # ic(self.additional_information)
-        # ic(**self.additional_information)
         if self.additional_information:
             # Dictionary is not empty
             self.logger.log_additional_information(**self.additional_information)
 
     def make_functional_with_buffers(self, mod, disable_autograd_tracking=False):
-
         """
-        Given a module, return a functional version of the module that can be called with
-        the parameters and buffers as arguments. This is useful for optimization libraries
-        that require a functional interface to the model.
-
-        Args:
-            mod: A PyTorch module.
-            disable_autograd_tracking: If True, the parameters will be detached from the computation graph.
-
-        Returns:
-            A tuple (fmodel, params, buffers), where:
-            - fmodel is a functional version of the module.
-            - params is a tuple of the parameters of the module.
-            - buffers is a tuple of the buffers of the module.
-        
         This was taken from the official PyTorch library.
         Repo Link: https://gist.github.com/zou3519/7769506acc899d83ef1464e28f22e6cf
         Original Docs: https://pytorch.org/docs/stable/func.migrating.html#function-transforms
