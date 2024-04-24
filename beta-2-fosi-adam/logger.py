@@ -38,7 +38,6 @@ class CustomLogger:
         self.test_maes = []
         self.test_auc_roc = []
         self.test_mcc = []
-        self.writer = SummaryWriter()  # Initialize SummaryWriter for TensorBoard logging
 
     def custom_log(self, epoch, batch_idx, loss, outputs, labels):
         # Clone outputs and labels to avoid modifying the original tensors
@@ -79,43 +78,43 @@ class CustomLogger:
 
         # print(f"Train Epoch {epoch}: Loss: {loss}, F1 Score: {f1}, Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, MAE: {mae}, AUC ROC: {auc_roc}, MCC: {mcc}")
 
-    def custom_log_validation(self, epoch, batch_idx, loss, outputs, labels):
-        # Clone outputs and labels to avoid modifying the original tensors
-        # ic(outputs)
-        outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
-        labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
+    # def custom_log_validation(self, epoch, batch_idx, loss, outputs, labels):
+    #     # Clone outputs and labels to avoid modifying the original tensors
+    #     # ic(outputs)
+    #     outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
+    #     labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
         
-        # Apply softmax to the outputs and then take argmax
-        outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
-        # ic(outputs_softmax)
-        outputs_argmax = np.argmax(outputs_softmax, axis=1)
-        ic(outputs_argmax)
-        ic(labels)
+    #     # Apply softmax to the outputs and then take argmax
+    #     outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
+    #     # ic(outputs_softmax)
+    #     outputs_argmax = np.argmax(outputs_softmax, axis=1)
+    #     ic(outputs_argmax)
+    #     ic(labels)
 
-        # Calculate metrics
-        f1 = f1_score(labels, outputs_argmax, average='weighted')
-        accuracy = accuracy_score(labels, outputs_argmax)
-        precision = precision_score(labels, outputs_argmax, average='weighted')
-        recall = recall_score(labels, outputs_argmax, average='weighted')
-        mae = mean_absolute_error(labels, outputs_argmax)
-        try:
-            auc_roc = roc_auc_score(labels, outputs_argmax, average='weighted', multi_class='ovr')
-        except ValueError:
-            auc_roc = 0.0
-        mcc = matthews_corrcoef(labels, outputs_argmax)
+    #     # Calculate metrics
+    #     f1 = f1_score(labels, outputs_argmax, average='weighted')
+    #     accuracy = accuracy_score(labels, outputs_argmax)
+    #     precision = precision_score(labels, outputs_argmax, average='weighted')
+    #     recall = recall_score(labels, outputs_argmax, average='weighted')
+    #     mae = mean_absolute_error(labels, outputs_argmax)
+    #     try:
+    #         auc_roc = roc_auc_score(labels, outputs_argmax, average='weighted', multi_class='ovr')
+    #     except ValueError:
+    #         auc_roc = 0.0
+    #     mcc = matthews_corrcoef(labels, outputs_argmax)
 
 
-        global_step = epoch * self.len_validation_loader + batch_idx
+    #     global_step = epoch * self.len_validation_loader + batch_idx
 
-        # Log metrics for the current batch
-        self.writer.add_scalar('Loss/Validation', loss, global_step=global_step)
-        self.writer.add_scalar('F1_Score/Validation', f1, global_step=global_step)
-        self.writer.add_scalar('Accuracy/Validation', accuracy, global_step=global_step)
-        self.writer.add_scalar('Precision/Validation', precision, global_step=global_step)
-        self.writer.add_scalar('Recall/Validation', recall, global_step=global_step)
-        self.writer.add_scalar('MAE/Validation', mae, global_step=global_step )
-        self.writer.add_scalar('AUC_ROC/Validation', auc_roc, global_step=global_step)
-        self.writer.add_scalar('MCC/Validation', mcc, global_step=global_step)
+    #     # Log metrics for the current batch
+    #     self.writer.add_scalar('Loss/Validation', loss, global_step=global_step)
+    #     self.writer.add_scalar('F1_Score/Validation', f1, global_step=global_step)
+    #     self.writer.add_scalar('Accuracy/Validation', accuracy, global_step=global_step)
+    #     self.writer.add_scalar('Precision/Validation', precision, global_step=global_step)
+    #     self.writer.add_scalar('Recall/Validation', recall, global_step=global_step)
+    #     self.writer.add_scalar('MAE/Validation', mae, global_step=global_step )
+    #     self.writer.add_scalar('AUC_ROC/Validation', auc_roc, global_step=global_step)
+    #     self.writer.add_scalar('MCC/Validation', mcc, global_step=global_step)
 
     def custom_log_test(self, batch_idx, loss, outputs, labels, epoch=0):
         # Clone outputs and labels to avoid modifying the original tensors
@@ -154,6 +153,45 @@ class CustomLogger:
         self.writer.add_scalar('AUC_ROC/Test', auc_roc, global_step=global_step)
         self.writer.add_scalar('MCC/Test', mcc, global_step=global_step)
 
+    def custom_log_in_total(self, epoch, total_loss, outputs_all, labels_all, mode='validation'):
+        """This is used to log the metrics for the entire validation dataset after all batches have been processed."""
+
+        # Clone outputs and labels to avoid modifying the original tensors
+        outputs_all = [output.clone().detach().cpu().numpy() for output in outputs_all]
+        labels_all = [label.clone().detach().cpu().numpy() for label in labels_all]
+        
+        # Convert outputs and labels to NumPy arrays
+        outputs_all = np.concatenate(outputs_all)
+        labels_all = np.concatenate(labels_all)
+
+        # Apply softmax to the outputs and then take argmax
+        outputs_softmax = F.softmax(torch.tensor(outputs_all), dim=1).numpy()
+        outputs_argmax = np.argmax(outputs_softmax, axis=1)
+
+        # Calculate metrics
+        f1 = f1_score(labels_all, outputs_argmax, average='weighted')
+        accuracy = accuracy_score(labels_all, outputs_argmax)
+        precision = precision_score(labels_all, outputs_argmax, average='weighted')
+        recall = recall_score(labels_all, outputs_argmax, average='weighted')
+        mae = mean_absolute_error(labels_all, outputs_argmax)
+        try:
+            auc_roc = roc_auc_score(labels_all, outputs_argmax, average='weighted', multi_class='ovr')
+        except ValueError:
+            auc_roc = 0.0
+        mcc = matthews_corrcoef(labels_all, outputs_argmax)
+
+        global_step = epoch * len(labels_all)
+
+        # Log mean metrics for all batches
+        self.writer.add_scalar(f'Loss/{mode.capitalize()}', total_loss, global_step=global_step)
+        self.writer.add_scalar(f'F1_Score/{mode.capitalize()}', f1, global_step=global_step)
+        self.writer.add_scalar(f'Accuracy/{mode.capitalize()}', accuracy, global_step=global_step)
+        self.writer.add_scalar(f'Precision/{mode.capitalize()}', precision, global_step=global_step)
+        self.writer.add_scalar(f'Recall/{mode.capitalize()}', recall, global_step=global_step)
+        self.writer.add_scalar(f'MAE/{mode.capitalize()}', mae, global_step=global_step)
+        self.writer.add_scalar(f'AUC_ROC/{mode.capitalize()}', auc_roc, global_step=global_step)
+        self.writer.add_scalar(f'MCC/{mode.capitalize()}', mcc, global_step=global_step)
+
 
     def log_additional_information(self, dataset_name: str, 
                          dataset_task: str, 
@@ -171,6 +209,9 @@ class CustomLogger:
                          num_of_optimizer_iterations: int, 
                          seed_num: int,
                          range_to_select: int):
+        # Initalize SummaryWriter for TensorBoard logging
+        self.writer = SummaryWriter(log_dir=f"./runs/{dataset_task.upper()}_EPOCHS_{epochs}_FOSI_ITER_{num_of_optimizer_iterations}")  # Initialize SummaryWriter for TensorBoard logging
+
         # Log dataset information
         self.writer.add_text('Dataset Information', f'Dataset Name: {dataset_name}')
         self.writer.add_text('Dataset Information', f'Dataset Task: {dataset_task}')

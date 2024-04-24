@@ -10,9 +10,13 @@ from logger import CustomLogger
 from icecream import ic
 
 class CustomTrainer:
-    def __init__(self, original_model: torch.nn.Module, 
-                train_loader: DataLoader, val_loader: DataLoader, test_loader: DataLoader,
-                criterion, device: torch.device,
+    def __init__(self, 
+                original_model: torch.nn.Module, 
+                train_loader: DataLoader, 
+                val_loader: DataLoader, 
+                test_loader: DataLoader,
+                criterion, 
+                device: torch.device,
                 base_optimizer = torchopt.adam,
                 base_optimizer_lr: float = 0.0001,
                 num_of_fosi_optimizer_iterations: int = 150,
@@ -56,12 +60,16 @@ class CustomTrainer:
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
         # Train starts here
+        global_step = 0
         for epoch in range(self.epochs):
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, batch in progress_bar:
+                global_step += 1
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
                 self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
+                if global_step % 5 == 0:
+                    self.evaluate(epoch, self.val_loader)
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
             # Evaluation starts Here - at the end of each epoch
             val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
@@ -112,12 +120,21 @@ class CustomTrainer:
         progress_bar = tqdm(enumerate(val_loader, 0), total=len(val_loader))
         self.original_model.eval()  # Set the model to evaluation mode
         total_loss = 0
+        outputs_all = []
+        labels_all = []
         for i, batch in progress_bar:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 total_loss += loss.item()
-                self.logger.custom_log_validation(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
+                # self.logger.custom_log_validation(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
+                # Append cloned and detached outputs and labels for each batch
+                outputs_all.append(logits.clone().detach())
+                labels_all.append(batch['labels'].clone().detach())
             progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
+
+        # Call the custom log validation method with accumulated metrics
+        self.logger.custom_log_validation(epoch=epoch, total_loss=total_loss, outputs_all=outputs_all, labels_all=labels_all)
+        
         return torch.mean(torch.tensor(total_loss).to(self.device)/len(val_loader))
             
     def test(self, test_loader: DataLoader = None):
