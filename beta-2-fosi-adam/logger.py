@@ -39,7 +39,7 @@ class CustomLogger:
         self.test_auc_roc = []
         self.test_mcc = []
 
-    def custom_log(self, epoch, batch_idx, loss, outputs, labels):
+    def custom_log(self, global_step, loss, outputs, labels):
         # Clone outputs and labels to avoid modifying the original tensors
         # ic(outputs)
         outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
@@ -62,9 +62,6 @@ class CustomLogger:
         except ValueError:
             auc_roc = 0.0
         mcc = matthews_corrcoef(labels, outputs_argmax)
-
-
-        global_step = epoch * self.len_train_loader + batch_idx
 
         # Log metrics for the current batch
         self.writer.add_scalar('Loss/Train', loss, global_step=global_step)
@@ -153,7 +150,7 @@ class CustomLogger:
         self.writer.add_scalar('AUC_ROC/Test', auc_roc, global_step=global_step)
         self.writer.add_scalar('MCC/Test', mcc, global_step=global_step)
 
-    def custom_log_in_total(self, epoch, total_loss, outputs_all, labels_all, mode='validation'):
+    def custom_log_in_total(self, global_step, total_loss, outputs_all, labels_all, mode='validation'):
         """This is used to log the metrics for the entire validation dataset after all batches have been processed."""
 
         # Clone outputs and labels to avoid modifying the original tensors
@@ -169,18 +166,15 @@ class CustomLogger:
         outputs_argmax = np.argmax(outputs_softmax, axis=1)
 
         # Calculate metrics
-        f1 = f1_score(labels_all, outputs_argmax, average='weighted')
+        f1 = f1_score(labels_all, outputs_argmax, average='weighted', zero_division=0)
         accuracy = accuracy_score(labels_all, outputs_argmax)
-        precision = precision_score(labels_all, outputs_argmax, average='weighted')
-        recall = recall_score(labels_all, outputs_argmax, average='weighted')
+        precision = precision_score(labels_all, outputs_argmax, average='weighted', zero_division=0)
+        recall = recall_score(labels_all, outputs_argmax, average='weighted', zero_division=0)
         mae = mean_absolute_error(labels_all, outputs_argmax)
-        try:
-            auc_roc = roc_auc_score(labels_all, outputs_argmax, average='weighted', multi_class='ovr')
-        except ValueError:
-            auc_roc = 0.0
+        auc_roc = roc_auc_score(labels_all, outputs_argmax, average='weighted', multi_class='ovr')
         mcc = matthews_corrcoef(labels_all, outputs_argmax)
 
-        global_step = epoch * len(labels_all)
+        global_step = global_step
 
         # Log mean metrics for all batches
         self.writer.add_scalar(f'Loss/{mode.capitalize()}', total_loss, global_step=global_step)
@@ -210,7 +204,9 @@ class CustomLogger:
                          seed_num: int,
                          range_to_select: int):
         # Initalize SummaryWriter for TensorBoard logging
-        self.writer = SummaryWriter(log_dir=f"./runs/{dataset_task.upper()}_EPOCHS_{epochs}_FOSI_ITER_{num_of_optimizer_iterations}")  # Initialize SummaryWriter for TensorBoard logging
+        import datetime
+
+        self.writer = SummaryWriter(log_dir=f"./runs/{dataset_task.upper()}_EPOCHS_{epochs}_FOSI_ITER_{num_of_optimizer_iterations}_TIME_{datetime.datetime.now().hour}:{datetime.datetime.now().minute}")  # Initialize SummaryWriter for TensorBoard logging
 
         # Log dataset information
         self.writer.add_text('Dataset Information', f'Dataset Name: {dataset_name}')
