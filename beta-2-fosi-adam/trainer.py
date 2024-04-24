@@ -80,6 +80,17 @@ class CustomTrainer:
         counter = 0
         for epoch in range(self.epochs):
             for i, batch in enumerate(self.train_loader, 1):
+
+                try:
+                    input_ids = batch['input_ids'].to(self.device)
+                    attention_mask = batch['attention_mask'].to(self.device)
+                    labels = batch['labels'].to(self.device)
+                except KeyError as e:
+                    print(f"Error: Key '{e.args[0]}' not found in batch. Check your data loader configuration.")
+                    continue
+                except Exception as e:
+                    print(f"Error occurred during data loading: {e}")
+                    continue
                 # if counter <= 495:
                 #     counter += 1
                 #     continue
@@ -100,10 +111,10 @@ class CustomTrainer:
                 attention_mask = batch['attention_mask'].to(self.device)
                 labels = batch['labels'].to(self.device)
                 # Calculate loss
-                loss, logits = self.loss_fn(params, self.buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-                grads = torch.autograd.grad(loss, params)
-                updates, opt_state = self.optimizer.update(grads, opt_state, params)
-                params = torchopt.apply_updates(params, updates)
+                loss, logits = self.loss_fn(self.params, self.buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+                grads = torch.autograd.grad(loss, self.params)
+                updates, self.opt_state = self.optimizer.update(grads, self.opt_state, self.params)
+                self.params = torchopt.apply_updates(self.params, updates)
 
                 if i == 499:
                     print(f"After Update")
