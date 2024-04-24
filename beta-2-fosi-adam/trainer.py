@@ -133,7 +133,7 @@ class CustomTrainer:
             progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
 
         # Call the custom log validation method with accumulated metrics
-        self.logger.custom_log_validation(epoch=epoch, total_loss=total_loss, outputs_all=outputs_all, labels_all=labels_all)
+        self.logger.custom_log_in_total(epoch=epoch, total_loss=total_loss, outputs_all=outputs_all, labels_all=labels_all)
         
         return torch.mean(torch.tensor(total_loss).to(self.device)/len(val_loader))
             
