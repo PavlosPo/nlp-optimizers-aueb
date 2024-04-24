@@ -15,7 +15,7 @@ class CustomTrainer:
                 criterion, device: torch.device,
                 base_optimizer = torchopt.adam,
                 base_optimizer_lr: float = 0.0001,
-                num_of_fosi_optimizer_iterations: int = 500,
+                num_of_fosi_optimizer_iterations: int = 10,
                 epochs: int = 1,
                 num_classes: int = 2,
                 approx_k = 20):
@@ -61,94 +61,20 @@ class CustomTrainer:
         self.opt_state = self.optimizer.init(self.params)
         val_loss_in_this_epoch = 0
         before_500_counter = 0
-        # for epoch in range(self.epochs):
-        #     progress_bar = tqdm(enumerate(self.train_loader, 0), total=len(self.train_loader))
-        #     for i, batch in progress_bar:
-        #         batch = {k: v.to(self.device) for k, v in batch.items()}
-        #         self.original_model.train()
-        #         self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
-
-        #         # Log metrics for the current batch
-        #         self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
-
-        #         progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
-
-        #     val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
-        #     print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
-        # progress_bar = tqdm(enumerate(self.train_loader, 0), total=len(self.train_loader) * self.epochs)
-        
-        counter = 0
         for epoch in range(self.epochs):
-            for i, batch in enumerate(self.train_loader, 1):
-
-                try:
-                    input_ids = batch['input_ids'].to(self.device)
-                    attention_mask = batch['attention_mask'].to(self.device)
-                    labels = batch['labels'].to(self.device)
-                except KeyError as e:
-                    print(f"Error: Key '{e.args[0]}' not found in batch. Check your data loader configuration.")
-                    continue
-                except Exception as e:
-                    print(f"Error occurred during data loading: {e}")
-                    continue
-                # if counter <= 495:
-                #     counter += 1
-                #     continue
-                # batch = {k: v.to(self.device) for k, v in batch.items()}
+            progress_bar = tqdm(enumerate(self.train_loader, 0), total=len(self.train_loader))
+            for i, batch in progress_bar:
+                batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.original_model.train()
-                # self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
-                # self.original_model.train()
-                if i == 499:
-                    print(f"Before Update")
-                    ic(i)
-                    # ic(params)
-                    # ic(self.buffers)
-                    ic(self.opt_state)
-                    ic(input_ids)
-                    ic(attention_mask)
-                    ic(labels)
-                input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
-                labels = batch['labels'].to(self.device)
-                # Calculate loss
-                loss, logits = self._loss_fn_with_logits(self.params, self.buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-                grads = torch.autograd.grad(loss, self.params)
-                updates, self.opt_state = self.optimizer.update(grads, self.opt_state, self.params)
-                self.params = torchopt.apply_updates(self.params, updates)
-
-                if i == 499:
-                    print(f"After Update")
-                    ic(i)
-                    # ic(params)
-                    # ic(self.buffers)
-                    ic(self.opt_state)
-                    ic(input_ids)
-                    ic(attention_mask)
-                    ic(labels)
-
-                # if i == 499:
-                #     ic(i)
-                #     ic(params)
-                #     ic(self.buffers)
-                #     ic(self.opt_state)
-                #     ic(input_ids)
-                #     ic(attention_mask)
-                #     ic(labels)
+                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
 
                 # Log metrics for the current batch
                 self.logger.custom_log(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
 
-                # progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
-                print(f"Epoch: {epoch+1}, Batch: {i}, Loss: {loss.item():.4f}")
-                print(f"Rest of the batch iterations: {len(self.train_loader) - i}")
-                print(f"Rest of the epochs: {self.epochs - epoch}")
+                progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
 
             val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
             print(f"Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
-        
-        # Do not run the test function 
-        return None
-    
         test_loss = self.test(self.test_loader)
         self.logger.close()
         print(f"Test Loss: {test_loss}")
@@ -158,8 +84,8 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
 
-        apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
-        logits = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
+        logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
         return loss
     
@@ -177,8 +103,8 @@ class CustomTrainer:
         return params, opt_state, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
-        apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
-        logits = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
+        logits = apply_fn(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
         return loss, logits
 
@@ -267,7 +193,7 @@ class CustomTrainer:
             # Dictionary is not empty
             self.logger.log_additional_information(**self.additional_information)
 
-    def make_functional_with_buffers(self, mod, new_params_values=None, new_buffers_values=None, disable_autograd_tracking=False):
+    def make_functional_with_buffers(self, mod, disable_autograd_tracking=False):
 
         """
         Given a module, return a functional version of the module that can be called with
@@ -300,13 +226,7 @@ class CustomTrainer:
         stateless_mod.to('meta')
         
         # Inner function
-        def fmodel(new_params_values=new_params_values, new_buffers_values=new_buffers_values, *args, **kwargs):
-            if new_params_values is None:
-                # This is the first call to the functional model
-                new_params_values = params_values
-            if new_buffers_values is None:
-                # This is the first call to the functional model
-                new_buffers_values = buffers_values
+        def fmodel(new_params_values, new_buffers_values, *args, **kwargs):
             new_params_dict = {name: value for name, value in zip(params_names, new_params_values)}
             new_buffers_dict = {name: value for name, value in zip(buffers_names, new_buffers_values)}
             return torch.func.functional_call(stateless_mod, (new_params_dict, new_buffers_dict), args=args, kwargs=kwargs)
