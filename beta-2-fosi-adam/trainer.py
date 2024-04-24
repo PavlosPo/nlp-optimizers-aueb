@@ -68,7 +68,7 @@ class CustomTrainer:
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
                 self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'])  # per step
-                if global_step % 5 == 0: # Per 5 steps
+                if global_step % 100 == 0: # Per 100 steps
                     self.evaluate(global_step=global_step, val_loader=self.val_loader)
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
             # Evaluation starts Here - at the end of each epoch
