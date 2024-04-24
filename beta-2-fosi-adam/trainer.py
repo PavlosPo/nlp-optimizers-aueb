@@ -15,7 +15,7 @@ class CustomTrainer:
                 criterion, device: torch.device,
                 base_optimizer = torchopt.adam,
                 base_optimizer_lr: float = 0.0001,
-                num_of_fosi_optimizer_iterations: int = 10,
+                num_of_fosi_optimizer_iterations: int = 150,
                 epochs: int = 1,
                 num_classes: int = 2,
                 approx_k = 20):
