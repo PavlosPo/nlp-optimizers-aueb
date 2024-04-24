@@ -111,7 +111,7 @@ class CustomTrainer:
                 attention_mask = batch['attention_mask'].to(self.device)
                 labels = batch['labels'].to(self.device)
                 # Calculate loss
-                loss, logits = self.loss_fn(self.params, self.buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+                loss, logits = self._loss_fn_with_logits(self.params, self.buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
                 grads = torch.autograd.grad(loss, self.params)
                 updates, self.opt_state = self.optimizer.update(grads, self.opt_state, self.params)
                 self.params = torchopt.apply_updates(self.params, updates)
@@ -153,11 +153,15 @@ class CustomTrainer:
         self.logger.close()
         print(f"Test Loss: {test_loss}")
 
-    def loss_fn(self, params: Tuple[Tensor], buffers: Tuple[Tensor], input_ids: Tensor, attention_mask: Tensor, labels: Tensor) -> Tuple[Tensor, Tensor]:
+    def loss_fn(self, params, batch) -> Tuple[Tensor]:
+        input_ids = batch['input_ids'].to(self.device)
+        attention_mask = batch['attention_mask'].to(self.device)
+        labels = batch['labels'].to(self.device)
+
         apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
         logits = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
-        return loss, logits
+        return loss
     
 
     def step(self, params, buffers, batch, opt_state):
@@ -166,11 +170,17 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         # Calculate loss
-        loss, logits = self.loss_fn(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         grads = torch.autograd.grad(loss, params)
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
         params = torchopt.apply_updates(params, updates)
         return params, opt_state, loss, logits
+    
+    def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
+        apply_fn, params, buffers = self.make_functional_with_buffers(self.original_model, new_params_values=params, new_buffers_values=buffers, disable_autograd_tracking=False)
+        logits = apply_fn(input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
+        return loss, logits
 
     
     def evaluate(self, epoch: int, val_loader: DataLoader = None):
@@ -180,7 +190,7 @@ class CustomTrainer:
         total_loss = 0
         for i, batch in progress_bar:
             with torch.no_grad():
-                loss, logits = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
+                loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 total_loss += loss.item()
                 self.logger.custom_log_validation(epoch=epoch, batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
             progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
@@ -193,7 +203,7 @@ class CustomTrainer:
         total_loss = 0
         for i, batch in progress_bar:
             with torch.no_grad():
-                loss, logits = self.loss_fn(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
+                loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 self.logger.custom_log_test(batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
             total_loss += loss.item()
             progress_bar.set_description(f"Test Epoch: {i+1}, Test Loss: {loss.item():.4f}")

@@ -177,6 +177,6 @@ def lanczos_eigen_approx_test():
 
 
 if __name__ == '__main__':
-    device = torch.device("cuda")  # "cpu" or "cuda"
+    device = torch.device("cpu")  # "cpu" or "cuda"
     lanczos_algorithm_test()
     lanczos_eigen_approx_test()
