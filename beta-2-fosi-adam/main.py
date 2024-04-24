@@ -70,7 +70,7 @@ trainer = CustomTrainer(original_model,
     device=device,
     approx_k=k_approx,
     base_optimizer_lr=learning_rate,
-    num_of_fosi_iterations=num_of_fosi_iterations)
+    num_of_fosi_optimizer_iterations=num_of_fosi_iterations)
 
 trainer.give_additional_data_for_logging(
         dataset_name=dataset_from,
