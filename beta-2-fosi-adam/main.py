@@ -5,36 +5,41 @@ from trainer import CustomTrainer
 from utils import set_seed
 
 # Prompt user for dataset choice
-dataset_from = input("Enter the dataset you want to use (e.g., 'glue'): ") or 'glue'
+dataset_from = "glue"
 
 # Prompt user for model name
-model_name = input("Enter the model name (e.g., 'bert-base-uncased'): ") or 'bert-base-uncased'
+model_name = input("\nEnter the model name (e.g., 'distilbert-base-uncased'): ") or 'distilbert-base-uncased'
 
 # Prompt user for dataset task
-dataset_task = input("Enter the dataset task (e.g., 'sst2'): ") or 'sst2'
+dataset_task = input("\nEnter the dataset task (e.g., 'sst2'): ") or 'sst2'
 
 # Prompt user for seed number
-seed_num = int(input("Enter the seed number (default is 1): ") or '1')
+seed_num = int(input("\nEnter the seed number (default is 1): ") or '1')
 
-k_approx = int(input("Enter the number of max eigenvalues to approximate (default is 20): ") or '20')
+k_approx = int(input("\nEnter the number of max eigenvalues to approximate (default is 20): ") or '20')
 
-learning_rate = float(input("Enter the learning rate (default is 5e-5): ") or '5e-5')
+num_of_fosi_iterations = int(input("\nEnter the rate iteration to apply FOSI (default is every 100 steps): ") or '100')
+
+learning_rate = float(input("\nEnter the learning rate (default is 5e-5): ") or '5e-5')
 
 try:
-    range_to_select = int(input("Enter the range to select (default is All Dataset): ")) 
+    range_to_select = int(input("\nEnter the range to select (default is All Dataset): ")) 
 except ValueError:
     range_to_select = None
 
-batch_size = int(input("Enter the batch size (default is 8): ") or '8')
+batch_size = int(input("\nEnter the batch size (default is 4): ") or '4')
 
 # Prompt user for number of epochs
-epochs = int(input("Enter the number of epochs (default is 2): ") or '2')
+epochs = int(input("\nEnter the number of epochs (default is 2): ") or '2')
 
 # Set seed for reproducibility
 set_seed(seed_num)
 
 # Set device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+try: 
+    device = torch.device("tpu")
+except:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task=="stsb" else 2
 
@@ -43,8 +48,6 @@ original_model = BertClassifier(
     model_name=model_name,
     num_labels=num_classes,
 )
-
-# print(f"Model: {original_model}")
 
 # Prepare dataset
 custom_dataloader = CustomDataLoader(
@@ -66,7 +69,8 @@ trainer = CustomTrainer(original_model,
     criterion=torch.nn.CrossEntropyLoss(),  # This is not be applied , it is hardcoded for now
     device=device,
     approx_k=k_approx,
-    base_optimizer_lr=learning_rate)
+    base_optimizer_lr=learning_rate,
+    num_of_fosi_iterations=num_of_fosi_iterations)
 
 trainer.give_additional_data_for_logging(
         dataset_name=dataset_from,
@@ -81,9 +85,8 @@ trainer.give_additional_data_for_logging(
         range_to_select=range_to_select,
         batch_size=batch_size,
         epochs=epochs,
+        num_of_optimizer_iterations=num_of_fosi_iterations,
     )
 trainer.init_information_logger()
 
-
-
-trainer.train_val_test()  # Get functional model, params, and buffers
+trainer.train_val_test()

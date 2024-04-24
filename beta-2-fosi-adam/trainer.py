@@ -156,7 +156,6 @@ class CustomTrainer:
         base_optimizer_name = type(self.base_optimizer).__name__
         learning_rate_of_base_optimizer = self.base_optimizer_lr
         optimizer_name = self.optimizer.__name__
-        num_of_optimizer_iterations = self.num_of_fosi_optimizer_iterations
         num_classes = self.num_classes
         if range_to_select is None:
             range_to_select = 'All Dataset'
