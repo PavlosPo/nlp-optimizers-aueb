@@ -48,8 +48,8 @@ class CustomLogger:
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
         # ic(outputs_softmax)
         outputs_argmax = np.argmax(outputs_softmax, axis=1)
-        ic(outputs_argmax)
-        ic(labels)
+        # ic(outputs_argmax)
+        # ic(labels)
 
         # Calculate metrics
         f1 = f1_score(labels, outputs_argmax, average='macro')
