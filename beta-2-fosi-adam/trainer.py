@@ -22,7 +22,8 @@ class CustomTrainer:
                 num_of_fosi_optimizer_iterations: int = 150,
                 epochs: int = 1,
                 num_classes: int = 2,
-                approx_k = 20):
+                approx_k = 20,
+                eval_steps: int = 10):
         self.original_model = original_model
         self.base_optimizer_lr = base_optimizer_lr
         self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
@@ -38,21 +39,17 @@ class CustomTrainer:
         self.num_classes = num_classes
         self.device = device
         self.approx_k = approx_k
-        self.logger = CustomLogger(len_train_loader=len(self.train_loader), 
-                                   len_validation_loader=len(self.val_loader), 
-                                   len_test_loader=len(self.test_loader))
-        self.additional_information = {}
+        self.eval_steps = eval_steps
+        self.logger = CustomLogger()
         
     def train_val_test(self):
         self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
-        self.optimizer = self.optimizer(self.base_optimizer, 
-                                         self.loss_fn, 
-                                         data, 
-                                         approx_k=self.approx_k ,
-                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, 
-                                         alpha=0.01)
+        self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
+                                        approx_k=self.approx_k , 
+                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, 
+                                        alpha=0.01)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
@@ -65,7 +62,7 @@ class CustomTrainer:
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
                 self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
-                if global_step % 1 == 0: # Per 100 steps
+                if global_step % self.eval_steps == 0: # Per 100 steps
                     total_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
                     print(f"\nTotal Validation loss: {total_val_loss}\n")
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
@@ -83,7 +80,7 @@ class CustomTrainer:
         # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
         apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
         logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
-        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze()).to(self.device)
+        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
         return loss
     
 
@@ -118,10 +115,10 @@ class CustomTrainer:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 total_loss += loss.item()
-                outputs_all.extend(logits.clone().detach().cpu().numpy())
-                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
-            progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
-        self.logger.custom_log(global_step=global_step, loss=total_loss, outputs=outputs_all, labels=labels_all, mode='validation')
+                outputs_all.extend(logits.squeeze().clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].squeeze().clone().detach().cpu().numpy())
+            progress_bar.set_description(f"Validation at Global Step: {global_step}, Validation Loss: {loss.item():.4f}")
+        self.logger.custom_log(global_step=global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
         return total_loss / len(val_loader)
 
 
@@ -137,12 +134,11 @@ class CustomTrainer:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])
                 total_loss += loss.item()
-                outputs_all.extend(logits.clone().detach().cpu().numpy())
-                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
-            progress_bar.set_description(f"Test Epoch: {i+1}, Test Loss: {loss.item():.4f}")
-        # Call the custom log validation method with accumulated metrics
-        self.logger.custom_log(global_step=0, loss=total_loss, outputs=outputs_all, labels=labels_all, mode='test')
-        return torch.mean(torch.tensor(total_loss).to(self.device)/len(test_loader))
+                outputs_all.extend(logits.squeeze().clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].squeeze().clone().detach().cpu().numpy())
+            progress_bar.set_description(f"Test Loss: {loss.item():.4f}")
+        self.logger.custom_log(global_step=1, loss=total_loss, outputs=outputs_all, labels=labels_all, mode='test')
+        return total_loss/len(test_loader)
     
     # def give_additional_data_for_logging(self, 
     #                                     dataset_name: str = None,

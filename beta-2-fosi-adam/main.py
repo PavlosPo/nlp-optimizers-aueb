@@ -16,6 +16,8 @@ dataset_task = input("\nEnter the dataset task (e.g., 'sst2'): ") or 'sst2'
 # Prompt user for seed number
 seed_num = int(input("\nEnter the seed number (default is 1): ") or '1')
 
+eval_step = int(input("\nEnter the evaluation steps (default is 10): ") or '10')
+
 k_approx = int(input("\nEnter the number of max eigenvalues to approximate (default is 20): ") or '20')
 
 num_of_fosi_iterations = int(input("\nEnter the rate iteration to apply FOSI (default is every 100 steps): ") or '100')
@@ -70,7 +72,8 @@ trainer = CustomTrainer(original_model,
     device=device,
     approx_k=k_approx,
     base_optimizer_lr=learning_rate,
-    num_of_fosi_optimizer_iterations=num_of_fosi_iterations)
+    num_of_fosi_optimizer_iterations=num_of_fosi_iterations,
+    eval_steps=eval_step)
 
 trainer.give_additional_data_for_logging(
         dataset_name=dataset_from,
@@ -92,7 +95,8 @@ trainer.give_additional_data_for_logging(
         model_type="bert",
         optimizer="fosi",
         criterion="cross_entropy",
-        task_type="classification"
+        task_type="classification",
+        eval_steps=eval_step
     )
 # trainer.init_information_logger()
 

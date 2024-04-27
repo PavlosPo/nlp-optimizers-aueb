@@ -8,15 +8,12 @@ from icecream import ic
 import datetime
 
 class CustomLogger:
-    def __init__(self, len_train_loader: int, len_validation_loader: int, len_test_loader: int) -> None:
-        self.len_train_loader = len_train_loader
-        self.len_validation_loader = len_validation_loader
-        self.len_test_loader = len_test_loader
+    def __init__(self) -> None:
         self.writer = None
 
     def _initialize_writer(self):
         if self.writer is None:
-            self.writer = SummaryWriter(log_dir=f"./runs/{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
+            self.writer = SummaryWriter(log_dir=f"./runs2/{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
 
     def _log_metrics(self, mode, global_step, metrics):
         self._initialize_writer()
@@ -43,15 +40,15 @@ class CustomLogger:
             self.writer.close()
 
     def custom_log(self, global_step, loss, outputs, labels, mode): # mode = 'train' , 'validation', 'test
-        outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
-        labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
+        outputs = outputs.squeeze().clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
+        labels = labels.squeeze().clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
 
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
         outputs_argmax = np.argmax(outputs_softmax, axis=1)
 
         self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
 
-    def create_and_log_values(self, loss, outputs_argmax, labels, global_step, mode='NaN'):
+    def create_and_log_values(self, loss, outputs_argmax, labels, global_step, mode):
         # Calculate metrics
         f1 = f1_score(labels, outputs_argmax, average='macro')
         accuracy = accuracy_score(labels, outputs_argmax)
