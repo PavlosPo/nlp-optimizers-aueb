@@ -86,7 +86,14 @@ trainer.give_additional_data_for_logging(
         batch_size=batch_size,
         epochs=epochs,
         num_of_optimizer_iterations=num_of_fosi_iterations,
+        learning_rate=learning_rate,
+        model_name=model_name,
+        device=device,
+        model_type="bert",
+        optimizer="fosi",
+        criterion="cross_entropy",
+        task_type="classification"
     )
-trainer.init_information_logger()
+# trainer.init_information_logger()
 
 trainer.train_val_test()

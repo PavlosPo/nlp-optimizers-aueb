@@ -46,9 +46,6 @@ class CustomTrainer:
     def train_val_test(self):
         self.original_model.to(self.device)
         self.original_model.train()
-
-        # Get a batch of data to initialize the optimizer
-        # This is required to initialize the FOSI optimizer 
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, 
                                          self.loss_fn, 
@@ -67,14 +64,11 @@ class CustomTrainer:
                 global_step += 1
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
-                self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'])  # per step
-                if global_step % 100 == 0: # Per 100 steps
-                    self.evaluate(global_step=global_step, val_loader=self.val_loader)
+                self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
+                if global_step % 1 == 0: # Per 100 steps
+                    total_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
+                    print(f"\nTotal Validation loss: {total_val_loss}\n")
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
-            # Evaluation starts Here - at the end of each epoch
-            # val_loss_in_this_epoch = self.evaluate(epoch, self.val_loader)
-            # print(f"Validation Epoch: {epoch+1}, Validation Loss: {val_loss_in_this_epoch}")
-        # Test starts here
         test_loss = self.test(self.test_loader)
         self.logger.close()
         print(f"Test Loss: {test_loss}")
@@ -86,7 +80,6 @@ class CustomTrainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        
         # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
         apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
         logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
@@ -99,7 +92,6 @@ class CustomTrainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        # Calculate loss and return logits too
         loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         grads = torch.autograd.grad(loss, params)
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
@@ -126,62 +118,64 @@ class CustomTrainer:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 total_loss += loss.item()
-                outputs_all.append(logits.clone().detach())
-                labels_all.append(batch['labels'].clone().detach())
+                outputs_all.extend(logits.clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Validation Epoch: {i+1}, Validation Loss: {loss.item():.4f}")
+        self.logger.custom_log(global_step=global_step, loss=total_loss, outputs=outputs_all, labels=labels_all, mode='validation')
+        return total_loss / len(val_loader)
 
-        # Call the custom log validation method with accumulated metrics
-        self.logger.custom_log_in_total(global_step=global_step, total_loss=total_loss, outputs_all=outputs_all, labels_all=labels_all)
-        
-        return torch.mean(torch.tensor(total_loss).to(self.device)/len(val_loader))
+
             
     def test(self, test_loader: DataLoader = None):
         assert test_loader is not None, "Test loader is required for testing"
         progress_bar = tqdm(enumerate(test_loader, 0), total=len(test_loader))
         self.original_model.eval()  # Set the model to evaluation mode
         total_loss = 0
+        outputs_all = []
+        labels_all = []
         for i, batch in progress_bar:
             with torch.no_grad():
-                loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
-                self.logger.custom_log_test(batch_idx=i, loss=loss, outputs=logits, labels=batch['labels'])
-            total_loss += loss.item()
+                loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])
+                total_loss += loss.item()
+                outputs_all.extend(logits.clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Test Epoch: {i+1}, Test Loss: {loss.item():.4f}")
-            # print(f"Test Loss: {total_loss/len(test_loader)}")
+        # Call the custom log validation method with accumulated metrics
+        self.logger.custom_log(global_step=0, loss=total_loss, outputs=outputs_all, labels=labels_all, mode='test')
         return torch.mean(torch.tensor(total_loss).to(self.device)/len(test_loader))
     
-    def give_additional_data_for_logging(self, 
-                                        dataset_name: str = None,
-                                        dataset_task: str = None,
-                                        dataset_size: int = None,
-                                        test_dataset_size: int = None,
-                                        validation_dataset_size: int = None,
-                                        train_dataset_size: int = None,
-                                        num_classes: int = None,
-                                        optimizer_name: str = None,
-                                        base_optimizer_name: str = None,
-                                        learning_rate_of_base_optimizer: float = None,
-                                        batch_size: int = None,
-                                        epochs: int = None,
-                                        k_approx: int = None,
-                                        num_of_optimizer_iterations: int = None,
-                                        range_to_select: int = None,
-                                        seed_num: int = None) -> None: 
+    # def give_additional_data_for_logging(self, 
+    #                                     dataset_name: str = None,
+    #                                     dataset_task: str = None,
+    #                                     dataset_size: int = None,
+    #                                     test_dataset_size: int = None,
+    #                                     validation_dataset_size: int = None,
+    #                                     train_dataset_size: int = None,
+    #                                     num_classes: int = None,
+    #                                     optimizer_name: str = None,
+    #                                     base_optimizer_name: str = None,
+    #                                     learning_rate_of_base_optimizer: float = None,
+    #                                     batch_size: int = None,
+    #                                     epochs: int = None,
+    #                                     k_approx: int = None,
+    #                                     num_of_optimizer_iterations: int = None,
+    #                                     range_to_select: int = None,
+    #                                     seed_num: int = None) -> None: 
+    #     """Creates config file for the experiment and logs it."""
+
+    #     base_optimizer_name = type(self.base_optimizer).__name__
+    #     learning_rate_of_base_optimizer = self.base_optimizer_lr
+    #     optimizer_name = self.optimizer.__name__
+    #     num_classes = self.num_classes
+    #     if range_to_select is None:
+    #         range_to_select = 'All Dataset'
+    #     # Create a dictionary using locals() = local variables
+    #     self.additional_information = {key: value for key, value in locals().items() if key != 'self' and value is not None}
+    #     ic(self.additional_information)
+
+    def give_additional_data_for_logging(self, **kwargs) -> None:
         """Creates config file for the experiment and logs it."""
-
-        base_optimizer_name = type(self.base_optimizer).__name__
-        learning_rate_of_base_optimizer = self.base_optimizer_lr
-        optimizer_name = self.optimizer.__name__
-        num_classes = self.num_classes
-        if range_to_select is None:
-            range_to_select = 'All Dataset'
-        # Create a dictionary using locals() = local variables
-        self.additional_information = {key: value for key, value in locals().items() if key != 'self' and value is not None}
-        ic(self.additional_information)
-
-    def init_information_logger(self):
-        if self.additional_information:
-            # Dictionary is not empty
-            self.logger.log_additional_information(**self.additional_information)
+        self.logger.log_dataset_info(**kwargs)
 
     def make_functional_with_buffers(self, mod, disable_autograd_tracking=False):
         """
