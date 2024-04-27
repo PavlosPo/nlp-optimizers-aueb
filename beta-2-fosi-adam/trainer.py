@@ -137,7 +137,7 @@ class CustomTrainer:
                 outputs_all.extend(logits.squeeze().clone().detach().cpu().numpy())
                 labels_all.extend(batch['labels'].squeeze().clone().detach().cpu().numpy())
             progress_bar.set_description(f"Test Loss: {loss.item():.4f}")
-        self.logger.custom_log(global_step=1, loss=total_loss, outputs=outputs_all, labels=labels_all, mode='test')
+        self.logger.custom_log(global_step=1, loss=total_loss/len(test_loader), outputs=outputs_all, labels=labels_all, mode='test')
         return total_loss/len(test_loader)
     
     # def give_additional_data_for_logging(self, 
