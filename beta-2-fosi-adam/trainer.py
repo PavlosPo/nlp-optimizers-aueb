@@ -48,8 +48,7 @@ class CustomTrainer:
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
                                         approx_k=self.approx_k , 
-                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, 
-                                        alpha=0.01)
+                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)

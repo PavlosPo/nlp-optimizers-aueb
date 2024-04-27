@@ -1,6 +1,7 @@
 from typing import Dict
 from torch.utils.tensorboard import SummaryWriter  # Import SummaryWriter for TensorBoard logging
 from evaluate import load
+import evaluate
 # from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, mean_absolute_error, roc_auc_score, matthews_corrcoef
 import torch
 import torch.nn.functional as F
@@ -56,6 +57,12 @@ class CustomLogger:
         metrics = evaluator.compute(predictions=outputs_argmax, references=labels)
         # add loss to metrics
         metrics['loss'] = loss.clone().detach().cpu().item() if torch.is_tensor(loss) else np.array(loss)
+        metrics['f1'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
+        metrics['accuracy'] = evaluate.load('accuracy').compute(predictions=outputs_argmax, references=labels)['accuracy']
+        metrics['precision'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
+        metrics['recall'] = evaluate.load('recall').compute(predictions=outputs_argmax, references=labels)['recall']
+        metrics['mae'] = evaluate.load('mae').compute(predictions=outputs_argmax, references=labels)['mae']
+        # metrics['auc_roc'] = evaluate.load('auc_roc').compute(predictions=outputs_argmax, references=labels)
         ic(metrics)
         self.log_metrics(mode, global_step, **metrics)
 
