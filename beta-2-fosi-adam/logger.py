@@ -1,6 +1,7 @@
 from typing import Dict
 from torch.utils.tensorboard import SummaryWriter  # Import SummaryWriter for TensorBoard logging
-from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, mean_absolute_error, roc_auc_score, matthews_corrcoef
+from evaluate import load
+# from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, mean_absolute_error, roc_auc_score, matthews_corrcoef
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -25,6 +26,7 @@ class CustomLogger:
 
     def log_dataset_info(self, **dataset_info):
         self._initialize_writer()
+        self.dataset_info = dataset_info
         if dataset_info:
             for key, value in dataset_info.items():
                 self.writer.add_text('Dataset Information', f'{key}: {value}')
@@ -49,26 +51,34 @@ class CustomLogger:
         self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
 
     def create_and_log_values(self, loss, outputs_argmax, labels, global_step, mode):
-        # Calculate metrics
-        f1 = f1_score(labels, outputs_argmax, average='macro')
-        accuracy = accuracy_score(labels, outputs_argmax)
-        precision = precision_score(labels, outputs_argmax, average='macro', zero_division=0)
-        recall = recall_score(labels, outputs_argmax, average='macro')
-        mae = mean_absolute_error(labels, outputs_argmax)
-        try:
-            auc_roc = roc_auc_score(labels, outputs_argmax, average='weighted', multi_class='ovr')
-        except ValueError:
-            auc_roc = 0.0
-        mcc = matthews_corrcoef(labels, outputs_argmax)
+        # Calculate metrics based on evaluate function
+        evaluator = load(self.dataset_info['dataset_name'].lower(), self.dataset_info['dataset_task'].lower())
+        metrics = evaluator.compute(predictions=outputs_argmax, references=labels)
+        # add loss to metrics
+        metrics['loss'] = loss.clone().detach().cpu().item() if torch.is_tensor(loss) else np.array(loss)
+        ic(metrics)
+        self.log_metrics(mode, global_step, **metrics)
 
-        self.log_metrics(mode, global_step, Loss=loss, 
-                         F1_Macro=f1, 
-                         Accuracy=accuracy, 
-                         Precision=precision, 
-                         Recall=recall, 
-                         Mae=mae, 
-                         Auc_Roc=auc_roc, 
-                         Mathews_corr=mcc)
+        # # Calculate metrics
+        # f1 = f1_score(labels, outputs_argmax, average='macro')
+        # accuracy = accuracy_score(labels, outputs_argmax)
+        # precision = precision_score(labels, outputs_argmax, zero_division=0)
+        # recall = recall_score(labels, outputs_argmax)
+        # mae = mean_absolute_error(labels, outputs_argmax)
+        # try:
+        #     auc_roc = roc_auc_score(labels, outputs_argmax, multi_class='ovr')
+        # except ValueError:
+        #     auc_roc = 0.0
+        # mcc = matthews_corrcoef(labels, outputs_argmax)
+
+        # self.log_metrics(mode, global_step, Loss=loss, 
+        #                  F1_Macro=f1, 
+        #                  Accuracy=accuracy, 
+        #                  Precision=precision, 
+        #                  Recall=recall, 
+        #                  Mae=mae, 
+        #                  Auc_Roc=auc_roc, 
+        #                  Mathews_corr=mcc)
 
         # print(f"Train Epoch {epoch}: Loss: {loss}, F1 Score: {f1}, Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, MAE: {mae}, AUC ROC: {auc_roc}, MCC: {mcc}")
 
