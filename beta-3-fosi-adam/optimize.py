@@ -6,10 +6,7 @@ from trainer import CustomTrainer
 from utils import set_seed
 from icecream import ic
 
-<<<<<<< HEAD
-=======
 ic.disable()
->>>>>>> 7b0cb21730bc3119cea50d68a9aba85a03688c21
 
 set_seed(1)
 ic.disable()
