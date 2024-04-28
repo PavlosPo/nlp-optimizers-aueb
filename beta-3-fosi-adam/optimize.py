@@ -6,6 +6,10 @@ from trainer import CustomTrainer
 from utils import set_seed
 from icecream import ic
 
+<<<<<<< HEAD
+=======
+ic.disable()
+>>>>>>> 7b0cb21730bc3119cea50d68a9aba85a03688c21
 
 set_seed(1)
 ic.disable()
@@ -19,7 +23,7 @@ def objective(trial):
     dataset_from = "glue"
     dataset_task = "cola"
     seed_num = 1
-    eval_step = 150
+    eval_step = 100
     model_name = 'distilbert-base-uncased'
     range_to_select = None
     batch_size = 32
