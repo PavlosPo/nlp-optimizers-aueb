@@ -4,6 +4,9 @@ from model import BertClassifier
 from dataset import CustomDataLoader
 from trainer import CustomTrainer
 from utils import set_seed
+from icecream import ic
+
+ic.disable()
 
 set_seed(1)
 
@@ -16,7 +19,7 @@ def objective(trial):
     dataset_from = "glue"
     dataset_task = "cola"
     seed_num = 1
-    eval_step = 150
+    eval_step = 100
     model_name = 'distilbert-base-uncased'
     range_to_select = None
     batch_size = 32
