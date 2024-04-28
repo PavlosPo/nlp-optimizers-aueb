@@ -68,6 +68,35 @@ class CustomTrainer:
         test_loss = self.test(self.test_loader)
         self.logger.close()
         print(f"Test Loss: {test_loss}")
+
+    def fine_tune(self) -> float:
+        """Returns the total validation loss after training the model, in order to be used by the optimizer to fine tune.
+
+        Returns:
+            float: total validation loss from the last model, not the best one until that epoch.
+        """
+        self.original_model.to(self.device)
+        self.original_model.train()
+        data = next(iter(self.train_loader))
+        self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
+                                        approx_k=self.approx_k , 
+                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
+        self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
+        self.params = tuple(param.to(self.device) for param in self.params)
+        self.opt_state = self.optimizer.init(self.params)
+        # Train starts here
+        global_step = 0
+        for epoch in range(self.epochs): # This picks just the model weights of the last epoch, not the best one till that epoch.
+            progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
+            for i, batch in progress_bar:
+                global_step += 1
+                self.original_model.train()
+                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
+                progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+        total_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
+        self.logger.close()
+        print(f"Total Validation Loss: {total_val_loss}")
         return total_val_loss
 
     def loss_fn(self, params, batch) -> Tuple[Tensor]:
