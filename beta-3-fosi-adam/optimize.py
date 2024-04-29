@@ -23,8 +23,8 @@ def objective(trial):
     eval_step = 100
     model_name = 'distilbert-base-uncased'
     range_to_select = None
-    batch_size = 32
-    epochs = 3
+    batch_size = 128
+    epochs = 2
     num_classes = 2
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
