@@ -89,7 +89,8 @@ if __name__ == "__main__":
     study = optuna.create_study(study_name='fine-tuning-study', storage=sqlite_url, load_if_exists=True)
 
     # Optimize the study
-    study.optimize(objective, n_trials=100)  # Adjust n_trials as needed
+    study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
+    # Tree-Structured Parzen Estimation (Bergstra et al., 2011, 2013) and median-based pruning
 
     # Save the best params to a text file
     with open("best_params.txt", "w") as f:

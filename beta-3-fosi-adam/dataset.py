@@ -96,14 +96,14 @@ class CustomDataLoader:
         """
         loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
         dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label') # in the concat do not include the test dataset
-        dataset['train'] = dataset['train']
-        dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
-        dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
+        train = dataset['train']
+        valid = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
+        test = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
         # Prepare the dataset dictionary to return
         dataset_to_return = DatasetDict({
-              'train': dataset['train'],
-              'validation': dataset['validation'],
-              'test': dataset['test']
+              'train': train,
+              'validation': valid,
+              'test': test
           })
         ic(dataset_to_return)
         return dataset_to_return
@@ -172,7 +172,7 @@ class CustomDataLoader:
           })
           """
           loaded_dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
-          dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
+          dataset = concatenate_datasets([loaded_dataset["train"], loaded_dataset["validation"], load_dataset['test']]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
           # dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
           # dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
           # Prepare the dataset dictionary to return
