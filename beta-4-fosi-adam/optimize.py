@@ -14,12 +14,12 @@ seed_num = int(input("\nEnter the seed number (default is 1): ") or '1')
 train_epoch = int(input("The number of training epochs: (default is 2): ") or '2')
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_from = "glue"
-eval_step = 100
+eval_step = 30
 model_name = 'distilbert-base-uncased'
 batch_size = 4
-logging_steps = 500
+logging_steps = 30
 num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task == "stsb" else 2
-range_to_select = None
+range_to_select = 150
 
 
 set_seed(seed_num)

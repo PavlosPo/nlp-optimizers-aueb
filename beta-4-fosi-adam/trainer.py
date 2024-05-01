@@ -108,7 +108,7 @@ class CustomTrainer:
         }
 
         # Save the state dictionary to a file
-        with open(filepath.strip() + ".ckpt", 'wb') as f:
+        with open(filepath.strip(), 'wb') as f:
             pickle.dump(state_dict, f)
 
     @staticmethod
@@ -118,7 +118,7 @@ class CustomTrainer:
             raise FileNotFoundError(f"Checkpoint file not found at '{filepath}'")
 
         # Load the state dictionary from the file
-        with open(filepath + ".ckpt", 'rb') as f:
+        with open(filepath.strip(), 'rb') as f:
             state_dict = pickle.load(f)
 
         # Restore the model parameters and buffers
