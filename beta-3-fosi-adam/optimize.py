@@ -23,7 +23,7 @@ def objective(trial):
     num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 0, 200)
     # Add more hyperparameters as needed
     dataset_from = "glue"
-    dataset_task = dataset_task
+    # dataset_task = dataset_task
     seed_num = seed_num
     eval_step = 100
     model_name = 'distilbert-base-uncased'
