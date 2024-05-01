@@ -9,30 +9,27 @@ from icecream import ic
 ic.disable()
 
 # Input user the seed 
-dataset_task = str(input("Enter the task to run: (default is cola)") or 'cola')
+dataset_task = str(input("Enter the task to run: (default is cola): ") or 'cola')
 seed_num = int(input("\nEnter the seed number (default is 1): ") or '1')
-train_epoch = int(input("The number of training epochs: (default is 2)") or '2')
+train_epoch = int(input("The number of training epochs: (default is 2): ") or '2')
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+dataset_from = "glue"
+eval_step = 100
+model_name = 'distilbert-base-uncased'
+batch_size = 4
+logging_steps = 500
+num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task == "stsb" else 2
+range_to_select = None
 
 
-set_seed(1)
+set_seed(seed_num)
 
 def objective(trial):
     # Define hyperparameters to tune
     learning_rate = trial.suggest_float('learning_rate', 1e-7, 1e-2)
     k_approx = trial.suggest_int('k_approx', 0, 20)
     num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 0, 200)
-    # Add more hyperparameters as needed
-    dataset_from = "glue"
-    # dataset_task = dataset_task
-    # seed_num = seed_num
-    eval_step = 100
-    model_name = 'distilbert-base-uncased'
-    range_to_select = None
-    batch_size = 4
-    logging_steps = 500
-    num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task == "stsb" else 2
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    
     # Load model
     original_model = BertClassifier(
         model_name=model_name,
@@ -86,6 +83,7 @@ def objective(trial):
             criterion="cross_entropy",
             task_type="classification",
             eval_steps=eval_step,
+            logging_steps=logging_steps
         )
 
     return trainer.fine_tune()  # Return the metric you want to optimize
