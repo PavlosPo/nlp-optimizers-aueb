@@ -224,6 +224,8 @@ class CustomTrainer:
         self.logger.custom_log(global_step=global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
         return total_loss / len(val_loader)
 
+
+            
     def test(self, test_loader: DataLoader = None):
         assert test_loader is not None, "Test loader is required for testing"
         progress_bar = tqdm(enumerate(test_loader, 0), total=len(test_loader))
