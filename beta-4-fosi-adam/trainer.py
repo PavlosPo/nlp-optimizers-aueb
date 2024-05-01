@@ -108,8 +108,9 @@ class CustomTrainer:
         }
 
         # Save the state dictionary to a file
-        with open(filepath.strip(), 'wb') as f:
-            pickle.dump(state_dict, f)
+        # with open(filepath.strip(), 'wb') as f:
+        #     pickle.dump(state_dict, f)
+        torch.save(state_dict, filepath)
 
     @staticmethod
     def load_checkpoint(filepath):
@@ -118,8 +119,9 @@ class CustomTrainer:
             raise FileNotFoundError(f"Checkpoint file not found at '{filepath}'")
 
         # Load the state dictionary from the file
-        with open(filepath.strip(), 'rb') as f:
-            state_dict = pickle.load(f)
+        # with open(filepath.strip(), 'rb') as f:
+        #     state_dict = pickle.load(f)
+        state_dict = torch.load(filepath)
 
         # Restore the model parameters and buffers
         # Assuming model is initialized before calling load_checkpoint
