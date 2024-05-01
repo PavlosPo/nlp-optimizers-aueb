@@ -97,7 +97,7 @@ class CustomTrainer:
 
             # Save the model checkpoint locally
             # TODO : Make this work
-            self.make_checkpoint("./model_checkpoint")
+            self.make_checkpoint(f"./model_checkpoint")
 
     def make_checkpoint(self, filepath):
         # Serialize model parameters and buffers
