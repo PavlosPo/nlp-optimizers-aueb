@@ -39,7 +39,10 @@ set_seed(seed_num)
 
 # Set device
 try: 
-    device = torch.device("tpu")
+    import torch_xla
+    import torch_xla.core.xla_model as xm
+    device = xm.xla_device()
+    print('XLA Will be used as device.')
 except:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

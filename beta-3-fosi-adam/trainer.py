@@ -8,6 +8,8 @@ from fosi import fosi_adam_torch
 import copy
 from logger import CustomLogger
 from icecream import ic
+import pickle
+import os
 
 class CustomTrainer:
     def __init__(self, 
@@ -23,7 +25,8 @@ class CustomTrainer:
                 epochs: int = 1,
                 num_classes: int = 2,
                 approx_k = 20,
-                eval_steps: int = 10):
+                eval_steps: int = 10,
+                logging_steps: int = 2):
         self.original_model = original_model
         self.base_optimizer_lr = base_optimizer_lr
         self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
@@ -40,7 +43,20 @@ class CustomTrainer:
         self.device = device
         self.approx_k = approx_k
         self.eval_steps = eval_steps
+        self.logging_steps = logging_steps
         self.logger = CustomLogger()
+
+        # VALIDATIONS LOSSES in order to checkpoint the model
+        self.validation_losses = {
+            'current_minimum_loss' : {
+                'loss' : None,
+                'model_params' : None
+            },
+            'current_max_f1' : {
+                'f1' : None,
+                'model_params' : None
+            }
+        }
         
     def train_val_test(self):
         self.original_model.to(self.device)
@@ -60,14 +76,62 @@ class CustomTrainer:
                 global_step += 1
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
-                self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
+                # Logging
+                if self.logging_steps % global_step == 0:
+                    self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
                 if global_step % self.eval_steps == 0: # Per 100 steps
                     total_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
+                    # TODO: Checkpoint the model every logging_step range of batches
+                    self.checkpoint_model(total_val_loss)
                     print(f"\nTotal Validation loss: {total_val_loss}\n")
+
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
         test_loss = self.test(self.test_loader)
         self.logger.close()
         print(f"Test Loss: {test_loss}")
+
+    def checkpoint_model(self, val_loss: float):
+        if self.validation_losses['current_minimum_loss']['loss'] is None or val_loss < self.validation_losses['current_minimum_loss']['loss']:
+            self.validation_losses['current_minimum_loss']['loss'] = val_loss
+            self.validation_losses['current_minimum_loss']['model_params'] = self.params
+
+            # Save the model checkpoint locally
+            # TODO : Make this work
+            self.make_checkpoint("./model_checkpoint")
+
+    def make_checkpoint(self, filepath):
+        # Serialize model parameters and buffers
+        
+        checkpoint_dir = os.path.dirname(filepath)
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)
+
+        state_dict = {
+            'model_params': self.params,
+            'model_buffers': self.buffers
+        }
+
+        # Save the state dictionary to a file
+        with open(filepath.strip() + ".ckpt", 'wb') as f:
+            pickle.dump(state_dict, f)
+
+    @staticmethod
+    def load_checkpoint(filepath):
+        # Check if the file exists
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"Checkpoint file not found at '{filepath}'")
+
+        # Load the state dictionary from the file
+        with open(filepath + ".ckpt", 'rb') as f:
+            state_dict = pickle.load(f)
+
+        # Restore the model parameters and buffers
+        # Assuming model is initialized before calling load_checkpoint
+        params = state_dict['model_params']
+        buffers = state_dict['model_buffers']
+
+        return params, buffers
+
 
     def fine_tune(self) -> float:
         """Returns the total validation loss after training the model, in order to be used by the optimizer to fine tune.
