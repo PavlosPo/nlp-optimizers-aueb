@@ -24,7 +24,7 @@ def objective(trial):
     # Add more hyperparameters as needed
     dataset_from = "glue"
     # dataset_task = dataset_task
-    seed_num = seed_num
+    # seed_num = seed_num
     eval_step = 100
     model_name = 'distilbert-base-uncased'
     range_to_select = None
