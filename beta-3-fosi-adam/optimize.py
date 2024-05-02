@@ -18,13 +18,13 @@ def objective(trial):
     num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
     # Add more hyperparameters as needed
     dataset_from = "glue"
-    dataset_task = "cola"
+    dataset_task = "mrpc"
     seed_num = 1
     eval_step = 100
     model_name = 'distilbert-base-uncased'
     range_to_select = None
-    batch_size = 32
-    epochs = 3
+    batch_size = 4
+    epochs = 2
     num_classes = 2
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     study = optuna.create_study(study_name='fine-tuning-study', storage=sqlite_url, load_if_exists=True)
 
     # Optimize the study
-    study.optimize(objective, n_trials=100)  # Adjust n_trials as needed
+    study.optimize(objective, n_trials=150)  # Adjust n_trials as needed
 
     # Save the best params to a text file
     with open("best_params.txt", "w") as f:
