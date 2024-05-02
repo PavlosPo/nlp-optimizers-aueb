@@ -198,14 +198,10 @@ class CustomTrainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        try:
-            loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-            grads = torch.autograd.grad(loss, params)
-            updates, opt_state = self.optimizer.update(grads, opt_state, params)
-            params = torchopt.apply_updates(params, updates)
-        except Exception as e:
-            print(e)
-            exit("Error in step function. Exiting...")
+        loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        grads = torch.autograd.grad(loss, params)
+        updates, opt_state = self.optimizer.update(grads, opt_state, params)
+        params = torchopt.apply_updates(params, updates)
         return params, opt_state, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):

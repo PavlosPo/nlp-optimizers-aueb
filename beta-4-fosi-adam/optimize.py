@@ -86,7 +86,13 @@ def objective(trial):
             logging_steps=logging_steps
         )
 
-    return trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+    try : # Catch exceptions
+        result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+        return result
+    except Exception as e: # Return None if an exception occurs
+        print(f"An exception occurred: {e}")
+        return None
+
 
 if __name__ == "__main__":
     # Specify the SQLite URL with load_if_exists=True to load the existing study if it exists
