@@ -26,14 +26,14 @@ set_seed(seed_num)
 
 def objective(trial):
     # Define hyperparameters to tune
-    learning_rate = trial.suggest_float('learning_rate', 1e-6, 1e-2)
+    learning_rate = trial.suggest_float('learning_rate', 1e-7, 1e-3)
     k_approx = trial.suggest_int('k_approx', 5, 20)
     num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
     # Add more hyperparameters as needed
     dataset_from = "glue"
     dataset_task = "mrpc"
     seed_num = 1
-    eval_step = 100
+    eval_step = 250
     model_name = 'distilbert-base-uncased'
     range_to_select = None
     batch_size = 4
