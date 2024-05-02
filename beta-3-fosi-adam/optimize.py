@@ -13,17 +13,17 @@ ic.disable()
 
 def objective(trial):
     # Define hyperparameters to tune
-    learning_rate = trial.suggest_float('learning_rate', 1e-6, 1e-2)
+    learning_rate = trial.suggest_float('learning_rate', 1e-7, 1e-3)
     k_approx = trial.suggest_int('k_approx', 5, 20)
     num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
     # Add more hyperparameters as needed
     dataset_from = "glue"
     dataset_task = "cola"
     seed_num = 1
-    eval_step = 100
+    eval_step = 250
     model_name = 'distilbert-base-uncased'
     range_to_select = None
-    batch_size = 128
+    batch_size = 32
     epochs = 2
     num_classes = 2
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -85,8 +85,8 @@ def objective(trial):
 
 if __name__ == "__main__":
     # Specify the SQLite URL with load_if_exists=True to load the existing study if it exists
-    sqlite_url = 'sqlite:///fine_tuning_database.db'
-    study = optuna.create_study(study_name='fine-tuning-study', storage=sqlite_url, load_if_exists=True)
+    sqlite_url = 'sqlite:///fine_tuning_database_32.db'
+    study = optuna.create_study(study_name='fine-tuning-study-32', storage=sqlite_url, load_if_exists=True)
 
     # Optimize the study
     study.optimize(objective, n_trials=100)  # Adjust n_trials as needed

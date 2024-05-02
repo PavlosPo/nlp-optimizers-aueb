@@ -1,1 +1,1 @@
-{'learning_rate': 0.0001886459536387818, 'k_approx': 13, 'num_of_fosi_iterations': 186}
+{'learning_rate': 1.8949011163141386e-05, 'k_approx': 9, 'num_of_fosi_iterations': 54}
