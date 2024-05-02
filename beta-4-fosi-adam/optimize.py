@@ -5,21 +5,27 @@ from dataset import CustomDataLoader
 from trainer import CustomTrainer
 from utils import set_seed
 from icecream import ic
+import os
 
 ic.disable()
 
 # Input user the seed 
-dataset_task = str(input("Enter the task to run: (default is cola): ") or 'cola')
+dataset_task = str(input("\nEnter the task to run: (default is cola): ") or 'cola')
 seed_num = int(input("\nEnter the seed number (default is 1): ") or '1')
-train_epoch = int(input("The number of training epochs: (default is 2): ") or '2')
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+train_epoch = int(input("\nThe number of training epochs: (default is 2): ") or '2')
+eval_step = int(input("\nThe number of evaluation steps: (default is 250): ") or '250')
+logging_steps = int(input("\nThe number of logging steps: (default is 250): ") or '250')
+batch_size = int(input("\nThe batch size: (default is 4): ") or '4')
+try:
+    range_to_select = int(input("\nEnter the range to select (default is All Dataset): ")) 
+except ValueError:
+    range_to_select = None
+
 dataset_from = "glue"
-eval_step = 30
 model_name = 'distilbert-base-uncased'
-batch_size = 4
-logging_steps = 30
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task == "stsb" else 2
-range_to_select = 150
 
 
 set_seed(seed_num)
@@ -90,15 +96,23 @@ def objective(trial):
         result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
         return result
     except Exception as e: # Return None if an exception occurs
-        print(f"An exception occurred: {e}")
+        print(f"\nAn exception occurred: \n{e}\n")
+        print("Returning None...")
         return None
 
 
 if __name__ == "__main__":
+    # Specify the directory where you want to store the database
+    database_folder = "../databases_results/"
+    os.makedirs(database_folder, exist_ok=True)  # Ensure the folder exists, create if not
+
     # Specify the SQLite URL with load_if_exists=True to load the existing study if it exists
-    sqlite_url = f'sqlite:///fine_tuning_dataset_{dataset_task}_num_train_epochs_{train_epoch}.db'
+    sqlite_filename = f'fine_tuning_dataset_{dataset_task}_num_train_epochs_{train_epoch}.db'
+    sqlite_path = os.path.join(database_folder, sqlite_filename)
+    sqlite_url = f'sqlite:///{sqlite_path}'
+
     # Set up the median stopping rule as the pruning condition.
-    study = optuna.create_study(study_name='fine-tuning-study', 
+    study = optuna.create_study(study_name=f'{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
                                 storage=sqlite_url, 
                                 load_if_exists=True, 
                                 pruner=optuna.pruners.MedianPruner())
