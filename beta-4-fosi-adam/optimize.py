@@ -32,9 +32,9 @@ set_seed(seed_num)
 
 def objective(trial):
     # Define hyperparameters to tune
-    learning_rate = trial.suggest_float('learning_rate', 1e-7, 1e-2)
+    learning_rate = trial.suggest_float('learning_rate', 1e-5, 1e-8)
     k_approx = trial.suggest_int('k_approx', 0, 20)
-    num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 0, 200)
+    num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
     
     # Load model
     original_model = BertClassifier(
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     os.makedirs(database_folder, exist_ok=True)  # Ensure the folder exists, create if not
 
     # Specify the SQLite URL with load_if_exists=True to load the existing study if it exists
-    sqlite_filename = f'fine_tuning_dataset_{dataset_task}_num_train_epochs_{train_epoch}.db'
+    sqlite_filename = f'database_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}.db'
     sqlite_path = os.path.join(database_folder, sqlite_filename)
     sqlite_url = f'sqlite:///{sqlite_path}'
 
@@ -121,5 +121,5 @@ if __name__ == "__main__":
     study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
 
     # Save the best params to a text file
-    with open("best_params.txt", "w") as f:
+    with open(f"best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}", "w") as f:
         f.write(str(study.best_params))
