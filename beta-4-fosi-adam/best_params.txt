@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {'learning_rate': 5.045339976227526e-05, 'k_approx': 14, 'num_of_fosi_iterations': 148}
+=======
+{'learning_rate': 3.3367630734598855e-05, 'k_approx': 1, 'num_of_fosi_iterations': 134}
+>>>>>>> europe-linux-server
