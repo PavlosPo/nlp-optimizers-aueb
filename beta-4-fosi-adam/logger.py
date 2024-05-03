@@ -56,7 +56,7 @@ class CustomLogger:
         evaluator = load(self.dataset_info['dataset_name'].lower(), self.dataset_info['dataset_task'].lower())
         metrics = evaluator.compute(predictions=outputs_argmax, references=labels)
         # add loss to metrics
-        metrics['loss'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else np.array(loss)
+        metrics['loss'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else loss
         metrics['f1'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
         metrics['accuracy'] = evaluate.load('accuracy').compute(predictions=outputs_argmax, references=labels)['accuracy']
         metrics['precision'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
