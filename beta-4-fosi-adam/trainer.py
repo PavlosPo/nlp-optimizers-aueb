@@ -141,6 +141,7 @@ class CustomTrainer:
         Returns:
             float: total validation loss from the last model, not the best one until that epoch.
         """
+        ic.enable()
         self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
@@ -177,6 +178,7 @@ class CustomTrainer:
         self.logger.close()
         self.params, self.buffers, best_loss = self.load_checkpoint(f"./model_checkpoint") # Load best model
         print(f"Total Best Val Loss: {best_loss}")
+        ic.disable()
         return best_loss
 
     def loss_fn(self, params, batch) -> Tuple[Tensor]:
@@ -188,8 +190,15 @@ class CustomTrainer:
         labels = batch['labels'].to(self.device)
         # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
         apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
-        logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
+        ic(logits)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
+        if loss is None:
+            print("Loss is None, but we are trying again...")
+            loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
+            if loss is None:
+                print('Loss is still None')
+                raise ValueError("Loss is None")
         return loss
     
 
@@ -209,6 +218,7 @@ class CustomTrainer:
         # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
         apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
         logits = apply_fn(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
+        ic(logits)
         loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
         if loss is None:
             print("Loss is None, but we are trying again...")
