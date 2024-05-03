@@ -176,7 +176,7 @@ class CustomTrainer:
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
         # total_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
         self.logger.close()
-        self.params, self.buffers, best_loss = self.load_checkpoint(f"./model_checkpoint") # Load best model
+        best_params, best_buffers, best_loss = self.load_checkpoint(f"./model_checkpoint") # Load best model
         print(f"Total Best Val Loss: {best_loss}")
         ic.disable()
         return best_loss
@@ -189,13 +189,13 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
-        apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
-        logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
+        # apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
+        logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
         ic(logits)
-        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
+        loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if loss is None:
             print("Loss is None, but we are trying again...")
-            loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
+            loss = torch.nn.CrossEntropyLoss()(logits, labels)
             if loss is None:
                 print('Loss is still None')
                 raise ValueError("Loss is None")
@@ -216,13 +216,14 @@ class CustomTrainer:
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
         # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
-        apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
-        logits = apply_fn(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
+        # apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
+        
+        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         ic(logits)
-        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
+        loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if loss is None:
             print("Loss is None, but we are trying again...")
-            loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
+            loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
             if loss is None:
                 print('Loss is still None')
                 raise ValueError("Loss is None")
@@ -239,9 +240,9 @@ class CustomTrainer:
         for i, batch in progress_bar:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
-                total_loss += loss.item()
-                outputs_all.extend(logits.squeeze().clone().detach().cpu().numpy())
-                labels_all.extend(batch['labels'].squeeze().clone().detach().cpu().numpy())
+                total_loss += loss.clone().detach().cpu().numpy().item()
+                outputs_all.extend(logits.clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Validation at Global Step: {global_step}, Validation Loss: {loss.item():.4f}")
         self.logger.custom_log(global_step=global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
         return total_loss / len(val_loader)
@@ -256,9 +257,9 @@ class CustomTrainer:
         for i, batch in progress_bar:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])
-                total_loss += loss.item()
-                outputs_all.extend(logits.squeeze().clone().detach().cpu().numpy())
-                labels_all.extend(batch['labels'].squeeze().clone().detach().cpu().numpy())
+                total_loss += loss.clone().detach().cpu().numpy().item()
+                outputs_all.extend(logits.clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Test Loss: {loss.item():.4f}")
         self.logger.custom_log(global_step=1, loss=total_loss/len(test_loader), outputs=outputs_all, labels=labels_all, mode='test')
         return total_loss/len(test_loader)

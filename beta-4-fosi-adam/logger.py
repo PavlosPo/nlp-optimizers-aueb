@@ -43,10 +43,10 @@ class CustomLogger:
             self.writer.close()
 
     def custom_log(self, global_step, loss, outputs, labels, mode): # mode = 'train' , 'validation', 'test
-        outputs = outputs.squeeze().clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
-        labels = labels.squeeze().clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
+        outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
+        labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
 
-        outputs_softmax = F.softmax(torch.tensor(outputs), dim=1).numpy()
+        outputs_softmax = F.softmax(torch.tensor(outputs), dim=1)
         outputs_argmax = np.argmax(outputs_softmax, axis=1)
 
         self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
@@ -56,7 +56,7 @@ class CustomLogger:
         evaluator = load(self.dataset_info['dataset_name'].lower(), self.dataset_info['dataset_task'].lower())
         metrics = evaluator.compute(predictions=outputs_argmax, references=labels)
         # add loss to metrics
-        metrics['loss'] = loss.clone().detach().cpu().item() if torch.is_tensor(loss) else np.array(loss)
+        metrics['loss'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else np.array(loss)
         metrics['f1'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
         metrics['accuracy'] = evaluate.load('accuracy').compute(predictions=outputs_argmax, references=labels)['accuracy']
         metrics['precision'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
