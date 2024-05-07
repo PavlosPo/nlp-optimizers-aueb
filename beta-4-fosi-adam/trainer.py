@@ -44,7 +44,7 @@ class CustomTrainer:
         self.approx_k = approx_k
         self.eval_steps = eval_steps
         self.logging_steps = logging_steps
-        self.logger = CustomLogger()
+        self.logger = CustomLogger() 
 
         # VALIDATIONS LOSSES in order to checkpoint the model
         self.validation_metrics = {
@@ -65,19 +65,18 @@ class CustomTrainer:
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
         # Train starts here
-        global_step = 0
+        self.global_step = 0
         for epoch in range(self.epochs):
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, batch in progress_bar:
-                global_step += 1
+                self.global_step += 1
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
                 # Logging
-                if self.logging_steps % global_step == 0:
-                    self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
-                if global_step % self.eval_steps == 0: # Per 100 steps
-                    total_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
-                    # TODO: Checkpoint the model every logging_step range of batches
+                if self.logging_steps % self.global_step == 0:
+                    self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
+                if self.global_step % self.eval_steps == 0: # Per 100 steps
+                    total_val_loss = self.evaluate(val_loader=self.val_loader)
                     self.checkpoint_model(total_val_loss)
                     print(f"\nTotal Validation loss: {total_val_loss}\n")
 
@@ -90,45 +89,29 @@ class CustomTrainer:
         if self.validation_metrics['loss'] is None or val_loss < self.validation_metrics['loss']:
             self.validation_metrics['loss'] = val_loss
             self.validation_metrics['model_params'] = self.params
-            # Save the model checkpoint locally
             self.make_checkpoint(f"./model_checkpoint")
 
     def make_checkpoint(self, filepath):
         # Serialize model parameters and buffers
-        
         checkpoint_dir = os.path.dirname(filepath)
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
-
         state_dict = {
             'model_params': self.params,
             'model_buffers': self.buffers,
             'optimizer_state': self.opt_state,
             'loss': self.validation_metrics['loss'],
         }
-
-        # Save the state dictionary to a file
-        # with open(filepath.strip(), 'wb') as f:
-        #     pickle.dump(state_dict, f)
         torch.save(state_dict, filepath)
 
     @staticmethod
     def load_checkpoint(filepath):
-        # Check if the file exists
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Checkpoint file not found at '{filepath}'")
-
-        # Load the state dictionary from the file
-        # with open(filepath.strip(), 'rb') as f:
-        #     state_dict = pickle.load(f)
         state_dict = torch.load(filepath)
-
-        # Restore the model parameters and buffers
-        # Assuming model is initialized before calling load_checkpoint
         loss = state_dict['loss']
         params = state_dict['model_params']
         buffers = state_dict['model_buffers']
-
         return params, buffers, loss
 
 
@@ -151,34 +134,29 @@ class CustomTrainer:
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
-        # Train starts here
-        global_step = 0
-        for epoch in range(self.epochs): # This picks just the model weights of the last epoch, not the best one till that epoch.
+        self.global_step = 0
+        for epoch in range(self.epochs):
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, batch in progress_bar:
-                global_step += 1
+                self.global_step += 1
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
-                if global_step % self.logging_steps == 0:
-                    self.logger.custom_log(global_step=global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
-                if global_step % self.eval_steps == 0:
-                    current_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
-                    
+                if self.global_step % self.logging_steps == 0:
+                    self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
+                if self.global_step % self.eval_steps == 0:
+                    current_val_loss = self.evaluate(val_loader=self.val_loader)
                     # Pruning for optuna
-                    trial.report(current_val_loss, global_step)
+                    trial.report(current_val_loss, self.global_step)
                     # Handle pruning based on the intermediate value.
                     if trial.should_prune():
                         raise optuna.TrialPruned()
-                    
                     # Checkpoint the model
                     self.checkpoint_model(current_val_loss)
                     print(f"\nTotal Validation loss: {current_val_loss}\n")
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
-        # total_val_loss = self.evaluate(global_step=global_step, val_loader=self.val_loader)
         self.logger.close()
-        self.params, self.buffers, best_loss = self.load_checkpoint(f"./model_checkpoint") # Load best model
+        best_params, best_buffers, best_loss = self.load_checkpoint(f"./model_checkpoint") # Load best model
         print(f"Total Best Val Loss: {best_loss}")
-        ic.disable()
         return best_loss
 
     def loss_fn(self, params, batch) -> Tuple[Tensor]:
@@ -188,22 +166,26 @@ class CustomTrainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
-        apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
-        logits = apply_fn(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
-        ic(logits)
-        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
-        if loss is None:
-            print("Loss is None, but we are trying again...")
-            loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
-            if loss is None:
-                print('Loss is still None')
-                raise ValueError("Loss is None")
+        logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
+        loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
+        if torch.isnan(loss):
+            print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
+            loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
+            if torch.isnan(loss):
+                print(f"\n\n{'*'*50}\n\nLoss is still NaN, raising an error...\n\n{'*'*50}\n\n")
+                #logits and labels print for debugging
+                ic.enable()
+                ic(logits)
+                ic(labels)
+                ic(loss)
+                ic(type(loss))
+                ic.disable()
+                raise ValueError("Loss is NaN")
         return loss
     
 
     def step(self, params, buffers, batch, opt_state):
-        self.original_model.train() # just to be sure
+        self.original_model.train()
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
@@ -215,86 +197,62 @@ class CustomTrainer:
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
-        # TODO: Could I just use the saved functional model instead of loading from the start the make_functional_with_buffers method?
-        apply_fn, old_params, old_buffers = self.make_functional_with_buffers(self.original_model, disable_autograd_tracking=False)
-        logits = apply_fn(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
-        ic(logits)
-        loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
-        if loss is None:
-            print("Loss is None, but we are trying again...")
-            loss = torch.nn.CrossEntropyLoss()(logits.squeeze(), labels.squeeze())
-            if loss is None:
-                print('Loss is still None')
-                raise ValueError("Loss is None")
+        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        # ic(logits)
+        loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
+        if torch.isnan(loss):
+            print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
+            loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
+            if torch.isnan(loss):
+                print(f"\n\n{'*'*50}\n\nLoss is still NaN, raising an error...\n\n{'*'*50}\n\n")
+                #logits and labels print for debugging
+                ic.enable()
+                ic(logits)
+                ic(labels)
+                ic(loss)
+                ic(type(loss))
+                ic.disable()
+                raise ValueError("Loss is NaN")
         return loss, logits
 
     
-    def evaluate(self, global_step: int, val_loader: DataLoader = None):
+    def evaluate(self, val_loader: DataLoader = None):
         assert val_loader is not None, "Validation loader is required for evaluation"
         progress_bar = tqdm(enumerate(val_loader, 0), total=len(val_loader))
-        self.original_model.eval()  # Set the model to evaluation mode
+        self.original_model.eval()
         total_loss = 0
         outputs_all = []
         labels_all = []
         for i, batch in progress_bar:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
-                total_loss += loss.item()
-                outputs_all.extend(logits.squeeze().clone().detach().cpu().numpy())
-                labels_all.extend(batch['labels'].squeeze().clone().detach().cpu().numpy())
-            progress_bar.set_description(f"Validation at Global Step: {global_step}, Validation Loss: {loss.item():.4f}")
-        self.logger.custom_log(global_step=global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
+                total_loss += loss.clone().detach().cpu().numpy().item()
+                outputs_all.extend(logits.clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
+            progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
+        self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
         return total_loss / len(val_loader)
 
     def test(self, test_loader: DataLoader = None):
         assert test_loader is not None, "Test loader is required for testing"
         progress_bar = tqdm(enumerate(test_loader, 0), total=len(test_loader))
-        self.original_model.eval()  # Set the model to evaluation mode
+        self.original_model.eval()
         total_loss = 0
         outputs_all = []
         labels_all = []
         for i, batch in progress_bar:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])
-                total_loss += loss.item()
-                outputs_all.extend(logits.squeeze().clone().detach().cpu().numpy())
-                labels_all.extend(batch['labels'].squeeze().clone().detach().cpu().numpy())
+                total_loss += loss.clone().detach().cpu().numpy().item()
+                outputs_all.extend(logits.clone().detach().cpu().numpy())
+                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Test Loss: {loss.item():.4f}")
-        self.logger.custom_log(global_step=1, loss=total_loss/len(test_loader), outputs=outputs_all, labels=labels_all, mode='test')
+        self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(test_loader), outputs=outputs_all, labels=labels_all, mode='test')
         return total_loss/len(test_loader)
-    
-    # def give_additional_data_for_logging(self, 
-    #                                     dataset_name: str = None,
-    #                                     dataset_task: str = None,
-    #                                     dataset_size: int = None,
-    #                                     test_dataset_size: int = None,
-    #                                     validation_dataset_size: int = None,
-    #                                     train_dataset_size: int = None,
-    #                                     num_classes: int = None,
-    #                                     optimizer_name: str = None,
-    #                                     base_optimizer_name: str = None,
-    #                                     learning_rate_of_base_optimizer: float = None,
-    #                                     batch_size: int = None,
-    #                                     epochs: int = None,
-    #                                     k_approx: int = None,
-    #                                     num_of_optimizer_iterations: int = None,
-    #                                     range_to_select: int = None,
-    #                                     seed_num: int = None) -> None: 
-    #     """Creates config file for the experiment and logs it."""
-
-    #     base_optimizer_name = type(self.base_optimizer).__name__
-    #     learning_rate_of_base_optimizer = self.base_optimizer_lr
-    #     optimizer_name = self.optimizer.__name__
-    #     num_classes = self.num_classes
-    #     if range_to_select is None:
-    #         range_to_select = 'All Dataset'
-    #     # Create a dictionary using locals() = local variables
-    #     self.additional_information = {key: value for key, value in locals().items() if key != 'self' and value is not None}
-    #     ic(self.additional_information)
 
     def give_additional_data_for_logging(self, **kwargs) -> None:
         """Creates config file for the experiment and logs it."""
-        self.logger.log_dataset_info(**kwargs)
+        self.logger.log_additional_information(**kwargs)
 
     def make_functional_with_buffers(self, mod, disable_autograd_tracking=False):
         """
@@ -323,4 +281,3 @@ class CustomTrainer:
             params_values = torch.utils._pytree.tree_map(torch.Tensor.detach, params_values)
 
         return fmodel, params_values, buffers_values
-    
