@@ -167,14 +167,20 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
-        ic(logits)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
-        if loss is None:
-            print("Loss is None, but we are trying again...")
-            loss = torch.nn.CrossEntropyLoss()(logits, labels)
-            if loss is None:
-                print('Loss is still None')
-                raise ValueError("Loss is None")
+        if torch.isnan(loss):
+            print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
+            loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
+            if torch.isnan(loss):
+                print(f"\n\n{'*'*50}\n\nLoss is still NaN, raising an error...\n\n{'*'*50}\n\n")
+                #logits and labels print for debugging
+                ic.enable()
+                ic(logits)
+                ic(labels)
+                ic(loss)
+                ic(type(loss))
+                ic.disable()
+                raise ValueError("Loss is NaN")
         return loss
     
 
@@ -194,12 +200,19 @@ class CustomTrainer:
         logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         ic(logits)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
-        if loss is None:
-            print("Loss is None, but we are trying again...")
+        if torch.isnan(loss):
+            print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
             loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
-            if loss is None:
-                print('Loss is still None')
-                raise ValueError("Loss is None")
+            if torch.isnan(loss):
+                print(f"\n\n{'*'*50}\n\nLoss is still NaN, raising an error...\n\n{'*'*50}\n\n")
+                #logits and labels print for debugging
+                ic.enable()
+                ic(logits)
+                ic(labels)
+                ic(loss)
+                ic(type(loss))
+                ic.disable()
+                raise ValueError("Loss is NaN")
         return loss, logits
 
     
