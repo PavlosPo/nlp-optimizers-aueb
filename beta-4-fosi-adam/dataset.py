@@ -4,7 +4,11 @@ import torch
 from datasets import load_dataset, concatenate_datasets
 from typing import Tuple
 from datasets import DatasetDict
+import os
 from icecream import ic
+
+# Set TOKENIZERS_PARALLELISM to false to disable parallelism, only for creating tokenizer and collator
+os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
 torch.set_default_dtype(torch.float32)
 
@@ -44,33 +48,22 @@ class CustomDataLoader:
       # ic(self.task_to_keys[self.dataset_task])
 
     def get_custom_data_loaders(self) -> Tuple[DataLoader, DataLoader, DataLoader]:
-      # dataset = load_dataset(self.dataset_from, self.dataset_task).map(self._prepare_dataset, batched=True)
-      # dataset = concatenate_datasets([dataset["train"], dataset["validation"]]).train_test_split(test_size=0.1666666666666, seed=self.seed_num, stratify_by_column='label')
-      # dataset['validation'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['train']
-      # dataset['test'] = dataset['test'].train_test_split(test_size=0.5, seed=self.seed_num, stratify_by_column='label')['test']
-
       dataset = self.get_correct_train_test_val_split_based_on_task(self.dataset_task)
-
       if self.range_to_select is None:  # Use the entire dataset
         train_dataset = dataset['train'].remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
-        val_dataset = dataset['validation'].remove_columns(['idx'] + [col for col in dataset["validation"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
-        test_dataset = dataset['test'].remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
       else: # Use a subset of the dataset
         train_dataset = dataset['train'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["train"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
-        val_dataset = dataset['validation'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["validation"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
-        test_dataset = dataset['test'].select(range(self.range_to_select)).remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+      val_dataset = dataset['validation'].remove_columns(['idx'] + [col for col in dataset["validation"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
+      test_dataset = dataset['test'].remove_columns(['idx'] + [col for col in dataset["test"].column_names if col in self.task_to_keys[self.dataset_task]]).rename_column('label', 'labels')
 
       train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
       val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
       test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=self.batch_size, shuffle=True, collate_fn=self.data_collator)
-
-      # ic(len(train_loader), len(val_loader), len(test_loader))
       return train_loader, val_loader, test_loader
     
     def _prepare_dataset(self, examples) -> dict:
       if self.sentence2_key is None:
           return self.tokenizer(examples[self.sentence1_key], truncation=True)
-      # ic(examples[self.sentence1_key][:10], examples[self.sentence2_key][:10])
       return self.tokenizer(examples[self.sentence1_key], examples[self.sentence2_key], truncation=True)
     
     def get_correct_train_test_val_split_based_on_task(self, task: str):
