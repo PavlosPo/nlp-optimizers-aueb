@@ -38,7 +38,7 @@ class CustomLogger:
         self._initialize_run()
         if additional_info:
             self.additional_info = additional_info
-            wandb.config.update(additional_info)
+            wandb.config.update(additional_info, allow_val_change=True)
 
     def close(self):
         wandb.finish()
@@ -64,7 +64,7 @@ class CustomLogger:
         metrics['PRECISION'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
         metrics['RECALL'] = evaluate.load('recall').compute(predictions=outputs_argmax, references=labels)['recall']
         metrics['MAE'] = evaluate.load('mae').compute(predictions=outputs_argmax, references=labels)['mae']
-        metrics['MCC'] = evaluate.load('mcc').compute(predictions=outputs_argmax, references=labels)['mcc']
+        metrics['MCC'] = evaluate.load('matthews_correlation').compute(predictions=outputs_argmax, references=labels)['matthews_correlation']
         # metrics['auc_roc'] = evaluate.load('auc_roc').compute(predictions=outputs_argmax, references=labels)
         ic(metrics)
         self.log_metrics(mode, global_step, **metrics)

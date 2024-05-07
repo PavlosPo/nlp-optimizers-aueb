@@ -5,6 +5,7 @@ from dataset import CustomDataLoader
 from trainer import CustomTrainer
 from utils import set_seed
 from icecream import ic
+import wandb
 import os
 
 ic.disable()
@@ -30,28 +31,28 @@ num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task == "st
 
 set_seed(seed_num)
 
+# Load model
+original_model = BertClassifier(
+    model_name=model_name,
+    num_labels=num_classes,
+    device=device
+)
+
+# Prepare dataset
+custom_dataloader = CustomDataLoader(
+    dataset_from=dataset_from,
+    dataset_task=dataset_task,
+    seed_num=seed_num,
+    range_to_select=range_to_select,
+    batch_size=batch_size,
+)
+train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loaders()
+
 def objective(trial):
     # Define hyperparameters to tune
     learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-4)
     k_approx = trial.suggest_int('k_approx', 0, 20)
     num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
-    
-    # Load model
-    original_model = BertClassifier(
-        model_name=model_name,
-        num_labels=num_classes,
-        device=device
-    )
-
-    # Prepare dataset
-    custom_dataloader = CustomDataLoader(
-        dataset_from=dataset_from,
-        dataset_task=dataset_task,
-        seed_num=seed_num,
-        range_to_select=range_to_select,
-        batch_size=batch_size,
-    )
-    train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loaders()
 
     # Train model
     trainer = CustomTrainer(original_model, 
@@ -66,31 +67,37 @@ def objective(trial):
         num_of_fosi_optimizer_iterations=num_of_fosi_iterations,
         eval_steps=eval_step,
         logging_steps=logging_steps)
-
+    
     trainer.give_additional_data_for_logging(
-            dataset_name=dataset_from,
-            dataset_task=dataset_task,
-            num_classes=num_classes,
-            dataset_size=len(train_loader.dataset) + len(val_loader.dataset) + len(test_loader.dataset),
-            test_dataset_size=len(test_loader.dataset),
-            validation_dataset_size=len(val_loader.dataset),
-            train_dataset_size=len(train_loader.dataset),
-            k_approx=k_approx,
-            seed_num=seed_num,
-            range_to_select=range_to_select,
-            batch_size=batch_size,
-            epochs=train_epoch,
-            num_of_optimizer_iterations=num_of_fosi_iterations,
-            learning_rate=learning_rate,
-            model_name=model_name,
-            device=device,
-            model_type="bert",
-            optimizer="fosi",
-            criterion="cross_entropy",
-            task_type="classification",
-            eval_steps=eval_step,
-            logging_steps=logging_steps
-        )
+        dataset_name=dataset_from,
+        dataset_task=dataset_task,
+        num_classes=num_classes,
+        dataset_size=len(train_loader.dataset) + len(val_loader.dataset) + len(test_loader.dataset),
+        test_dataset_size=len(test_loader.dataset),
+        validation_dataset_size=len(val_loader.dataset),
+        train_dataset_size=len(train_loader.dataset),
+        k_approx=k_approx,
+        seed_num=seed_num,
+        range_to_select=range_to_select,
+        batch_size=batch_size,
+        epochs=train_epoch,
+        num_of_optimizer_iterations=num_of_fosi_iterations,
+        learning_rate=learning_rate,
+        model_name=model_name,
+        device=device,
+        model_type="bert",
+        optimizer="fosi",
+        criterion="cross_entropy",
+        task_type="classification",
+        eval_steps=eval_step,
+        logging_steps=logging_steps
+    )
+    
+    # wandb.config.update({
+    #     "learning_rate": learning_rate,
+    #     "k_approx": k_approx,
+    #     "num_of_fosi_iterations": num_of_fosi_iterations
+    # }, allow_val_change=True)
 
     try : # Catch exceptions
         result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
