@@ -44,7 +44,7 @@ class CustomTrainer:
         self.approx_k = approx_k
         self.eval_steps = eval_steps
         self.logging_steps = logging_steps
-        self.logger = CustomLogger()
+        self.logger = CustomLogger() 
 
         # VALIDATIONS LOSSES in order to checkpoint the model
         self.validation_metrics = {
@@ -295,7 +295,7 @@ class CustomTrainer:
 
     def give_additional_data_for_logging(self, **kwargs) -> None:
         """Creates config file for the experiment and logs it."""
-        self.logger.log_dataset_info(**kwargs)
+        self.logger.log_additional_information(**kwargs)
 
     def make_functional_with_buffers(self, mod, disable_autograd_tracking=False):
         """

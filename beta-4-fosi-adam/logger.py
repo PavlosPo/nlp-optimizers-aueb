@@ -1,5 +1,6 @@
 from typing import Dict
 from torch.utils.tensorboard import SummaryWriter  # Import SummaryWriter for TensorBoard logging
+import wandb
 from evaluate import load
 import evaluate
 # from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, mean_absolute_error, roc_auc_score, matthews_corrcoef
@@ -10,37 +11,37 @@ from icecream import ic
 import datetime
 
 class CustomLogger:
-    def __init__(self) -> None:
-        self.writer = None
+    # Datetime as projectname
+    def __init__(self, project_name: str = "FOSI-Experiments", experiment_name: str = f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}") -> None:
+        self.project_name = project_name
+        self.experiment_name = experiment_name
+        self.run = None
 
-    def _initialize_writer(self):
-        if self.writer is None:
-            self.writer = SummaryWriter(log_dir=f"./runs2/{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
+    def _initialize_run(self):
+        if self.run is None:
+            wandb.init(project=self.project_name, name=self.experiment_name)
+            self.run = wandb.run
 
     def _log_metrics(self, mode, global_step, metrics):
-        self._initialize_writer()
-        for metric_name, metric_value in metrics.items():
-            self.writer.add_scalar(f'{metric_name}/{mode.capitalize()}', metric_value, global_step=global_step)
+        self._initialize_run()
+        wandb.log({f'{metric_name}/{mode.capitalize()}': metric_value for metric_name, metric_value in metrics.items()}, step=global_step)
 
     def log_metrics(self, mode, global_step, **metrics):
         self._log_metrics(mode, global_step, metrics)
 
-    def log_dataset_info(self, **dataset_info):
-        self._initialize_writer()
-        self.dataset_info = dataset_info
-        if dataset_info:
-            for key, value in dataset_info.items():
-                self.writer.add_text('Dataset Information', f'{key}: {value}')
+    # def log_dataset_info(self, **dataset_info):
+    #     self._initialize_run()
+    #     if dataset_info:
+    #         wandb.config.update(dataset_info)
 
-    def log_additional_information(self, additional_info):
-        self._initialize_writer()
+    def log_additional_information(self, **additional_info):
+        self._initialize_run()
         if additional_info:
-            for key, value in additional_info.items():
-                self.writer.add_text('Additional Information', f'{key}: {value}')
+            self.additional_info = additional_info
+            wandb.config.update(additional_info)
 
     def close(self):
-        if self.writer:
-            self.writer.close()
+        wandb.finish()
 
     def custom_log(self, global_step, loss, outputs, labels, mode): # mode = 'train' , 'validation', 'test
         outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
@@ -51,10 +52,11 @@ class CustomLogger:
 
         self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
 
+
     def create_and_log_values(self, loss, outputs_argmax, labels, global_step, mode):
         # Calculate metrics based on evaluate function
-        evaluator = load(self.dataset_info['dataset_name'].lower(), self.dataset_info['dataset_task'].lower())
-        metrics = evaluator.compute(predictions=outputs_argmax, references=labels)
+        evaluator = load(self.additional_info['dataset_name'].lower(), self.additional_info['dataset_task'].lower())
+        metrics = {}
         # add loss to metrics
         metrics['loss'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else np.array(loss)
         metrics['f1'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
