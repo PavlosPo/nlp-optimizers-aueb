@@ -8,6 +8,7 @@ from fosi import fosi_adam_torch
 import copy
 from logger import CustomLogger
 from icecream import ic
+import evaluate 
 import pickle
 import os
 
@@ -51,7 +52,7 @@ class CustomTrainer:
             'loss': None,
             'model_params': None,
             'model_buffers': None,
-            'f1': 'Not Implemented Yet' # TODO: Implement F1 Score
+            'f1': 'Not Implemented Yet'
         }
         
     def train_val_test(self):
@@ -77,7 +78,7 @@ class CustomTrainer:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
                 if self.global_step % self.eval_steps == 0: # Per 100 steps
                     total_val_loss = self.evaluate(val_loader=self.val_loader)
-                    self.checkpoint_model(total_val_loss)
+                    self.checkpoint_model(val_loss=total_val_loss)
                     print(f"\nTotal Validation loss: {total_val_loss}\n")
 
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
@@ -85,11 +86,24 @@ class CustomTrainer:
         self.logger.close()
         print(f"Test Loss: {test_loss}")
 
-    def checkpoint_model(self, val_loss: float):
-        if self.validation_metrics['loss'] is None or val_loss < self.validation_metrics['loss']:
-            self.validation_metrics['loss'] = val_loss
-            self.validation_metrics['model_params'] = self.params
-            self.make_checkpoint(f"./model_checkpoint")
+    def checkpoint_model(self, val_loss: float = None, f1: float = None):
+        """Checkpoints the model based on the validation loss or F1 score.
+
+        Args:
+            val_loss (float, optional): If given will save the new model params based on lower loss. Defaults to None.
+            f1 (float, optional): If f1 is given will try to save the new better f1 score model and values e.t.c. Defaults to None.
+        """
+        if f1 is not None:
+            if self.validation_metrics['f1'] is None or f1 > self.validation_metrics['f1']: # If given F1 is better than the previous saved one
+                self.validation_metrics['loss'] = val_loss  # If given, update the loss
+                self.validation_metrics['f1'] = f1
+                self.validation_metrics['model_params'] = self.params
+                self.make_checkpoint(f"./model_checkpoint")
+        else:   # If F1 is not given, only update the loss
+            if self.validation_metrics['loss'] is None or val_loss < self.validation_metrics['loss']:
+                self.validation_metrics['loss'] = val_loss
+                self.validation_metrics['model_params'] = self.params
+                self.make_checkpoint(f"./model_checkpoint")
 
     def make_checkpoint(self, filepath):
         # Serialize model parameters and buffers
@@ -101,7 +115,9 @@ class CustomTrainer:
             'model_buffers': self.buffers,
             'optimizer_state': self.opt_state,
             'loss': self.validation_metrics['loss'],
+            'f1': self.validation_metrics['f1']
         }
+        print(f"Found Better model,\nSaving model checkpoint at {filepath}.\n")
         torch.save(state_dict, filepath)
 
     @staticmethod
@@ -112,7 +128,8 @@ class CustomTrainer:
         loss = state_dict['loss']
         params = state_dict['model_params']
         buffers = state_dict['model_buffers']
-        return params, buffers, loss
+        f1 = state_dict['F1-Macro']
+        return dict(params, buffers, loss, f1)
 
 
     def fine_tune(self, trial, optuna) -> float:
@@ -124,7 +141,6 @@ class CustomTrainer:
         Returns:
             float: total validation loss from the last model, not the best one until that epoch.
         """
-        ic.enable()
         self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
@@ -144,20 +160,67 @@ class CustomTrainer:
                 if self.global_step % self.logging_steps == 0:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
                 if self.global_step % self.eval_steps == 0:
-                    current_val_loss = self.evaluate(val_loader=self.val_loader)
+                    current_val_loss = self.evaluate(val_loader=self.val_loader)['val_loss']
                     # Pruning for optuna
                     trial.report(current_val_loss, self.global_step)
                     # Handle pruning based on the intermediate value.
                     if trial.should_prune():
                         raise optuna.TrialPruned()
                     # Checkpoint the model
-                    self.checkpoint_model(current_val_loss)
+                    self.checkpoint_model(val_loss=current_val_loss)
                     print(f"\nTotal Validation loss: {current_val_loss}\n")
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
         self.logger.close()
-        best_params, best_buffers, best_loss = self.load_checkpoint(f"./model_checkpoint") # Load best model
+        best_params, best_buffers, best_loss, best_f1 = self.load_checkpoint(f"./model_checkpoint") # Load best model
         print(f"Total Best Val Loss: {best_loss}")
         return best_loss
+    
+    def fine_tune_based_on_f1(self, trial, optuna) -> float:
+        """Returns the total validation loss after training the model, in order to be used by the optimizer to fine tune.
+
+        Args:
+            trial (optuna.Trial): Optuna Trial object to be used for pruning.
+            optuna (optuna): Optuna library to be used for pruning.
+        Returns:
+            float: total validation loss from the last model, not the best one until that epoch.
+        """
+        self.original_model.to(self.device)
+        self.original_model.train()
+        data = next(iter(self.train_loader))
+        self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
+                                        approx_k=self.approx_k , 
+                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
+        self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
+        self.params = tuple(param.to(self.device) for param in self.params)
+        self.opt_state = self.optimizer.init(self.params)
+        self.global_step = 0
+        for epoch in range(self.epochs):
+            progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
+            for i, batch in progress_bar:
+                self.global_step += 1
+                self.original_model.train()
+                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                if self.global_step % self.logging_steps == 0:
+                    self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
+                if self.global_step % self.eval_steps == 0:
+                    results = self.evaluate(val_loader=self.val_loader)
+                    current_val_loss = results['val_loss']
+                    current_val_f1 = results['val_f1']
+                    # Pruning for optuna
+                    trial.report(current_val_f1, self.global_step)
+                    # Handle pruning based on the intermediate value.
+                    if trial.should_prune():
+                        raise optuna.TrialPruned()
+                    # Checkpoint the model
+                    self.checkpoint_model(f1=current_val_f1, val_loss=current_val_loss)
+                    print(f"\nTotal Validation F1: {current_val_f1}\n")
+                    print(f"\nTotal Validation loss: {current_val_loss}\n")
+                progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+        self.logger.close()
+        best_params, best_buffers, best_loss, best_f1 = self.load_checkpoint(f"./model_checkpoint")
+        print(f"Total Best Val F1: {best_f1}")
+        print(f"Total Best Val Loss: {best_loss}")
+        return best_f1
 
     def loss_fn(self, params, batch) -> Tuple[Tensor]:
         """Loss function that is needed for the initialization of the optimizer.
@@ -231,7 +294,26 @@ class CustomTrainer:
                 labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
         self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
-        return total_loss / len(val_loader)
+        val_f1 = evaluate.load('f1').compute(predictions=outputs_all, references=labels_all)['f1']
+        val_loss = total_loss / len(val_loader)
+        return dict(val_loss, val_f1)
+    
+    # def evaluate_based_on_f1(self, val_loader: DataLoader = None):
+    #     assert val_loader is not None, "Validation loader is required for evaluation"
+    #     progress_bar = tqdm(enumerate(val_loader, 0), total=len(val_loader))
+    #     self.original_model.eval()
+    #     total_loss = 0
+    #     outputs_all = []
+    #     labels_all = []
+    #     for i, batch in progress_bar:
+    #         with torch.no_grad():
+    #             loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])
+    #             total_loss += loss.clone().detach().cpu().numpy().item()
+    #             outputs_all.extend(logits.clone().detach().cpu().numpy())
+    #             labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
+    #         progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
+    #     self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
+    #     return total_loss / len(val_loader)
 
     def test(self, test_loader: DataLoader = None):
         assert test_loader is not None, "Test loader is required for testing"
