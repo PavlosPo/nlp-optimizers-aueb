@@ -55,16 +55,23 @@ class CustomLogger:
 
     def create_and_log_values(self, loss, outputs_argmax, labels, global_step, mode):
         # Calculate metrics based on evaluate function
-        evaluator = load(self.additional_info['dataset_name'].lower(), self.additional_info['dataset_task'].lower())
-        metrics = {}
+        # evaluator = load(self.additional_info['dataset_name'].lower(), self.additional_info['dataset_task'].lower())
+        self.metrics = {}
         # add loss to metrics
-        metrics['LOSS'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else loss
-        metrics['F1-Macro'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
-        metrics['ACCURACY'] = evaluate.load('accuracy').compute(predictions=outputs_argmax, references=labels)['accuracy']
-        metrics['PRECISION'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
-        metrics['RECALL'] = evaluate.load('recall').compute(predictions=outputs_argmax, references=labels)['recall']
-        metrics['MAE'] = evaluate.load('mae').compute(predictions=outputs_argmax, references=labels)['mae']
-        metrics['MCC'] = evaluate.load('matthews_correlation').compute(predictions=outputs_argmax, references=labels)['matthews_correlation']
+        self.metrics['LOSS'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else loss
+        outputs_argmax = outputs_argmax.astype(np.int32)
+        self.metrics['F1-Macro'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
+        self.metrics['ACCURACY'] = evaluate.load('accuracy').compute(predictions=outputs_argmax, references=labels)['accuracy']
+        self.metrics['PRECISION'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
+        self.metrics['RECALL'] = evaluate.load('recall').compute(predictions=outputs_argmax, references=labels)['recall']
+        self.metrics['MAE'] = evaluate.load('mae').compute(predictions=outputs_argmax, references=labels)['mae']
+        self.metrics['MCC'] = evaluate.load('matthews_correlation').compute(predictions=outputs_argmax, references=labels)['matthews_correlation']
         # metrics['auc_roc'] = evaluate.load('auc_roc').compute(predictions=outputs_argmax, references=labels)
-        ic(metrics)
-        self.log_metrics(mode, global_step, **metrics)
+        ic(self.metrics)
+        self.log_metrics(mode, global_step, **self.metrics)
+
+    def return_metrics(self):
+        if self.metrics:
+            return self.metrics
+        else:
+            return {}
