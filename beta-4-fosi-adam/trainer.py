@@ -8,6 +8,7 @@ from fosi import fosi_adam_torch
 import copy
 from logger import CustomLogger
 from icecream import ic
+import numpy as np
 import evaluate 
 import pickle
 import os
@@ -293,6 +294,11 @@ class CustomTrainer:
                 outputs_all.extend(logits.clone().detach().cpu().numpy())
                 labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
+            
+        # Concatenate predictions and labels across all batches
+        outputs_all = np.concatenate(outputs_all)
+        labels_all = np.concatenate(labels_all)
+
         self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
         val_f1 = evaluate.load('f1').compute(predictions=outputs_all, references=labels_all)['f1']
         val_loss = total_loss / len(val_loader)

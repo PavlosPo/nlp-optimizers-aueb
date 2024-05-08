@@ -59,6 +59,7 @@ class CustomLogger:
         self.metrics = {}
         # add loss to metrics
         self.metrics['LOSS'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else loss
+        outputs_argmax = outputs_argmax.astype(np.int32)
         self.metrics['F1-Macro'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
         self.metrics['ACCURACY'] = evaluate.load('accuracy').compute(predictions=outputs_argmax, references=labels)['accuracy']
         self.metrics['PRECISION'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
