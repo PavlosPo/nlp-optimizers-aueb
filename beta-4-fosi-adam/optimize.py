@@ -7,7 +7,7 @@ from utils import set_seed
 from icecream import ic
 import os
 
-ic.disable()
+ic.enable()
 
 # Input user the seed 
 dataset_task = str(input("\nEnter the task to run: (default is cola): ") or 'cola')
@@ -94,11 +94,15 @@ def objective(trial):
 
     try:  # Catch exceptions
         result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+        # clean up
+        trainer.clean_checkpoint()
         return result
     except Exception as e:  # Return None if an exception occurs
         print(f"\nAn exception occurred: \n{e}\n")
         print("Returning None...")
+        trainer.clean_checkpoint()
         return None
+    
 
 
 
