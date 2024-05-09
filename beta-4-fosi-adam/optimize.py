@@ -5,10 +5,9 @@ from dataset import CustomDataLoader
 from trainer import CustomTrainer
 from utils import set_seed
 from icecream import ic
-import wandb
 import os
 
-ic.disable()
+ic.enable()
 
 # Input user the seed 
 dataset_task = str(input("\nEnter the task to run: (default is cola): ") or 'cola')
@@ -92,20 +91,19 @@ def objective(trial):
         eval_steps=eval_step,
         logging_steps=logging_steps
     )
-    
-    # wandb.config.update({
-    #     "learning_rate": learning_rate,
-    #     "k_approx": k_approx,
-    #     "num_of_fosi_iterations": num_of_fosi_iterations
-    # }, allow_val_change=True)
 
-    try : # Catch exceptions
+    try:  # Catch exceptions
         result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+        # clean up
+        trainer.clean_checkpoint()
         return result
-    except Exception as e: # Return None if an exception occurs
+    except Exception as e:  # Return None if an exception occurs
         print(f"\nAn exception occurred: \n{e}\n")
         print("Returning None...")
+        trainer.clean_checkpoint()
         return None
+    
+
 
 
 if __name__ == "__main__":

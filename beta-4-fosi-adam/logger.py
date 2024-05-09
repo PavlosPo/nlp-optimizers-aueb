@@ -48,25 +48,21 @@ class CustomLogger:
         labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
 
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1)
-        outputs_argmax = np.argmax(outputs_softmax, axis=1)
+        outputs_argmax = np.argmax(outputs_softmax, axis=1).flatten()
 
         self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
 
 
     def create_and_log_values(self, loss, outputs_argmax, labels, global_step, mode):
         # Calculate metrics based on evaluate function
-        # evaluator = load(self.additional_info['dataset_name'].lower(), self.additional_info['dataset_task'].lower())
         self.metrics = {}
-        # add loss to metrics
         self.metrics['LOSS'] = loss.clone().detach().cpu().numpy().item() if torch.is_tensor(loss) else loss
-        self.metrics['F1-Macro'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
+        self.metrics['F1_Macro'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
         self.metrics['ACCURACY'] = evaluate.load('accuracy').compute(predictions=outputs_argmax, references=labels)['accuracy']
         self.metrics['PRECISION'] = evaluate.load('precision').compute(predictions=outputs_argmax, references=labels)['precision']
         self.metrics['RECALL'] = evaluate.load('recall').compute(predictions=outputs_argmax, references=labels)['recall']
         self.metrics['MAE'] = evaluate.load('mae').compute(predictions=outputs_argmax, references=labels)['mae']
         self.metrics['MCC'] = evaluate.load('matthews_correlation').compute(predictions=outputs_argmax, references=labels)['matthews_correlation']
-        # metrics['auc_roc'] = evaluate.load('auc_roc').compute(predictions=outputs_argmax, references=labels)
-        ic(self.metrics)
         self.log_metrics(mode, global_step, **self.metrics)
 
     def return_metrics(self):

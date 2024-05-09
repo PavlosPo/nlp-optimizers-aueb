@@ -1,6 +1,7 @@
 import torch
 from tqdm import tqdm
 from torch.utils.data import DataLoader
+from torch.nn import functional as F
 from torch import Tensor
 from typing import Tuple
 import torchopt
@@ -8,6 +9,7 @@ from fosi import fosi_adam_torch
 import copy
 from logger import CustomLogger
 from icecream import ic
+import numpy as np
 import evaluate 
 import pickle
 import os
@@ -77,7 +79,8 @@ class CustomTrainer:
                 if self.logging_steps % self.global_step == 0:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
                 if self.global_step % self.eval_steps == 0: # Per 100 steps
-                    total_val_loss = self.evaluate(val_loader=self.val_loader)
+                    results = self.evaluate(val_loader=self.val_loader)
+                    total_val_loss = results['LOSS']
                     self.checkpoint_model(val_loss=total_val_loss)
                     print(f"\nTotal Validation loss: {total_val_loss}\n")
 
@@ -128,8 +131,14 @@ class CustomTrainer:
         loss = state_dict['loss']
         params = state_dict['model_params']
         buffers = state_dict['model_buffers']
-        f1 = state_dict['F1-Macro']
-        return dict(params, buffers, loss, f1)
+        f1 = state_dict['f1']
+        return params, buffers, loss, f1
+    
+    @staticmethod
+    def clean_checkpoint(filepath='./model_checkpoint'):
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            print(f"Removed the checkpoint file at {filepath}")
 
 
     def fine_tune(self, trial, optuna) -> float:
@@ -160,7 +169,8 @@ class CustomTrainer:
                 if self.global_step % self.logging_steps == 0:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
                 if self.global_step % self.eval_steps == 0:
-                    current_val_loss = self.evaluate(val_loader=self.val_loader)['val_loss']
+                    results = self.evaluate(val_loader=self.val_loader)
+                    current_val_loss = results['LOSS']
                     # Pruning for optuna
                     trial.report(current_val_loss, self.global_step)
                     # Handle pruning based on the intermediate value.
@@ -204,8 +214,8 @@ class CustomTrainer:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
                 if self.global_step % self.eval_steps == 0:
                     results = self.evaluate(val_loader=self.val_loader)
-                    current_val_loss = results['val_loss']
-                    current_val_f1 = results['val_f1']
+                    current_val_loss = results['LOSS']
+                    current_val_f1 = results['F1_Macro']
                     # Pruning for optuna
                     trial.report(current_val_f1, self.global_step)
                     # Handle pruning based on the intermediate value.
@@ -261,7 +271,6 @@ class CustomTrainer:
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
         logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
-        # ic(logits)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
@@ -290,13 +299,13 @@ class CustomTrainer:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])    
                 total_loss += loss.clone().detach().cpu().numpy().item()
-                outputs_all.extend(logits.clone().detach().cpu().numpy())
-                labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
+                outputs_all.extend(logits.clone().detach())
+                labels_all.extend(batch['labels'].clone().detach())
             progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
+        # Logging
         self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
-        val_f1 = evaluate.load('f1').compute(predictions=outputs_all, references=labels_all)['f1']
-        val_loss = total_loss / len(val_loader)
-        return dict(val_loss, val_f1)
+        metrics = self.logger.return_metrics()
+        return metrics
     
     # def evaluate_based_on_f1(self, val_loader: DataLoader = None):
     #     assert val_loader is not None, "Validation loader is required for evaluation"
