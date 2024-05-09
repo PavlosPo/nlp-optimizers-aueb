@@ -304,8 +304,8 @@ class CustomTrainer:
             progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
         # Logging
         ic(total_loss)
-        ic(outputs_all)
-        ic(labels_all)
+        # ic(outputs_all)
+        # ic(labels_all)
 
         self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
         metrics = self.logger.return_metrics()
