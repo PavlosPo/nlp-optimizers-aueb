@@ -16,7 +16,9 @@ dataset_task = input("\nEnter the dataset task (e.g., 'sst2'): ") or 'sst2'
 # Prompt user for seed number
 seed_num = int(input("\nEnter the seed number (default is 1): ") or '1')
 
-eval_step = int(input("\nEnter the evaluation steps (default is 10): ") or '10')
+eval_step = int(input("\nEnter the evaluation steps (default is 10): ") or '500')
+
+logging_steps = int(input("\nEnter the logging steps (default is 10): ") or '250')
 
 k_approx = int(input("\nEnter the number of max eigenvalues to approximate (default is 20): ") or '20')
 
@@ -53,6 +55,7 @@ num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task=="stsb
 original_model = BertClassifier(
     model_name=model_name,
     num_labels=num_classes,
+    device=device
 )
 
 # Prepare dataset
@@ -77,7 +80,8 @@ trainer = CustomTrainer(original_model,
     approx_k=k_approx,
     base_optimizer_lr=learning_rate,
     num_of_fosi_optimizer_iterations=num_of_fosi_iterations,
-    eval_steps=eval_step)
+    eval_steps=eval_step,
+    logging_steps=logging_steps)
 
 trainer.give_additional_data_for_logging(
         dataset_name=dataset_from,
@@ -100,6 +104,7 @@ trainer.give_additional_data_for_logging(
         optimizer="fosi",
         criterion="cross_entropy",
         task_type="classification",
+        mode = "training",
         eval_steps=eval_step
     )
 # trainer.init_information_logger()
