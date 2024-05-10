@@ -1,0 +1,747 @@
+
+Returned ESE function. Lanczos order (m) is 36 .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.2151:   1%|█▏                                                                                                     | 149/12500 [01:04<1:13:02,  2.82it/s]
+lambda_max: 29.952800750732422 lrs: tensor([0.0675, 0.0606, 0.0560, 0.0513, 0.0499, 0.0455, 0.0429, 0.0363, 0.0334]) eigenvals: tensor([14.8055, 16.4892, 17.8612, 19.5015, 20.0446, 21.9979, 23.3267, 27.5487,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.4507:   2%|██▍                                                                                                    | 299/12500 [02:58<1:23:35,  2.43it/s]
+lambda_max: 248.49679565429688 lrs: tensor([0.0191, 0.0171, 0.0148, 0.0133, 0.0125, 0.0112, 0.0095, 0.0066, 0.0040]) eigenvals: tensor([ 52.4621,  58.4000,  67.3625,  75.2829,  79.9088,  89.0705, 105.3758,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.0355:   4%|███▋                                                                                                   | 449/12500 [04:56<1:17:44,  2.58it/s]
+lambda_max: 90.39754486083984 lrs: tensor([0.0272, 0.0259, 0.0242, 0.0239, 0.0220, 0.0158, 0.0140, 0.0127, 0.0111]) eigenvals: tensor([36.7172, 38.5974, 41.2776, 41.7634, 45.4333, 63.3745, 71.6475, 78.9024,
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.3209:   4%|████                                                                                                   | 499/12500 [06:09<1:15:29,  2.65it/s]
+An exception occurred:
+Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+Returning None...
+Removed the checkpoint file at ./model_checkpoint
+Epoch: 1, Loss: 1.3209:   4%|████                                                                                                   | 499/12500 [06:10<2:28:24,  1.35it/s]
+[33m[W 2024-05-08 19:22:30,930][39m Trial 0 failed with parameters: {'learning_rate': 1.8315817102015223e-05, 'k_approx': 9, 'num_of_fosi_iterations': 150} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-08 19:22:30,931][39m Trial 0 failed with value None.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.1335:   1%|▋                                                                                                       | 89/12500 [00:44<1:51:16,  1.86it/s]
+lambda_max: 547.9559936523438 lrs: tensor([0.0109, 0.0107, 0.0098, 0.0092, 0.0091, 0.0078, 0.0076, 0.0075, 0.0067,
+        0.0060, 0.0039, 0.0035, 0.0021, 0.0018]) eigenvals: tensor([ 91.6265,  93.6766, 102.3922, 108.4067, 110.4466, 128.0288, 132.0829,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.1131:   1%|█▍                                                                                                     | 179/12500 [03:10<1:36:03,  2.14it/s]
+lambda_max: 1351.6463623046875 lrs: tensor([0.0080, 0.0077, 0.0075, 0.0075, 0.0068, 0.0064, 0.0053, 0.0049, 0.0038,
+        0.0037, 0.0032, 0.0030, 0.0020, 0.0007]) eigenvals: tensor([ 125.3044,  129.0547,  133.8267,  134.1356,  147.7496,  155.5237,
+         189.4433,  203.9878,  265.4276,  271.3245,  308.5567,  332.9946,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.5813:   2%|██▏                                                                                                    | 269/12500 [05:32<1:37:40,  2.09it/s]
+lambda_max: 129.1681671142578 lrs: tensor([0.0211, 0.0201, 0.0198, 0.0195, 0.0192, 0.0170, 0.0154, 0.0149, 0.0140,
+        0.0118, 0.0115, 0.0098, 0.0083, 0.0077]) eigenvals: tensor([ 47.3863,  49.6281,  50.5363,  51.2925,  52.1597,  58.9040,  64.7620,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.4327:   3%|██▉                                                                                                    | 359/12500 [08:00<1:33:10,  2.17it/s]
+lambda_max: 353.17547607421875 lrs: tensor([0.0134, 0.0128, 0.0124, 0.0116, 0.0115, 0.0107, 0.0103, 0.0094, 0.0087,
+        0.0084, 0.0065, 0.0059, 0.0042, 0.0028]) eigenvals: tensor([ 74.5308,  78.2126,  80.7011,  86.0364,  87.1496,  93.3653,  97.0494,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.9849:   4%|███▋                                                                                                  | 450/12500 [11:48<93:48:32, 28.03s/it]
+lambda_max: 662.478271484375 lrs: tensor([0.0077, 0.0073, 0.0068, 0.0066, 0.0065, 0.0060, 0.0057, 0.0054, 0.0054,
+        0.0044, 0.0039, 0.0023, 0.0016, 0.0015]) eigenvals: tensor([129.0427, 137.8224, 146.4236, 152.1736, 152.9904, 165.8952, 175.3892,
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.8709:   4%|████                                                                                                   | 499/12500 [12:15<4:54:44,  1.47s/it]
+[33m[W 2024-05-08 19:34:46,569][39m Trial 1 failed with parameters: {'learning_rate': 4.640836658614891e-05, 'k_approx': 14, 'num_of_fosi_iterations': 90} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-08 19:34:46,570][39m Trial 1 failed with value None.
+An exception occurred:
+Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+Returning None...
+Returned ESE function. Lanczos order (m) is 48 .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.7259:   1%|▋                                                                                                       | 76/12500 [00:36<1:36:31,  2.15it/s]
+lambda_max: 185.1094207763672 lrs: tensor([0.0160, 0.0151, 0.0146, 0.0133, 0.0130, 0.0124, 0.0124, 0.0118, 0.0111,
+        0.0087, 0.0078, 0.0054]) eigenvals: tensor([ 62.3077,  66.0654,  68.4315,  75.3322,  76.7318,  80.7188,  80.9188,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.3915:   1%|█▎                                                                                                     | 153/12500 [02:24<1:20:24,  2.56it/s]
+lambda_max: 170.3968963623047 lrs: tensor([0.0149, 0.0132, 0.0130, 0.0129, 0.0115, 0.0107, 0.0102, 0.0094, 0.0085,
+        0.0077, 0.0065, 0.0059]) eigenvals: tensor([ 66.9514,  75.7328,  76.7952,  77.5125,  86.6867,  93.8127,  98.3036,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.6977:   2%|█▉                                                                                                     | 230/12500 [04:11<1:31:58,  2.22it/s]
+lambda_max: 179.65472412109375 lrs: tensor([0.0160, 0.0147, 0.0145, 0.0139, 0.0132, 0.0120, 0.0113, 0.0090, 0.0085,
+        0.0075, 0.0070, 0.0056]) eigenvals: tensor([ 62.6042,  68.2400,  68.8744,  72.1284,  75.7088,  83.3083,  88.3203,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.0068:   2%|██▌                                                                                                   | 308/12500 [07:01<73:11:01, 21.61s/it]
+lambda_max: 188.9977264404297 lrs: tensor([0.0148, 0.0141, 0.0131, 0.0131, 0.0116, 0.0105, 0.0097, 0.0095, 0.0079,
+        0.0074, 0.0057, 0.0053]) eigenvals: tensor([ 67.4835,  70.9052,  76.0770,  76.5240,  86.4999,  95.0951, 102.7756,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.3764:   3%|███▏                                                                                                   | 384/12500 [07:35<1:27:50,  2.30it/s]
+lambda_max: 285.9534912109375 lrs: tensor([0.0151, 0.0145, 0.0127, 0.0118, 0.0116, 0.0094, 0.0081, 0.0060, 0.0053,
+        0.0048, 0.0043, 0.0035]) eigenvals: tensor([ 66.2709,  68.9426,  78.4992,  84.8970,  85.9623, 106.4881, 123.1969,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.7931:   4%|███▊                                                                                                  | 462/12500 [10:24<72:01:49, 21.54s/it]
+lambda_max: 338.415771484375 lrs: tensor([0.0144, 0.0139, 0.0131, 0.0123, 0.0112, 0.0105, 0.0102, 0.0066, 0.0061,
+        0.0054, 0.0049, 0.0030]) eigenvals: tensor([ 69.2294,  71.7610,  76.1631,  81.2125,  89.2166,  95.3945,  97.8693,
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.2102:   4%|████                                                                                                   | 499/12500 [10:39<1:25:31,  2.34it/s]
+An exception occurred:
+Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+Returning None...
+Epoch: 1, Loss: 1.2102:   4%|████                                                                                                   | 499/12500 [10:41<4:17:01,  1.29s/it]
+[33m[W 2024-05-08 19:45:28,027][39m Trial 2 failed with parameters: {'learning_rate': 5.563368885987471e-06, 'k_approx': 12, 'num_of_fosi_iterations': 77} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-08 19:45:28,027][39m Trial 2 failed with value None.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.0467:   2%|█▌                                                                                                     | 192/12500 [01:08<1:11:10,  2.88it/s]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.4043:   3%|███▏                                                                                                  | 386/12500 [03:23<37:38:27, 11.19s/it]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.4694:   4%|████                                                                                                   | 499/12500 [04:02<1:37:15,  2.06it/s]
+[33m[W 2024-05-08 19:49:30,937][39m Trial 3 failed with parameters: {'learning_rate': 1.387621856280503e-05, 'k_approx': 7, 'num_of_fosi_iterations': 193} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-08 19:49:30,938][39m Trial 3 failed with value None.
+Epoch: 1, Loss: 0.7689:   0%|                                                                                                         | 1/12500 [00:00<1:00:58,  3.42it/s]
+An exception occurred:
+Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+Returning None...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.3258:   1%|█                                                                                                     | 126/12500 [00:45<10:19:12,  3.00s/it]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.8084:   2%|██                                                                                                     | 255/12500 [01:30<4:05:12,  1.20s/it]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.8285:   3%|███                                                                                                    | 379/12500 [02:12<7:17:36,  2.17s/it]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.7229:   4%|████▏                                                                                                    | 499/12500 [02:45<56:29,  3.54it/s]
+An exception occurred:
+Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+Returning None...
+Epoch: 1, Loss: 0.7229:   4%|████                                                                                                   | 499/12500 [02:46<1:06:50,  2.99it/s]
+[33m[W 2024-05-08 19:52:17,894][39m Trial 4 failed with parameters: {'learning_rate': 7.484501956602521e-05, 'k_approx': 2, 'num_of_fosi_iterations': 126} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-08 19:52:17,895][39m Trial 4 failed with value None.
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.2002:   1%|▌                                                                                                       | 63/12500 [00:20<1:07:55,  3.05it/s]
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.6787:   1%|█                                                                                                      | 127/12500 [01:06<1:04:29,  3.20it/s]
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.0437:   2%|█▌                                                                                                     | 191/12500 [01:52<1:02:42,  3.27it/s]
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.1218:   2%|██                                                                                                     | 255/12500 [02:37<1:04:16,  3.18it/s]
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.1216:   3%|██▋                                                                                                   | 322/12500 [03:47<13:21:54,  3.95s/it]
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.6736:   3%|███▏                                                                                                  | 385/12500 [04:33<19:01:01,  5.65s/it]
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.4085:   4%|███▋                                                                                                   | 447/12500 [04:52<1:02:57,  3.19it/s]
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.1648:   4%|████                                                                                                   | 499/12500 [05:35<2:14:36,  1.49it/s]
+[33m[W 2024-05-08 19:57:53,914][39m Trial 5 failed with parameters: {'learning_rate': 1.138317489159114e-05, 'k_approx': 6, 'num_of_fosi_iterations': 64} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-08 19:57:53,914][39m Trial 5 failed with value None.
+An exception occurred:
+Target is multiclass but average='binary'. Please choose another average setting, one of [None, 'micro', 'macro', 'weighted'].
+Returning None...
+Returned ESE function. Lanczos order (m) is 40 .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 1.2749:   1%|▋                                                                                                       | 83/12500 [00:31<1:18:17,  2.64it/s]
+[33m[W 2024-05-08 19:58:25,529][39m Trial 6 failed with parameters: {'learning_rate': 7.885134483626673e-05, 'k_approx': 10, 'num_of_fosi_iterations': 168} because of the following error: KeyboardInterrupt().
+Traceback (most recent call last):
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 196, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/pavlospoulos/nlp-optimizers-aueb/beta-4-fosi-adam/optimize.py", line 96, in objective
+    result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/nlp-optimizers-aueb/beta-4-fosi-adam/trainer.py", line 168, in fine_tune
+    self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/nlp-optimizers-aueb/beta-4-fosi-adam/trainer.py", line 266, in step
+    grads = torch.autograd.grad(loss, params)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torch/autograd/__init__.py", line 412, in grad
+    result = _engine_run_backward(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torch/autograd/graph.py", line 744, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+[33m[W 2024-05-08 19:58:25,595][39m Trial 6 failed with value None.
+Traceback (most recent call last):
+  File "/home/pavlospoulos/nlp-optimizers-aueb/beta-4-fosi-adam/optimize.py", line 126, in <module>
+    study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/study.py", line 451, in optimize
+    _optimize(
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 62, in _optimize
+    _optimize_sequential(
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 159, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 247, in _run_trial
+    raise func_err
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 196, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/pavlospoulos/nlp-optimizers-aueb/beta-4-fosi-adam/optimize.py", line 96, in objective
+    result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/nlp-optimizers-aueb/beta-4-fosi-adam/trainer.py", line 168, in fine_tune
+    self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/nlp-optimizers-aueb/beta-4-fosi-adam/trainer.py", line 266, in step
+    grads = torch.autograd.grad(loss, params)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torch/autograd/__init__.py", line 412, in grad
+    result = _engine_run_backward(
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torch/autograd/graph.py", line 744, in _engine_run_backward
+    return Variable._execution_engine.run_backward(  # Calls into the C++ engine to run the backward pass
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
