@@ -76,7 +76,7 @@ class CustomTrainer:
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
                 # Logging
-                if self.logging_steps % self.global_step == 0:
+                if self.global_step % self.logging_steps  == 0:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
                 if self.global_step % self.eval_steps == 0: # Per 100 steps
                     results = self.evaluate(val_loader=self.val_loader)
@@ -304,8 +304,8 @@ class CustomTrainer:
             progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
         # Logging
         ic(total_loss)
-        ic(outputs_all)
-        ic(labels_all)
+        # ic(outputs_all)
+        # ic(labels_all)
 
         self.logger.custom_log(global_step=self.global_step, loss=total_loss/len(val_loader), outputs=outputs_all, labels=labels_all, mode='validation')
         metrics = self.logger.return_metrics()

@@ -1,0 +1,611 @@
+
+Returned ESE function. Lanczos order (m) is 40 .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.5705:  13%|██████████████                                                                                            | 160/1209 [01:04<07:44,  2.26it/s]
+lambda_max: 15.910805702209473 lrs: tensor([0.5019, 0.3817, 0.2967, 0.2344, 0.1875, 0.1512, 0.1226, 0.0993, 0.0800,
+        0.0629]) eigenvals: tensor([ 1.9924,  2.6197,  3.3709,  4.2665,  5.3344,  6.6131,  8.1595, 10.0659,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.5437:  27%|████████████████████████████▏                                                                             | 321/1209 [03:12<05:59,  2.47it/s]
+lambda_max: 45.55973434448242 lrs: tensor([0.1890, 0.1416, 0.1087, 0.0851, 0.0675, 0.0540, 0.0435, 0.0351, 0.0281,
+        0.0219]) eigenvals: tensor([ 5.2920,  7.0620,  9.1958, 11.7546, 14.8199, 18.5054, 22.9788, 28.5118,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.8762:  40%|██████████████████████████████████████████▎                                                               | 482/1209 [05:21<04:47,  2.52it/s]
+lambda_max: 3.3983795642852783 lrs: tensor([4.1344e+06, 2.8316e+06, 1.4907e+06, 9.6799e+05, 7.1556e+05, 7.1366e+04,
+        7.1853e+01, 4.8363e+01, 7.7159e+00, 2.9426e-01]) eigenvals: tensor([2.4187e-07, 3.5316e-07, 6.7081e-07, 1.0331e-06, 1.3975e-06, 1.4012e-05,
+
+Epoch: 1, Loss: 32.5988:  40%|█████████████████████████████████████████▏                                                             | 484/1209 [06:22<2:39:05, 13.17s/it]
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 60 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 80 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 36 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+Epoch: 1, Loss: 240400089088.0000:  40%|█████████████████████████████████████▎                                                       | 485/1209 [06:22<1:52:38,  9.34s/it][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+Epoch: 1, Loss: 240400089088.0000:  40%|██████████████████████████████████████                                                         | 485/1209 [06:22<09:31,  1.27it/s]
+[33m[W 2024-05-09 20:32:23,842][39m Trial 7 failed with parameters: {'learning_rate': 8.647828877067679e-05, 'k_approx': 10, 'num_of_fosi_iterations': 161} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:23,843][39m Trial 7 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 0, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:24,273][39m Trial 8 failed with parameters: {'learning_rate': 7.91071200027346e-05, 'k_approx': 15, 'num_of_fosi_iterations': 97} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:24,273][39m Trial 8 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 0, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:24,614][39m Trial 9 failed with parameters: {'learning_rate': 3.284863522476026e-05, 'k_approx': 20, 'num_of_fosi_iterations': 138} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:24,615][39m Trial 9 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 0])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:24,892][39m Trial 10 failed with parameters: {'learning_rate': 7.795762073976264e-05, 'k_approx': 9, 'num_of_fosi_iterations': 144} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:24,892][39m Trial 10 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:25,159][39m Trial 11 failed with parameters: {'learning_rate': 7.489434369322335e-05, 'k_approx': 6, 'num_of_fosi_iterations': 68} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:25,159][39m Trial 11 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:25,432][39m Trial 12 failed with parameters: {'learning_rate': 2.488058081356505e-05, 'k_approx': 10, 'num_of_fosi_iterations': 197} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:25,432][39m Trial 12 failed with value None.
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 24 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 40 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 16 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 28 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 4 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 60 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 28 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 12 .
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 0, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:25,690][39m Trial 13 failed with parameters: {'learning_rate': 9.478927440468317e-06, 'k_approx': 4, 'num_of_fosi_iterations': 105} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:25,691][39m Trial 13 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 0, 0, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:25,941][39m Trial 14 failed with parameters: {'learning_rate': 3.1757425037012125e-05, 'k_approx': 7, 'num_of_fosi_iterations': 92} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:25,941][39m Trial 14 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 0, 0, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:26,182][39m Trial 15 failed with parameters: {'learning_rate': 6.265915763628633e-05, 'k_approx': 1, 'num_of_fosi_iterations': 197} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:26,183][39m Trial 15 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:26,476][39m Trial 16 failed with parameters: {'learning_rate': 9.989025297998827e-05, 'k_approx': 15, 'num_of_fosi_iterations': 100} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:26,476][39m Trial 16 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 0, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:26,751][39m Trial 17 failed with parameters: {'learning_rate': 5.959737708925816e-05, 'k_approx': 7, 'num_of_fosi_iterations': 126} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:26,752][39m Trial 17 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:26,995][39m Trial 18 failed with parameters: {'learning_rate': 2.144413617649922e-05, 'k_approx': 3, 'num_of_fosi_iterations': 106} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:26,995][39m Trial 18 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 0, 0, 0])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:27,245][39m Trial 19 failed with parameters: {'learning_rate': 1.6414226192681412e-05, 'k_approx': 2, 'num_of_fosi_iterations': 123} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:27,246][39m Trial 19 failed with value None.
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 8 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 0 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 56 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 20 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 24 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 44 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 52 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:27,470][39m Trial 20 failed with parameters: {'learning_rate': 9.143268415032347e-05, 'k_approx': 0, 'num_of_fosi_iterations': 184} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:27,470][39m Trial 20 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 0, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:27,789][39m Trial 21 failed with parameters: {'learning_rate': 9.938200195722536e-05, 'k_approx': 14, 'num_of_fosi_iterations': 63} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:27,789][39m Trial 21 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 1, 1, 0])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:28,046][39m Trial 22 failed with parameters: {'learning_rate': 6.213038843329767e-05, 'k_approx': 5, 'num_of_fosi_iterations': 77} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:28,046][39m Trial 22 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:28,315][39m Trial 23 failed with parameters: {'learning_rate': 2.4589396216280825e-05, 'k_approx': 6, 'num_of_fosi_iterations': 170} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:28,316][39m Trial 23 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([0, 1, 1, 0])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:28,596][39m Trial 24 failed with parameters: {'learning_rate': 2.564486672819168e-05, 'k_approx': 11, 'num_of_fosi_iterations': 155} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:28,596][39m Trial 24 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:28,892][39m Trial 25 failed with parameters: {'learning_rate': 8.413892863867811e-05, 'k_approx': 13, 'num_of_fosi_iterations': 65} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:28,893][39m Trial 25 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 0, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:29,177][39m Trial 26 failed with parameters: {'learning_rate': 2.4038390781208322e-05, 'k_approx': 10, 'num_of_fosi_iterations': 91} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:29,178][39m Trial 26 failed with value None.
+Returned ESE function. Lanczos order (m) is 40 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 48 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 28 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 48 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 4 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+Returned ESE function. Lanczos order (m) is 56 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+An exception occurred:
+Loss is NaN
+Returning None...
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:29,483][39m Trial 27 failed with parameters: {'learning_rate': 1.3315144631539815e-05, 'k_approx': 12, 'num_of_fosi_iterations': 56} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:29,483][39m Trial 27 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 0, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:29,749][39m Trial 28 failed with parameters: {'learning_rate': 7.784776537284993e-05, 'k_approx': 7, 'num_of_fosi_iterations': 107} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:29,750][39m Trial 28 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 0])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:30,049][39m Trial 29 failed with parameters: {'learning_rate': 2.5866641209940554e-05, 'k_approx': 12, 'num_of_fosi_iterations': 195} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:30,050][39m Trial 29 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 1])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:30,280][39m Trial 30 failed with parameters: {'learning_rate': 7.804022236011752e-05, 'k_approx': 1, 'num_of_fosi_iterations': 52} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:30,281][39m Trial 30 failed with value None.
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 0, 0, 0])
+[38mic| loss: tensor(nan, grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                                                                            | 0/1209 [00:00<?, ?it/s]
+[33m[W 2024-05-09 20:32:30,591][39m Trial 31 failed with parameters: {'learning_rate': 9.034302758851948e-05, 'k_approx': 14, 'num_of_fosi_iterations': 183} because of the following error: The value None could not be cast to float..
+[33m[W 2024-05-09 20:32:30,592][39m Trial 31 failed with value None.

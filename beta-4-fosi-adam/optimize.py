@@ -88,6 +88,7 @@ def objective(trial):
         optimizer="fosi",
         criterion="cross_entropy",
         task_type="classification",
+        mode = "hypertuning",
         eval_steps=eval_step,
         logging_steps=logging_steps
     )
