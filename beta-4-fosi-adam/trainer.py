@@ -133,11 +133,15 @@ class CustomTrainer:
         f1 = state_dict['f1']
         return params, buffers, loss, f1
     
-    @staticmethod
-    def clean_checkpoint(filepath='./model_checkpoint'):
+    def clean_checkpoint(self, filepath='./model_checkpoint'):
         if os.path.exists(filepath):
             os.remove(filepath)
             print(f"Removed the checkpoint file at {filepath}")
+
+    def clean_if_something_happens(self):
+        self.clean_checkpoint("./model_checkpoint")
+        self.logger.close()
+
 
 
     def fine_tune(self, trial, optuna) -> float:
