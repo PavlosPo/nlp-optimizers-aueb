@@ -47,9 +47,12 @@ class CustomLogger:
     def custom_log(self, global_step, loss, outputs, labels, mode): # mode = 'train' , 'validation', 'test
         outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
         labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
+        # ic(outputs)
+        # ic(labels)
 
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1)
         outputs_argmax = np.argmax(outputs_softmax, axis=1).flatten()
+        ic(outputs_argmax)
 
         self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
 

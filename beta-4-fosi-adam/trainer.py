@@ -165,9 +165,9 @@ class CustomTrainer:
                 self.global_step += 1
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
-                if self.global_step % self.logging_steps == 0:
+                if (self.global_step == 1) or (self.global_step % self.logging_steps == 0):
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
-                if self.global_step % self.eval_steps == 0:
+                if (self.global_step == 1) or (self.global_step % self.eval_steps == 0):
                     results = self.evaluate(val_loader=self.val_loader)
                     current_val_loss = results['LOSS']
                     # Pruning for optuna
@@ -303,7 +303,7 @@ class CustomTrainer:
                 labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
             progress_bar.set_description(f"Validation at Global Step: {self.global_step}, Validation Loss: {loss.item():.4f}")
         # Logging
-        ic(total_loss)
+        
         # ic(outputs_all)
         # ic(labels_all)
 
