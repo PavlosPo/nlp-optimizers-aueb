@@ -50,11 +50,11 @@ class CustomTrainer:
         self.logger = CustomLogger() 
 
         # VALIDATIONS LOSSES in order to checkpoint the model
-        self.validation_metrics = {
+        self.saved_metrics_as_best = {
             'loss': None,
             'model_params': None,
             'model_buffers': None,
-            'f1': 'Not Implemented Yet'
+            'f1': None
         }
         
     def train_val_test(self):
@@ -89,7 +89,7 @@ class CustomTrainer:
         self.logger.close()
         print(f"Test Loss: {test_loss}")
 
-    def checkpoint_model(self, val_loss: float = None, f1: float = None):
+    def checkpoint_model(self, val_loss = None, f1 = None):
         """Checkpoints the model based on the validation loss or F1 score.
 
         Args:
@@ -97,15 +97,15 @@ class CustomTrainer:
             f1 (float, optional): If f1 is given will try to save the new better f1 score model and values e.t.c. Defaults to None.
         """
         if f1 is not None:
-            if self.validation_metrics['f1'] is None or f1 > self.validation_metrics['f1']: # If given F1 is better than the previous saved one
-                self.validation_metrics['loss'] = val_loss  # If given, update the loss
-                self.validation_metrics['f1'] = f1
-                self.validation_metrics['model_params'] = self.params
+            if self.saved_metrics_as_best['f1'] is None or f1 > self.saved_metrics_as_best['f1']: # If given F1 is better than the previous saved one
+                self.saved_metrics_as_best['loss'] = val_loss  # If given, update the loss
+                self.saved_metrics_as_best['f1'] = f1
+                self.saved_metrics_as_best['model_params'] = self.params
                 self.make_checkpoint(f"./model_checkpoint")
         else:   # If F1 is not given, only update the loss
-            if self.validation_metrics['loss'] is None or val_loss < self.validation_metrics['loss']:
-                self.validation_metrics['loss'] = val_loss
-                self.validation_metrics['model_params'] = self.params
+            if self.saved_metrics_as_best['loss'] is None or val_loss < self.saved_metrics_as_best['loss']:
+                self.saved_metrics_as_best['loss'] = val_loss
+                self.saved_metrics_as_best['model_params'] = self.params
                 self.make_checkpoint(f"./model_checkpoint")
 
     def make_checkpoint(self, filepath):
@@ -116,9 +116,8 @@ class CustomTrainer:
         state_dict = {
             'model_params': self.params,
             'model_buffers': self.buffers,
-            'optimizer_state': self.opt_state,
-            'loss': self.validation_metrics['loss'],
-            'f1': self.validation_metrics['f1']
+            'loss': self.saved_metrics_as_best['loss'],
+            'f1': self.saved_metrics_as_best['f1']
         }
         print(f"Found Better model,\nSaving model checkpoint at {filepath}.\n")
         torch.save(state_dict, filepath)
@@ -182,6 +181,7 @@ class CustomTrainer:
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
         self.logger.close()
         best_params, best_buffers, best_loss, best_f1 = self.load_checkpoint(f"./model_checkpoint") # Load best model
+        self.clean_checkpoint("./model_checkpoint")  # Clean the checkpoint
         print(f"Total Best Val Loss: {best_loss}")
         return best_loss
     

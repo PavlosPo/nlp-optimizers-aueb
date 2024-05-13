@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import numpy as np
 from icecream import ic
 import datetime
+import copy
 
 class CustomLogger:
     # Datetime as projectname
@@ -67,6 +68,4 @@ class CustomLogger:
 
     def return_metrics(self):
         if self.metrics:
-            return self.metrics
-        else:
-            return {}
+            return copy.deepcopy(self.metrics)
