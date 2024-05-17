@@ -76,9 +76,9 @@ class CustomTrainer:
                 self.original_model.train()
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
                 # Logging
-                if self.global_step % self.logging_steps  == 0:
+                if ( self.global_step == 1 ) or self.global_step % self.logging_steps  == 0:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
-                if self.global_step % self.eval_steps == 0: # Per 100 steps
+                if ( self.global_step == 1 ) or self.global_step % self.eval_steps == 0: # Per 100 steps
                     results = self.evaluate(val_loader=self.val_loader)
                     total_val_loss = results['LOSS']
                     self.checkpoint_model(val_loss=total_val_loss)
@@ -133,11 +133,15 @@ class CustomTrainer:
         f1 = state_dict['f1']
         return params, buffers, loss, f1
     
-    @staticmethod
-    def clean_checkpoint(filepath='./model_checkpoint'):
+    def clean_checkpoint(self, filepath='./model_checkpoint'):
         if os.path.exists(filepath):
             os.remove(filepath)
             print(f"Removed the checkpoint file at {filepath}")
+
+    def clean_if_something_happens(self):
+        self.clean_checkpoint("./model_checkpoint")
+        self.logger.close()
+
 
 
     def fine_tune(self, trial, optuna) -> float:
@@ -167,7 +171,7 @@ class CustomTrainer:
                 self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
                 if (self.global_step == 1) or (self.global_step % self.logging_steps == 0):
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
-                if (self.global_step == 1) or (self.global_step % self.eval_steps == 0):
+                if (self.global_step % self.eval_steps == 0):
                     results = self.evaluate(val_loader=self.val_loader)
                     current_val_loss = results['LOSS']
                     # Pruning for optuna

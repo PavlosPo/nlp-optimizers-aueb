@@ -19,6 +19,6 @@ fosi.zip
 
 **/model_checkpoint
 
-**/wandb/debug-internal.log
-**/wandb/debug.log
-**/wandb/latest-run
+wandb/debug-internal.log
+wandb/debug.log
+wandb/latest-run

@@ -5,6 +5,7 @@ from dataset import CustomDataLoader
 from trainer import CustomTrainer
 from utils import set_seed
 from icecream import ic
+from optuna.exceptions import TrialPruned
 import os
 
 ic.enable()
@@ -95,14 +96,16 @@ def objective(trial):
 
     try:  # Catch exceptions
         result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
-        # clean up
-        trainer.clean_checkpoint()
         return result
     except Exception as e:  # Return None if an exception occurs
-        print(f"\nAn exception occurred: \n{e}\n")
-        print("Returning None...")
-        trainer.clean_checkpoint()
-        return None
+        trainer.clean_if_something_happens()
+        if isinstance(e, TrialPruned):
+            print("\nTrial was pruned...\n")
+            raise e # Raise the exception to stop the trial
+        else:
+            print(f"\nAn exception occurred: \n{e}")
+            print("\nReturning None...\n")
+            return None # Return None if an other exception occurs
     
 
 
