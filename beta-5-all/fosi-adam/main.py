@@ -40,13 +40,13 @@ epochs = int(input("\nEnter the number of epochs (default is 2): ") or '2')
 set_seed(seed_num)
 
 # Set device
-# try: 
-#     import torch_xla
-#     import torch_xla.core.xla_model as xm
-#     device = xm.xla_device()
-#     print('XLA Will be used as device.')
-# except:
-#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+try: 
+    import torch_xla
+    import torch_xla.core.xla_model as xm
+    device = xm.xla_device()
+    print('XLA Will be used as device.')
+except:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 num_classes = 3 if dataset_task.startswith("mnli") else 1 if dataset_task=="stsb" else 2
