@@ -186,9 +186,10 @@ class CustomTrainer:
         self.logger.close()
         
         best_params, best_buffers, best_loss, best_f1 = self.load_checkpoint(f"./model_checkpoint") # Load best model
+        test_loss = self.test(self.test_loader)
         self.clean_checkpoint("./model_checkpoint")  # Clean the checkpoint
         print(f"Total Best Val Loss: {best_loss}")
-        print(f"Total Best Test loss: {self.test(self.test_loader)}")
+        print(f"Total Best Test loss: {test_loss}")
         return best_loss
     
     def fine_tune_based_on_f1(self, trial, optuna) -> float:
@@ -245,7 +246,7 @@ class CustomTrainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
+        logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
