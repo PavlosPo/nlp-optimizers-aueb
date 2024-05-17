@@ -1,0 +1,1 @@
+This is the first try to create a program in which we can compare the fosi - adam with plain adam. The organization of folders are given.

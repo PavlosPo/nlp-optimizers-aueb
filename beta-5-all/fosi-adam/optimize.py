@@ -121,7 +121,7 @@ if __name__ == "__main__":
     sqlite_url = f'sqlite:///{sqlite_path}'
 
     # Set up the median stopping rule as the pruning condition.
-    study = optuna.create_study(study_name=f'{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
+    study = optuna.create_study(study_name=f'fosi_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
                                 storage=sqlite_url, 
                                 load_if_exists=True, 
                                 pruner=optuna.pruners.MedianPruner())
@@ -130,5 +130,7 @@ if __name__ == "__main__":
     study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
 
     # Save the best params to a text file
-    with open(f"best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}", "w") as f:
+    with open(f"fosi_best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}", "w") as f:
         f.write(str(study.best_params))
+        f.write("\n")
+        f.write(str(study.best_value))

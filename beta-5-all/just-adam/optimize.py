@@ -50,9 +50,9 @@ train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loader
 
 def objective(trial):
     # Define hyperparameters to tune
-    learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-4)
-    k_approx = trial.suggest_int('k_approx', 0, 20)
-    num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
+    learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-2)
+    # k_approx = trial.suggest_int('k_approx', 0, 20)
+    # num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
 
     # Train model
     trainer = CustomTrainer(original_model, 
@@ -62,9 +62,7 @@ def objective(trial):
         epochs=train_epoch,
         criterion=torch.nn.CrossEntropyLoss(),
         device=device,
-        approx_k=k_approx,
         base_optimizer_lr=learning_rate,
-        num_of_fosi_optimizer_iterations=num_of_fosi_iterations,
         eval_steps=eval_step,
         logging_steps=logging_steps)
     
@@ -76,17 +74,15 @@ def objective(trial):
         test_dataset_size=len(test_loader.dataset),
         validation_dataset_size=len(val_loader.dataset),
         train_dataset_size=len(train_loader.dataset),
-        k_approx=k_approx,
         seed_num=seed_num,
         range_to_select=range_to_select,
         batch_size=batch_size,
         epochs=train_epoch,
-        num_of_optimizer_iterations=num_of_fosi_iterations,
         learning_rate=learning_rate,
         model_name=model_name,
         device=device,
         model_type="bert",
-        optimizer="fosi",
+        optimizer="Adam",
         criterion="cross_entropy",
         task_type="classification",
         mode = "hypertuning",
@@ -121,7 +117,7 @@ if __name__ == "__main__":
     sqlite_url = f'sqlite:///{sqlite_path}'
 
     # Set up the median stopping rule as the pruning condition.
-    study = optuna.create_study(study_name=f'{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
+    study = optuna.create_study(study_name=f'adam_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
                                 storage=sqlite_url, 
                                 load_if_exists=True, 
                                 pruner=optuna.pruners.MedianPruner())
@@ -130,5 +126,8 @@ if __name__ == "__main__":
     study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
 
     # Save the best params to a text file
-    with open(f"best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}", "w") as f:
+    with open(f"adam_best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}", "w") as f:
         f.write(str(study.best_params))
+        f.write("\n")
+        f.write(str(study.best_value))
+        f.write("\n")
