@@ -1,0 +1,16 @@
+
+Returned ESE function. Lanczos order (m) is 0 .
+  0%|                                                                                                                      | 0/1209 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([1, 1, 1, 1])
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.5923:   6%|█████▏                                                                               | 73/1209 [00:31<08:14,  2.30it/s]
