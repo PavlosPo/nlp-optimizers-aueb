@@ -50,9 +50,9 @@ train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loader
 
 def objective(trial):
     # Define hyperparameters to tune
-    learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-4)
+    learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-2)
     k_approx = trial.suggest_int('k_approx', 0, 20)
-    num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 200)
+    num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 400)
 
     # Train model
     trainer = CustomTrainer(original_model, 
