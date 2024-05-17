@@ -184,9 +184,11 @@ class CustomTrainer:
                     print(f"\nTotal Validation loss: {current_val_loss}\n")
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
         self.logger.close()
+        
         best_params, best_buffers, best_loss, best_f1 = self.load_checkpoint(f"./model_checkpoint") # Load best model
         self.clean_checkpoint("./model_checkpoint")  # Clean the checkpoint
         print(f"Total Best Val Loss: {best_loss}")
+        print(f"Total Best Test loss: {self.test(self.test_loader)}")
         return best_loss
     
     def fine_tune_based_on_f1(self, trial, optuna) -> float:
@@ -267,9 +269,9 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-        grads = torch.autograd.grad(loss, params)
+        grads = torch.autograd.grad(loss, params, create_graph=True, retain_graph=True)
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
-        params = torchopt.apply_updates(params, updates)
+        params = torchopt.apply_updates(params, updates, inplace=True)
         return params, opt_state, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
