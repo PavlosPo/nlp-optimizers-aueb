@@ -1,0 +1,33 @@
+
+Returned ESE function. Lanczos order (m) is 0 .
+  0%|                                                                                                                      | 0/1209 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([1, 1, 1, 1])
+/home/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:386: UserWarning: A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.
+  warnings.warn(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.7334:  13%|███████████▏                                                                        | 161/1209 [01:01<06:43,  2.60it/s]
