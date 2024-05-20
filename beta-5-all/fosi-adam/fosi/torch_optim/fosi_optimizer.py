@@ -2,6 +2,11 @@ from typing import Any, Optional, NamedTuple, Callable
 
 import torch
 from torchopt.base import GradientTransformation
+try: 
+    import torch_xla.core.xla_model as xm
+except ImportError:
+    pass
+from torch.optim.optimizer import Optimizer
 
 from fosi.torch_optim.extreme_spectrum_estimation import get_ese_fn
 
@@ -29,8 +34,10 @@ def scale_by_fosi(
         learning_rate_clip: Optional[float] = 3.0,
         device: Optional[torch.device] = None,
 ) -> GradientTransformation:
-    if device is None:
-        device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+    try:
+        device = xm.xla_device()
+    except :
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     accumulator_dtype = None if accumulator_dtype is None else torch.float32
     warmup_w = warmup_w if warmup_w is not None else num_iters_to_approx_eigs
     ese_fn = get_ese_fn(loss_fn, approx_k, batch, approx_l, device=device)
@@ -38,7 +45,6 @@ def scale_by_fosi(
     def _approx_learning_rates_and_eigenvectors(params, state):
         k_eigenvals, k_eigenvecs = ese_fn(params)
         k_learning_rates = torch.abs(1.0 / k_eigenvals)
-        # Scaling factor for base_opt_deltas, which is clipped k_learning_rates[approx_l] / k_learning_rates[-1]
         scaling_factor = torch.clip(k_learning_rates[approx_l] / k_learning_rates[-1], 1.0, learning_rate_clip)
         state = ScaleByFosiState(base_opt_state=state.base_opt_state, velocity=state.velocity, count=state.count,
                                  k_learning_rates=k_learning_rates, k_eigenvecs=k_eigenvecs, scaling_factor=scaling_factor)
@@ -60,7 +66,10 @@ def scale_by_fosi(
         return g1, g2
 
     def init_fn(params):
-        flatten_params = torch.nn.utils.parameters_to_vector(params)
+        try:
+            flatten_params = xm._fetch_tensor([p.data for p in params])
+        except:
+            flatten_params = torch.nn.utils.parameters_to_vector(params)
         num_params = flatten_params.shape[0]
         base_opt_state = base_optimizer.init(flatten_params)
 
@@ -72,19 +81,24 @@ def scale_by_fosi(
         return ScaleByFosiState(base_opt_state=base_opt_state, velocity=velocity, count=count,
                                 k_learning_rates=k_learning_rates, k_eigenvecs=k_eigenvecs, scaling_factor=scaling_factor)
 
+
     def update_fn(updates, state, params):
         if (state.count + 1 >= warmup_w) & ((state.count + 1 - warmup_w) % num_iters_to_approx_eigs == 0):
             state = _approx_learning_rates_and_eigenvectors(params, state)
 
         g = torch.nn.utils.parameters_to_vector(updates)
-        flatten_params = torch.nn.utils.parameters_to_vector(params)
-
+        try: 
+            flatten_params = xm._fetch_tensor([p.data for p in params])
+        except:
+            flatten_params = torch.nn.utils.parameters_to_vector(params)
+        
         # TODO: Weight decay should be added to the loss directly as an L2 regularization, rather than indirectly
         #  through the optimizer step, i.e., the optimizer weight_decay must be 0.
         #  The reason is that using weight_decay indirectly through the optimizer step, and not directly through the
         #  loss function, results in ESE inaccurate eigenvectors and eigenvalues estimation; the gradient of the loss
         #  is not the real gradient used for the update step.
 
+        # Perform tensor operations using torch_xla functions or explicitly move tensors to XLA device
         g1, g2 = _get_g1_and_g2(g, state.k_eigenvecs)
 
         new_velocity = momentum_func(g1, state.velocity)
