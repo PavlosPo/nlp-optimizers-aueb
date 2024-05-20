@@ -2,7 +2,7 @@ from transformers import AutoTokenizer, DataCollatorWithPadding
 from torch.utils.data import DataLoader
 import torch
 from datasets import load_dataset, concatenate_datasets
-from typing import Tuple
+from typing import Tuple, Union
 from datasets import DatasetDict
 import os
 from icecream import ic
@@ -17,8 +17,8 @@ class CustomDataLoader:
                 dataset_from :str = "glue",
                 dataset_task : str = "cola", 
                 model_name: str = "distilbert-base-uncased",
-                tokenizer: AutoTokenizer = None, 
-                seed_num: int = 1, range_to_select = None, batch_size: int = 8) -> None:
+                tokenizer: Union[AutoTokenizer, None] = None, 
+                seed_num: int = 1, range_to_select: Union[int, None] = None, batch_size: int = 8) -> None:
       self.dataset_task = dataset_task
       self.dataset_from = dataset_from
       self.model_name = model_name
