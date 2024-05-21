@@ -58,7 +58,7 @@ class CustomTrainer:
         }
         
     def train_val_test(self):
-        self.original_model.to(self.device)
+        # self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
@@ -153,7 +153,7 @@ class CustomTrainer:
         Returns:
             float: total validation loss from the last model, not the best one until that epoch.
         """
-        self.original_model.to(self.device)
+        # self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
@@ -201,7 +201,7 @@ class CustomTrainer:
         Returns:
             float: total validation loss from the last model, not the best one until that epoch.
         """
-        self.original_model.to(self.device)
+        # self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
@@ -246,7 +246,7 @@ class CustomTrainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
@@ -277,7 +277,7 @@ class CustomTrainer:
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
-        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
