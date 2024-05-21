@@ -270,7 +270,20 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        # Ensure loss and logits are on the device
+        loss = loss.to(self.device)
+        logits = logits.to(self.device)
+
+        # Ensure params are on the device
+        params = tuple(param.to(self.device) for param in params)
+        
+        # Compute gradients
         grads = torch.autograd.grad(loss, params)
+        
+        # Ensure grads are on the device
+        grads = tuple(grad.to(self.device) for grad in grads)
+        
+        # Update parameters
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
         params = torchopt.apply_updates(params, updates, inplace=True)
         return params, opt_state, loss, logits
