@@ -65,8 +65,10 @@ class CustomTrainer:
                                         approx_k=self.approx_k , 
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        self.params = tuple(param.to(self.device) for param in self.params)
-        self.opt_state = self.optimizer.init(self.params)
+        self.params.to(self.device)
+        self.buffers.to(self.device)
+        # self.params = tuple(param.to(self.device) for param in self.params)
+        self.opt_state = self.optimizer.init(self.params).to(self.device)
         # Train starts here
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -160,7 +162,9 @@ class CustomTrainer:
                                         approx_k=self.approx_k , 
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        self.params = tuple(param.to(self.device) for param in self.params)
+        self.params.to(self.device)
+        self.buffers.to(self.device)
+        # self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -205,7 +209,9 @@ class CustomTrainer:
                                         approx_k=self.approx_k , 
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        self.params = tuple(param.to(self.device) for param in self.params)
+        self.params.to(self.device)
+        self.buffers.to(self.device)
+        # self.params = tuple(param.to(self.device) for param in self.params)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -244,6 +250,7 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
+        logits.to(self.device)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
@@ -266,15 +273,16 @@ class CustomTrainer:
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
-        loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        loss, logits = self._loss_fn_with_logits(params.to(self.device), buffers.to(self.device), input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         grads = torch.autograd.grad(loss, params)
-        updates, opt_state = self.optimizer.update(grads, opt_state, params)
+        updates, opt_state = self.optimizer.update(grads, opt_state.to(self.device), params)
+        updates.to(self.device)
         params = torchopt.apply_updates(params, updates)
-        return params, opt_state, loss, logits
+        return params.to(self.device), opt_state.to(self.device), loss.to(self.device), logits.to(self.device)
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
-        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
@@ -289,7 +297,7 @@ class CustomTrainer:
                 ic(type(loss))
                 ic.disable()
                 raise ValueError("Loss is NaN")
-        return loss, logits
+        return loss.to(self.device), logits.to(self.device)
 
     
     def evaluate(self, val_loader: DataLoader = None):
