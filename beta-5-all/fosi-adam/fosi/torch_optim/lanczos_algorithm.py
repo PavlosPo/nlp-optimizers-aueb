@@ -108,7 +108,8 @@ def lanczos_alg(order, loss, k_largest, l_smallest=0, return_precision='32', dev
         # Assign to w the Hessian vector product Hv. Uses forward-over-reverse mode for computing Hv.
         # We assume here that the default precision is 32 bit.
         v_ = v if return_precision == '64' else v.type(torch.float32)
-        w = hvp_forward_ad(params, v_, batch)
+        # w = hvp_forward_ad(params, v_, batch)
+        w = hvp_backward_ad(params, v_, batch)
         w = w.to(dtype=lanczos_precision)
 
         # Evaluates alpha and update tridiag diagonal with alpha
