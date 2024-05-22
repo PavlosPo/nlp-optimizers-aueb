@@ -58,7 +58,7 @@ class CustomTrainer:
         }
         
     def train_val_test(self):
-        # self.original_model.to(self.device)
+        self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
@@ -66,6 +66,7 @@ class CustomTrainer:
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         # Train starts here
         self.global_step = 0
@@ -153,7 +154,7 @@ class CustomTrainer:
         Returns:
             float: total validation loss from the last model, not the best one until that epoch.
         """
-        # self.original_model.to(self.device)
+        self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
@@ -161,6 +162,7 @@ class CustomTrainer:
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -201,7 +203,7 @@ class CustomTrainer:
         Returns:
             float: total validation loss from the last model, not the best one until that epoch.
         """
-        # self.original_model.to(self.device)
+        self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
@@ -209,6 +211,7 @@ class CustomTrainer:
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -270,10 +273,6 @@ class CustomTrainer:
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
         loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-        # Ensure loss and logits are on the device
-        loss = loss.to(self.device)
-        logits = logits.to(self.device)
-
         # Ensure params are on the device
         params = tuple(param.to(self.device) for param in params)
         
@@ -285,11 +284,18 @@ class CustomTrainer:
         
         # Update parameters
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
+        updates = tuple(update.to(self.device) for update in updates)
         params = torchopt.apply_updates(params, updates, inplace=True)
+        params = tuple(param.to(self.device) for param in params)
         return params, opt_state, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
+        params = tuple(param.to(self.device) for param in params)
+        buffers = tuple(buffer.to(self.device) for buffer in buffers)
+        input_ids = input_ids.to(self.device)
+        attention_mask = attention_mask.to(self.device)
+        labels = labels.to(self.device)
         logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
@@ -305,7 +311,7 @@ class CustomTrainer:
                 ic(type(loss))
                 ic.disable()
                 raise ValueError("Loss is NaN")
-        return loss, logits
+        return loss.to(self.device), logits.to(self.device)
 
     
     def evaluate(self, val_loader: DataLoader = None):
