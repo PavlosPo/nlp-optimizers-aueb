@@ -10,6 +10,10 @@ import os
 
 ic.enable()
 
+# Do not upload while hypertuning, we have problem with the syncing of optuna and wandb
+os.environ["WANDB_MODE"] = "offline"
+
+
 def get_user_input(prompt, default, cast_type):
     user_input = input(f"\n{prompt} (default is {default}): ")
     return cast_type(user_input) if user_input else default
