@@ -47,7 +47,7 @@ class CustomTrainer:
         self.approx_k = approx_k
         self.eval_steps = eval_steps
         self.logging_steps = logging_steps
-        self.logger = CustomLogger() 
+        self.logger = CustomLogger()
 
         # VALIDATIONS LOSSES in order to checkpoint the model
         self.saved_metrics_as_best = {
@@ -185,11 +185,10 @@ class CustomTrainer:
                     self.checkpoint_model(val_loss=current_val_loss)
                     print(f"\nTotal Validation loss: {current_val_loss}\n")
                 progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
-        self.logger.close()
-        
         best_params, best_buffers, best_loss, best_f1 = self.load_checkpoint(f"./model_checkpoint") # Load best model
         test_loss = self.test(self.test_loader)
         self.clean_checkpoint("./model_checkpoint")  # Clean the checkpoint
+        self.logger.close()
         print(f"Total Best Val Loss: {best_loss}")
         print(f"Total Best Test loss: {test_loss}")
         return best_loss

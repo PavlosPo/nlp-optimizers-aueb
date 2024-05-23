@@ -17,6 +17,7 @@ class CustomLogger:
         self.project_name = project_name
         self.experiment_name = experiment_name
         self.run = None
+        self._initialize_run()
 
     def _initialize_run(self):
         if self.run is None:
@@ -24,7 +25,6 @@ class CustomLogger:
             self.run = wandb.run
 
     def _log_metrics(self, mode, global_step, metrics):
-        self._initialize_run()
         wandb.log({f'{metric_name}/{mode.capitalize()}': metric_value for metric_name, metric_value in metrics.items()}, step=global_step)
 
     def log_metrics(self, mode, global_step, **metrics):
@@ -36,7 +36,6 @@ class CustomLogger:
     #         wandb.config.update(dataset_info)
 
     def log_additional_information(self, **additional_info):
-        self._initialize_run()
         if additional_info:
             self.additional_info = additional_info
             wandb.config.update(additional_info, allow_val_change=True)
