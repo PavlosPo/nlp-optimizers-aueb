@@ -36,9 +36,13 @@ class CustomTrainer:
         self.val_loader = val_loader
         self.test_loader = test_loader
         self.epochs = epochs
+        
         self.functional_model , self.params , self.buffers = self.make_functional_with_buffers(self.original_model)
+        self.params = tuple(param.to(device) for param in self.params)
+        self.buffers = tuple(buffer.to(device) for buffer in self.buffers)
         self.optimizer = torchopt.adam(lr=self.base_optimizer_lr)
         self.opt_state = self.optimizer.init(self.params)
+
         self.num_classes = num_classes
         self.device = device
         self.eval_steps = eval_steps
