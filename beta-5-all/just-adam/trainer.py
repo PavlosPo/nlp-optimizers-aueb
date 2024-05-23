@@ -37,7 +37,8 @@ class CustomTrainer:
         self.test_loader = test_loader
         self.epochs = epochs
         self.functional_model , self.params , self.buffers = self.make_functional_with_buffers(self.original_model)
-        self.optimizer = torch.optim.Adam(self.params, lr=self.base_optimizer_lr)
+        self.optimizer = torchopt.adam(lr=self.base_optimizer_lr)
+        self.opt_state = self.optimizer.init(self.params)
         self.num_classes = num_classes
         self.device = device
         self.eval_steps = eval_steps
@@ -224,33 +225,34 @@ class CustomTrainer:
     
 
     def step(self, params, buffers, batch):
-        self.original_model.train()  # Ensure the model is in training mode
+        self.original_model.train()
         input_ids = batch['input_ids'].to(self.device)
         attention_mask = batch['attention_mask'].to(self.device)
         labels = batch['labels'].to(self.device)
+        loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        # Ensure params are on the device
+        params = tuple(param.to(self.device) for param in params)
         
-        # Zero out the gradients (for custom handling)
-        for param in params:
-            if param.grad is not None:
-                param.grad.zero_()
-        
-        # Forward pass to compute logits and loss
-        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
-        loss = self.criterion(logits, labels)
-        
-        # Backward pass to compute gradients
-        grads = torch.autograd.grad(loss, params, create_graph=True)
-        
-        # Apply updates manually
-        with torch.no_grad():
-            for param, grad in zip(params, grads):
-                param -= self.base_optimizer_lr * grad
-        
+        # Compute gradients
+        grads = torch.autograd.grad(loss, params)
+
+        # Ensure grads are on the device
+        grads = tuple(grad.to(self.device) for grad in grads)
+
+        # Update parameters and opt state
+        updates, self.opt_state = self.optimizer.update(grads, self.opt_state)
+        updates = tuple(update.to(self.device) for update in updates)
+        params = torchopt.apply_updates(params, updates, inplace=True)
         return params, buffers, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
-        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask).to(self.device)
+        params = tuple(param.to(self.device) for param in params)
+        buffers = tuple(buffer.to(self.device) for buffer in buffers)
+        input_ids = input_ids.to(self.device)
+        attention_mask = attention_mask.to(self.device)
+        labels = labels.to(self.device)
+        logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
@@ -265,7 +267,7 @@ class CustomTrainer:
                 ic(type(loss))
                 ic.disable()
                 raise ValueError("Loss is NaN")
-        return loss, logits
+        return loss.to(self.device), logits.to(self.device)
 
     
     def evaluate(self, val_loader: DataLoader = None):

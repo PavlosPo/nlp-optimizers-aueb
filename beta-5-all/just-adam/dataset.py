@@ -10,8 +10,6 @@ from icecream import ic
 # Set TOKENIZERS_PARALLELISM to false to disable parallelism, only for creating tokenizer and collator
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
 
-torch.set_default_dtype(torch.float32)
-
 class CustomDataLoader:
     def __init__(self, 
                 dataset_from :str = "glue",

@@ -3,7 +3,7 @@ import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
 class BertClassifier(nn.Module):
-    def __init__(self, num_labels: int, model_name: str = "bert-base-uncased", device: torch.device = torch.device("cpu")):
+    def __init__(self, device, num_labels: int, model_name: str = "bert-base-uncased", ):
         super(BertClassifier, self).__init__()
         self.model_name = model_name
         self.num_labels = num_labels
@@ -20,12 +20,10 @@ class BertClassifier(nn.Module):
     #     return probabilities
     
     def forward(self, input_ids, attention_mask):
+        input_ids = input_ids.to(self.device)
+        attention_mask = attention_mask.to(self.device)
         outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-        logits = outputs.logits.to( self.device )
-        # probabilities = self.softmax(logits).to(torch.float32)
-
-        # print(f"Probabilities in the forward method: {probabilities}")
-        # print(f"Probabilities shape in the forward method: {probabilities.shape}")
+        logits = outputs.logits.to(self.device)
         return logits
     
     # def backward(self, input_ids, attention_mask, labels):
