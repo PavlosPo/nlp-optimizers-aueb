@@ -64,9 +64,9 @@ def main():
 
     def objective(trial):
         # Define hyperparameters to tune
-        learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-2)
+        learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-4)
         k_approx = trial.suggest_int('k_approx', 1, 3)
-        num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 100, 500)
+        num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 100, 300)
 
         # Train model
         trainer = CustomTrainer(
