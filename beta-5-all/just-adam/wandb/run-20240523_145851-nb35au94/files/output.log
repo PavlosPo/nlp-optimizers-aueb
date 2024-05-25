@@ -1,0 +1,31 @@
+  0%|                                                                                           | 0/1209 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/just-adam/main.py", line 98, in <module>
+    main()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/just-adam/main.py", line 95, in main
+    trainer.train_val_test()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/just-adam/trainer.py", line 67, in train_val_test
+    self.params, self.buffers, loss, logits = self.step(self.params, self.buffers, batch)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/just-adam/trainer.py", line 243, in step
+    updates, self.opt_state = self.optimizer.update(grads, self.opt_state)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torchopt/combine.py", line 92, in update_fn
+    flat_updates, state = inner.update(flat_updates, state, params=flat_params, inplace=inplace)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torchopt/base.py", line 196, in update_fn
+    updates, new_s = fn(updates, s, params=params, inplace=inplace)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torchopt/transform/scale_by_adam.py", line 181, in update_fn
+    mu = update_moment.impl(  # type: ignore[attr-defined]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torchopt/transform/utils.py", line 222, in _update_moment
+    return tree_map_flat(f, updates, moments, none_is_leaf=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torchopt/transform/utils.py", line 65, in tree_map_flat
+    return flat_arg.__class__(map(fn, flat_arg, *flat_args))  # type: ignore[call-arg]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/torchopt/transform/utils.py", line 191, in f
+    return t.mul_(decay).add_(g, alpha=1 - decay) if g is not None else t
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!

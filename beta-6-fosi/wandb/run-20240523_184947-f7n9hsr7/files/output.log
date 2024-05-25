@@ -1,0 +1,44 @@
+
+Returned ESE function. Lanczos order (m) is 8 .
+  0%|                                                                                           | 0/1209 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([1, 1, 1, 1])
+
+
+Epoch: 1, Loss: 0.5679:   3%|█▊                                                        | 39/1209 [00:10<05:28,  3.56it/s]
+[33m[W 2024-05-23 18:50:02,305][39m Trial 2 failed with parameters: {'learning_rate': 0.0010334476807459193, 'k_approx': 2, 'num_of_fosi_iterations': 389} because of the following error: KeyboardInterrupt().
+Traceback (most recent call last):
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 196, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 110, in objective
+    result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/trainer.py", line 187, in fine_tune
+    progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+                                                            ^^^^^^^^^^^
+KeyboardInterrupt
+[33m[W 2024-05-23 18:50:02,305][39m Trial 2 failed with value None.
+Traceback (most recent call last):
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 150, in <module>
+    main()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 141, in main
+    study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/study.py", line 451, in optimize
+    _optimize(
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 62, in _optimize
+    _optimize_sequential(
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 159, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 247, in _run_trial
+    raise func_err
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 196, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 110, in objective
+    result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/trainer.py", line 187, in fine_tune
+    progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+                                                            ^^^^^^^^^^^
+KeyboardInterrupt

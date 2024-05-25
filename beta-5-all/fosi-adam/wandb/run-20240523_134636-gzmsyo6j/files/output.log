@@ -1,0 +1,32 @@
+
+Returned ESE function. Lanczos order (m) is 0 .
+  0%|                                                                                           | 0/1209 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([1, 1, 1, 0])
+Downloading builder script: 100%|███████████████████████████████████████████████████| 6.77k/6.77k [00:00<00:00, 8.24MB/s]
+  0%|                                                                                           | 0/1209 [00:02<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/fosi-adam/main.py", line 102, in <module>
+    main()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/fosi-adam/main.py", line 99, in main
+    trainer.train_val_test()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/fosi-adam/trainer.py", line 81, in train_val_test
+    self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/fosi-adam/logger.py", line 57, in custom_log
+    self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-5-all/fosi-adam/logger.py", line 64, in create_and_log_values
+    self.metrics['F1_Macro'] = evaluate.load('f1').compute(predictions=outputs_argmax, references=labels)['f1']
+                               ^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 748, in load
+    evaluation_module = evaluation_module_factory(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 680, in evaluation_module_factory
+    raise e1 from None
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 639, in evaluation_module_factory
+    ).get_module()
+      ^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 489, in get_module
+    local_imports = _download_additional_modules(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 265, in _download_additional_modules
+    raise ImportError(
+ImportError: To be able to use evaluate-metric/f1, you need to install the following dependencies['scikit-learn'] using 'pip install sklearn' for instance'

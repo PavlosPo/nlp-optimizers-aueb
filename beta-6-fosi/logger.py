@@ -38,7 +38,7 @@ class CustomLogger:
     def log_additional_information(self, **additional_info):
         if additional_info:
             self.additional_info = additional_info
-            wandb.config.update(additional_info, allow_val_change=True)
+            wandb.config.update(additional_info)
 
     def close(self):
         wandb.finish()

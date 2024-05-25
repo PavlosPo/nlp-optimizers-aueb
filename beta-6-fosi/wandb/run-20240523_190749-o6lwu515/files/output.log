@@ -1,0 +1,148 @@
+
+Returned ESE function. Lanczos order (m) is 4 .
+  0%|                                                                                           | 0/1209 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([1, 1, 1, 0])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.3742:  21%|███████████▋                                             | 249/1209 [00:41<02:16,  7.04it/s][38mic| outputs_argmax: tensor([1, 1, 1, 1])
+[38mic| outputs_argmax: tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,[39m0:01<00:00, 83.19it/s]
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1])
+[38mic| metrics: {'ACCURACY': 0.6728778467908902,
+[38m              'F1_Macro': 0.8044554455445545,
+[38m              'LOSS': 0.6385260611033636,
+[38m              'MAE': 0.32712215320910976,
+[38m              'MCC': 0.0,
+[38m              'PRECISION': 0.6728778467908902,
+[38m              'RECALL': 1.0}
+Found Better model,
+Saving model checkpoint at ./model_checkpoint.
+Total Validation loss: 0.6385260611033636
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.5154:  35%|███████████████████▊                                     | 419/1209 [01:20<01:50,  7.14it/s]
+
+
+
+
+
+
+
+Epoch: 1, Loss: 0.3537:  41%|███████████████████████▌                                 | 499/1209 [01:34<01:41,  6.97it/s][38mic| outputs_argmax: tensor([1, 1, 1, 1])
+[38mic| outputs_argmax: tensor([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,[39m0:01<00:00, 84.72it/s]
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1])
+Total Validation loss: 0.6429770734191926
+[38mic| metrics: {'ACCURACY': 0.6728778467908902,
+[38m              'F1_Macro': 0.8044554455445545,
+[38m              'LOSS': 0.6429770734191926,
+[38m              'MAE': 0.32712215320910976,
+[38m              'MCC': 0.0,
+[38m              'PRECISION': 0.6728778467908902,
+[38m              'RECALL': 1.0}
+
+
+
+
+
+
+Epoch: 1, Loss: 0.6398:  49%|███████████████████████████▉                             | 593/1209 [02:00<02:05,  4.92it/s]
+[33m[W 2024-05-23 19:09:53,952][39m Trial 0 failed with parameters: {'learning_rate': 0.0014838753335061478, 'k_approx': 1, 'num_of_fosi_iterations': 420} because of the following error: KeyboardInterrupt().
+Traceback (most recent call last):
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 196, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 110, in objective
+    result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/trainer.py", line 187, in fine_tune
+    progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+                                                            ^^^^^^^^^^^
+KeyboardInterrupt
+[33m[W 2024-05-23 19:09:53,953][39m Trial 0 failed with value None.
+Traceback (most recent call last):
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 150, in <module>
+    main()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 141, in main
+    study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/study.py", line 451, in optimize
+    _optimize(
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 62, in _optimize
+    _optimize_sequential(
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 159, in _optimize_sequential
+    frozen_trial = _run_trial(study, func, catch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 247, in _run_trial
+    raise func_err
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/optuna/study/_optimize.py", line 196, in _run_trial
+    value_or_values = func(trial)
+                      ^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py", line 110, in objective
+    result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/trainer.py", line 187, in fine_tune
+    progress_bar.set_description(f"Epoch: {epoch+1}, Loss: {loss.item():.4f}")
+                                                            ^^^^^^^^^^^
+KeyboardInterrupt

@@ -1,0 +1,128 @@
+{
+    "os": "Linux-5.15.0-102-generic-x86_64-with-glibc2.35",
+    "python": "3.11.0",
+    "heartbeatAt": "2024-05-23T16:24:49.965960",
+    "startedAt": "2024-05-23T16:24:48.669128",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/optimize.py",
+    "codePathLocal": "optimize.py",
+    "codePath": "beta-6-fosi/optimize.py",
+    "git": {
+        "remote": "git@github.com:PavlosPo/nlp-optimizers-aueb.git",
+        "commit": "95cfbf5db63d524033c5c04f9d0d721d10bdccf6"
+    },
+    "email": null,
+    "root": "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb",
+    "host": "titan",
+    "username": "ppoulos",
+    "executable": "/home/ppoulos/miniconda3/envs/pavlosEnv/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 16,
+    "cpu_freq": {
+        "current": 1716.6086874999999,
+        "min": 1200.0,
+        "max": 3200.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2100.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2000.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2100.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2700.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2100.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2100.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2000.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 2000.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1965.679,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3200.0
+        },
+        {
+            "current": 1200.0,
+            "min": 1200.0,
+            "max": 3200.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 227.67739486694336,
+            "used": 25.956024169921875
+        }
+    },
+    "gpu": "NVIDIA GeForce GTX TITAN X",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce GTX TITAN X",
+            "memory_total": 12884901888
+        }
+    ],
+    "memory": {
+        "total": 31.150920867919922
+    }
+}

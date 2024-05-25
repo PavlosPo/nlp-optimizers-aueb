@@ -65,8 +65,8 @@ class CustomTrainer:
                                         approx_k=self.approx_k , 
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        self.params = tuple(param.to(self.device) for param in self.params)
-        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        # self.params = tuple(param.to(self.device) for param in self.params)
+        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         # Train starts here
         self.global_step = 0
@@ -123,8 +123,7 @@ class CustomTrainer:
         print(f"Found Better model,\nSaving model checkpoint at {filepath}.\n")
         torch.save(state_dict, filepath)
 
-    @staticmethod
-    def load_checkpoint(filepath):
+    def load_checkpoint(self, filepath):
         if not os.path.exists(filepath):
             raise FileNotFoundError(f"Checkpoint file not found at '{filepath}'")
         state_dict = torch.load(filepath)
@@ -161,8 +160,8 @@ class CustomTrainer:
                                         approx_k=self.approx_k , 
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        self.params = tuple(param.to(self.device) for param in self.params)
-        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        # self.params = tuple(param.to(self.device) for param in self.params)
+        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -209,8 +208,8 @@ class CustomTrainer:
                                         approx_k=self.approx_k , 
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        self.params = tuple(param.to(self.device) for param in self.params)
-        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        # self.params = tuple(param.to(self.device) for param in self.params)
+        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -245,8 +244,8 @@ class CustomTrainer:
         """Loss function that is needed for the initialization of the optimizer.
         Follows the guidelines of FOSI Implementation.
         See here : https://github.com/hsivan/fosi/blob/main/examples/fosi_torch_resnet_cifar100.py#L261"""
-        input_ids = batch['input_ids'].to(self.device)
-        attention_mask = batch['attention_mask'].to(self.device)
+        input_ids = batch['input_ids']
+        attention_mask = batch['attention_mask']
         labels = batch['labels'].to(self.device)
         logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
@@ -268,8 +267,8 @@ class CustomTrainer:
 
     def step(self, params, buffers, batch, opt_state):
         self.original_model.train()
-        input_ids = batch['input_ids'].to(self.device)
-        attention_mask = batch['attention_mask'].to(self.device)
+        input_ids = batch['input_ids']
+        attention_mask = batch['attention_mask']
         labels = batch['labels'].to(self.device)
         loss, logits = self._loss_fn_with_logits(params, buffers, input_ids=input_ids, attention_mask=attention_mask, labels=labels)
         # Ensure params are on the device
@@ -279,21 +278,21 @@ class CustomTrainer:
         grads = torch.autograd.grad(loss, params)
         
         # Ensure grads are on the device
-        grads = tuple(grad.to(self.device) for grad in grads)
+        # grads = tuple(grad.to(self.device) for grad in grads)
         
         # Update parameters
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
-        updates = tuple(update.to(self.device) for update in updates)
+        # updates = tuple(update.to(self.device) for update in updates)
         params = torchopt.apply_updates(params, updates, inplace=True)
-        params = tuple(param.to(self.device) for param in params)
+        # params = tuple(param.to(self.device) for param in params)
         return params, opt_state, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
-        params = tuple(param.to(self.device) for param in params)
-        buffers = tuple(buffer.to(self.device) for buffer in buffers)
-        input_ids = input_ids.to(self.device)
-        attention_mask = attention_mask.to(self.device)
+        # params = tuple(param.to(self.device) for param in params)
+        # buffers = tuple(buffer.to(self.device) for buffer in buffers)
+        # input_ids = input_ids.to(self.device)
+        # attention_mask = attention_mask.to(self.device)
         labels = labels.to(self.device)
         logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
@@ -361,6 +360,8 @@ class CustomTrainer:
         total_loss = 0
         outputs_all = []
         labels_all = []
+        # Load best model first, this will load the correct params in the self
+        self.params, self.buffers, loss, f1 = self.load_checkpoint(f"./model_checkpoint")
         for i, batch in progress_bar:
             with torch.no_grad():
                 loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])

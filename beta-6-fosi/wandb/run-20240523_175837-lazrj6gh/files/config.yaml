@@ -1,0 +1,115 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    python_version: 3.11.0
+    cli_version: 0.17.0
+    framework: huggingface
+    huggingface_version: 4.41.1
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    start_time: 1716476317
+    t:
+      1:
+      - 1
+      - 5
+      - 11
+      - 12
+      - 35
+      - 49
+      - 51
+      - 53
+      - 55
+      - 100
+      2:
+      - 1
+      - 5
+      - 11
+      - 12
+      - 35
+      - 49
+      - 51
+      - 53
+      - 55
+      - 100
+      3:
+      - 2
+      - 13
+      - 23
+      - 61
+      4: 3.11.0
+      5: 0.17.0
+      6: 4.41.1
+      8:
+      - 5
+      13: linux-x86_64
+dataset_name:
+  desc: null
+  value: glue
+dataset_task:
+  desc: null
+  value: mrpc
+num_classes:
+  desc: null
+  value: 2
+dataset_size:
+  desc: null
+  value: 5801
+test_dataset_size:
+  desc: null
+  value: 484
+validation_dataset_size:
+  desc: null
+  value: 483
+train_dataset_size:
+  desc: null
+  value: 4834
+k_approx:
+  desc: null
+  value: 3
+seed_num:
+  desc: null
+  value: 1
+range_to_select:
+  desc: null
+  value: null
+batch_size:
+  desc: null
+  value: 4
+epochs:
+  desc: null
+  value: 12
+num_of_optimizer_iterations:
+  desc: null
+  value: 193
+learning_rate:
+  desc: null
+  value: 0.0009865663290120185
+model_name:
+  desc: null
+  value: distilbert-base-uncased
+device:
+  desc: null
+  value: cuda
+model_type:
+  desc: null
+  value: bert
+optimizer:
+  desc: null
+  value: fosi
+criterion:
+  desc: null
+  value: cross_entropy
+task_type:
+  desc: null
+  value: classification
+mode:
+  desc: null
+  value: hypertuning
+eval_steps:
+  desc: null
+  value: 250
+logging_steps:
+  desc: null
+  value: 250

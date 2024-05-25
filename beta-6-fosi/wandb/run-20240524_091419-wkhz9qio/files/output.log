@@ -1,0 +1,74 @@
+
+Returned ESE function. Lanczos order (m) is 4 .
+  0%|                                                                                                                                              | 0/3 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([1, 1, 1, 0])
+[38mic| outputs_argmax: tensor([0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,[39m████████████████████████████████████| 121/121 [00:01<00:00, 84.46it/s]
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+[38m                            1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+[38m                            1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1,
+[38m                            0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+[38m                            1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+[38m                            0, 1, 1])
+Found Better model,
+Saving model checkpoint at ./model_checkpoint.
+Total Validation loss: 0.6711118088280859
+[38mic| metrics: {'ACCURACY': 0.6645962732919255,
+[38m              'F1_Macro': 0.7912371134020618,
+[38m              'LOSS': 0.6711118088280859,
+[38m              'MAE': 0.33540372670807456,
+[38m              'MCC': 0.0626679578666236,
+[38m              'PRECISION': 0.6807095343680709,
+[38m              'RECALL': 0.9446153846153846}
+Epoch: 1, Loss: 0.7095:  33%|████████████████████████████████████▋                                                                         | 1/3 [00:17<00:34, 17.19s/it]
+Traceback (most recent call last):
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/main.py", line 102, in <module>
+    main()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/main.py", line 99, in main
+    trainer.train_val_test()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/trainer.py", line 78, in train_val_test
+    self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/trainer.py", line 284, in step
+    updates, opt_state = self.optimizer.update(grads, opt_state, params)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/fosi_optimizer.py", line 87, in update_fn
+    state = _approx_learning_rates_and_eigenvectors(params, state)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/fosi_optimizer.py", line 46, in _approx_learning_rates_and_eigenvectors
+    k_eigenvals, k_eigenvecs = ese_fn(params)
+                               ^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/extreme_spectrum_estimation.py", line 25, in <lambda>
+    ese_fn = lambda params: _ese(lanczos_alg_gitted, batch, params, device)
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/extreme_spectrum_estimation.py", line 7, in _ese
+    k_largest_eigenvals, k_largest_eigenvecs, l_smallest_eigenvals, l_smallest_eigenvecs = lanczos_alg_gitted(params, batch)
+                                                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/lanczos_algorithm.py", line 159, in lanczos_alg_jitted
+    vecs, tridiag = lanczos_iter(i, (vecs, tridiag))
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/lanczos_algorithm.py", line 156, in <lambda>
+    lanczos_iter = lambda i, args: lanczos_iteration(i, args, params, batch)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/lanczos_algorithm.py", line 112, in lanczos_iteration
+    w = hvp_backward_ad(params, v_, batch)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/fosi/torch_optim/lanczos_algorithm.py", line 70, in hvp_backward_ad
+    loss_val = loss(params, batch)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi/trainer.py", line 250, in loss_fn
+    logits = self.functional_model(new_params_values=params, new_buffers_values=self.buffers, input_ids=input_ids, attention_mask=attention_mask)
+                                                                                                        ^^^^^^^^^
+NameError: name 'input_ids' is not defined
