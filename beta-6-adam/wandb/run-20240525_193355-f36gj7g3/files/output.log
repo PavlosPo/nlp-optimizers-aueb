@@ -1,0 +1,83 @@
+
+Returned ESE function. Lanczos order (m) is 80 .
+  0%|                                                                                                                                                                                | 0/3 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([1, 1, 1, 1])
+  0%|                                                                                                                                                                                | 0/3 [00:05<?, ?it/s]
+Traceback (most recent call last):
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 479, in get_module
+    local_path = self.download_loading_script(revision)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 469, in download_loading_script
+    return cached_path(file_path, download_config=download_config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/utils/file_utils.py", line 175, in cached_path
+    output_path = get_from_cache(
+                  ^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/utils/file_utils.py", line 518, in get_from_cache
+    raise FileNotFoundError(f"Couldn't find file at {url}")
+FileNotFoundError: Couldn't find file at https://huggingface.co/spaces/evaluate-metric/mae/resolve/v0.4.2/mae.py
+During handling of the above exception, another exception occurred:
+Traceback (most recent call last):
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-adam/main.py", line 102, in <module>
+    main()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-adam/main.py", line 99, in main
+    trainer.train_val_test()
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-adam/trainer.py", line 81, in train_val_test
+    self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-adam/logger.py", line 56, in custom_log
+    self.create_and_log_values(loss, outputs_argmax, labels, global_step, mode=mode)
+  File "/home/ppoulos/nlp-optimizers/nlp-optimizers-aueb/beta-6-adam/logger.py", line 67, in create_and_log_values
+    self.metrics['MAE'] = evaluate.load('mae').compute(predictions=outputs_argmax, references=labels)['mae']
+                          ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 748, in load
+    evaluation_module = evaluation_module_factory(
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 639, in evaluation_module_factory
+    ).get_module()
+      ^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 484, in get_module
+    local_path = self.download_loading_script(revision)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/loading.py", line 469, in download_loading_script
+    return cached_path(file_path, download_config=download_config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/utils/file_utils.py", line 175, in cached_path
+    output_path = get_from_cache(
+                  ^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/utils/file_utils.py", line 464, in get_from_cache
+    response = http_head(
+               ^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/utils/file_utils.py", line 378, in http_head
+    response = _request_with_retry(
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/evaluate/utils/file_utils.py", line 307, in _request_with_retry
+    response = requests.request(method=method.upper(), url=url, timeout=timeout, **params)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/requests/api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/requests/sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/requests/adapters.py", line 589, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 793, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 467, in _make_request
+    self._validate_conn(conn)
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/urllib3/connectionpool.py", line 1099, in _validate_conn
+    conn.connect()
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/urllib3/connection.py", line 616, in connect
+    self.sock = sock = self._new_conn()
+                       ^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/urllib3/connection.py", line 198, in _new_conn
+    sock = connection.create_connection(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+KeyboardInterrupt

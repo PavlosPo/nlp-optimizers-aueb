@@ -318,9 +318,10 @@ class CustomTrainer:
         total_loss = 0
         outputs_all = []
         labels_all = []
+        loaded_params, loaded_buffers, loaded_loss, loaded_f1 = self.load_checkpoint('./model_checkpoint')
         for i, batch in progress_bar:
             with torch.no_grad():
-                loss, logits = self._loss_fn_with_logits(self.params, buffers=self.buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])
+                loss, logits = self._loss_fn_with_logits(loaded_params, buffers=loaded_buffers, input_ids=batch['input_ids'], attention_mask=batch['attention_mask'], labels=batch['labels'])
                 total_loss += loss.clone().detach().cpu().numpy().item()
                 outputs_all.extend(logits.clone().detach().cpu().numpy())
                 labels_all.extend(batch['labels'].clone().detach().cpu().numpy())
