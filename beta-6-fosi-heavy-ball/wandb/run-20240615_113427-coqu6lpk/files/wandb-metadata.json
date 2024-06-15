@@ -1,0 +1,49 @@
+{
+    "os": "macOS-14.5-arm64-arm-64bit",
+    "python": "3.11.0",
+    "heartbeatAt": "2024-06-15T08:34:28.145729",
+    "startedAt": "2024-06-15T08:34:27.437627",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py",
+    "codePathLocal": "main.py",
+    "codePath": "beta-6-fosi-heavy-ball/main.py",
+    "git": {
+        "remote": "git@github.com:PavlosPo/nlp-optimizers-aueb.git",
+        "commit": "04a5024eba087cc3d7db8d9de8cda6e64119c495"
+    },
+    "email": "pavlos.poulos@outlook.com",
+    "root": "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb",
+    "host": "Pavlos-Air.station",
+    "username": "pavlospoulos",
+    "executable": "/Users/pavlospoulos/miniconda3/envs/pavlosEnv/bin/python",
+    "cpu_count": 8,
+    "cpu_count_logical": 8,
+    "cpu_freq": {
+        "current": 3204,
+        "min": 600,
+        "max": 3204
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 3204,
+            "min": 600,
+            "max": 3204
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 460.4317207336426,
+            "used": 9.557380676269531
+        }
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 8.0
+    }
+}

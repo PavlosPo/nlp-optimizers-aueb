@@ -1,0 +1,13 @@
+  0%|                                                                                                                                                                                | 0/2 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 102, in <module>
+    main()
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 99, in main
+    trainer.train_val_test()
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/trainer.py", line 79, in train_val_test
+    self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch)
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/trainer.py", line 285, in step
+    updates, opt_state = self.optimizer.update(grads=grads, params=params)
+                         ^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'function' object has no attribute 'update'

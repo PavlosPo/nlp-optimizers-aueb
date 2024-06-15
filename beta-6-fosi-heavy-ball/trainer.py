@@ -22,18 +22,20 @@ class CustomTrainer:
                 test_loader: DataLoader,
                 criterion, 
                 device: torch.device,
-                base_optimizer = torchopt.adam,
+                # base_optimizer,
                 base_optimizer_lr: float = 0.0001,
-                num_of_fosi_optimizer_iterations: int = 150,
+                # num_of_fosi_optimizer_iterations: int = 150,
                 epochs: int = 1,
                 num_classes: int = 2,
-                approx_k = 20,
+                # approx_k = 20,
                 eval_steps: int = 10,
                 logging_steps: int = 2):
         self.original_model = original_model
         self.base_optimizer_lr = base_optimizer_lr
-        self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
-        self.num_of_fosi_optimizer_iterations = num_of_fosi_optimizer_iterations
+        self.optimizer = torchopt.sgd(lr=self.base_optimizer_lr)
+        self.opt_state = self.optimizer.init(self.original_model.parameters())
+        # self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
+        # self.num_of_fosi_optimizer_iterations = num_of_fosi_optimizer_iterations
         self.criterion = criterion
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -41,10 +43,10 @@ class CustomTrainer:
         self.epochs = epochs
         self.params = None
         self.buffers = None
-        self.optimizer = fosi_sgd
+        # self.optimizer = fosi_sgd
         self.num_classes = num_classes
         self.device = device
-        self.approx_k = approx_k
+        # self.approx_k = approx_k
         self.eval_steps = eval_steps
         self.logging_steps = logging_steps
         self.logger = CustomLogger()
@@ -61,13 +63,13 @@ class CustomTrainer:
         self.original_model.to(self.device)
         self.original_model.train()
         data = next(iter(self.train_loader))
-        self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
-                                        approx_k=self.approx_k , 
-                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
+        # self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
+        #                                 approx_k=self.approx_k , 
+        #                                 num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         # self.params = tuple(param.to(self.device) for param in self.params)
         # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
-        self.opt_state = self.optimizer.init(self.params)
+        # self.opt_state = self.optimizer.init(self.params)
         # Train starts here
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -75,7 +77,7 @@ class CustomTrainer:
             for i, batch in progress_bar:
                 self.global_step += 1
                 self.original_model.train()
-                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                self.params, loss, logits = self.step(self.params, self.buffers, batch)
                 # Logging
                 if ( self.global_step == 1 ) or self.global_step % self.logging_steps  == 0:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')  # per step
@@ -162,14 +164,14 @@ class CustomTrainer:
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         # self.params = tuple(param.to(self.device) for param in self.params)
         # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
-        self.opt_state = self.optimizer.init(self.params)
+        # self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, batch in progress_bar:
                 self.global_step += 1
                 self.original_model.train()
-                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                self.params, loss, logits = self.step(self.params, self.buffers, batch)
                 if (self.global_step == 1) or (self.global_step % self.logging_steps == 0):
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
                 if (self.global_step % self.eval_steps == 0):
@@ -210,14 +212,14 @@ class CustomTrainer:
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
         # self.params = tuple(param.to(self.device) for param in self.params)
         # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
-        self.opt_state = self.optimizer.init(self.params)
+        # self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))
             for i, batch in progress_bar:
                 self.global_step += 1
                 self.original_model.train()
-                self.params, self.opt_state, loss, logits = self.step(self.params, self.buffers, batch, self.opt_state)
+                self.params,  loss, logits = self.step(self.params, self.buffers, batch)
                 if self.global_step % self.logging_steps == 0:
                     self.logger.custom_log(global_step=self.global_step, loss=loss, outputs=logits, labels=batch['labels'], mode='train')
                 if self.global_step % self.eval_steps == 0:
@@ -265,7 +267,7 @@ class CustomTrainer:
         return loss
     
 
-    def step(self, params, buffers, batch, opt_state):
+    def step(self, params, buffers, batch):
         self.original_model.train()
         input_ids = batch['input_ids']
         attention_mask = batch['attention_mask']
@@ -274,18 +276,17 @@ class CustomTrainer:
         # Ensure params are on the device
         params = tuple(param.to(self.device) for param in params)
         
-        # Compute gradients
+        # # Update parameters
+        # self.optimizer.zero_grad()
+        # loss.backward()
+        # params = self.optimizer.step()
+        # # params = tuple(param.to(self.device) for param in params)
         grads = torch.autograd.grad(loss, params)
-        
-        # Ensure grads are on the device
-        # grads = tuple(grad.to(self.device) for grad in grads)
-        
-        # Update parameters
-        updates, opt_state = self.optimizer.update(grads, opt_state, params)
-        # updates = tuple(update.to(self.device) for update in updates)
+        updates, self.opt_state = self.optimizer.update(updates=grads, params=params, state=self.opt_state, )
         params = torchopt.apply_updates(params, updates, inplace=True)
-        # params = tuple(param.to(self.device) for param in params)
-        return params, opt_state, loss, logits
+
+
+        return params,  loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
@@ -295,10 +296,10 @@ class CustomTrainer:
         # attention_mask = attention_mask.to(self.device)
         labels = labels.to(self.device)
         logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
-        loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
+        loss = torch.nn.CrossEntropyLoss()(logits, labels)
         if torch.isnan(loss):
             print(f"\n\n{'*'*50}\n\nLoss is NaN, retrying to calculate one more time...\n\n{'*'*50}\n\n")
-            loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)
+            loss = torch.nn.CrossEntropyLoss()(logits, labels)
             if torch.isnan(loss):
                 print(f"\n\n{'*'*50}\n\nLoss is still NaN, raising an error...\n\n{'*'*50}\n\n")
                 #logits and labels print for debugging

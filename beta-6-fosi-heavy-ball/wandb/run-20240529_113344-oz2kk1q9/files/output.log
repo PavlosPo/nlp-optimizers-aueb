@@ -1,0 +1,29 @@
+
+Returned ESE function. Lanczos order (m) is 4 .
+Traceback (most recent call last):
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 102, in <module>
+    main()
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 99, in main
+    trainer.train_val_test()
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/trainer.py", line 70, in train_val_test
+    self.opt_state = self.optimizer.init(self.params)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/fosi/jax_optim/fosi_optimizer.py", line 120, in init_fn
+    flatten_param = ravel_pytree(params)[0]
+                    ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/jax/_src/flatten_util.py", line 49, in ravel_pytree
+    flat, unravel_list = _ravel_list(leaves)
+                         ^^^^^^^^^^^^^^^^^^^
+  File "/Users/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/jax/_src/flatten_util.py", line 57, in _ravel_list
+    from_dtypes = tuple(dtypes.dtype(l) for l in lst)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/jax/_src/flatten_util.py", line 57, in <genexpr>
+    from_dtypes = tuple(dtypes.dtype(l) for l in lst)
+                        ^^^^^^^^^^^^^^^
+  File "/Users/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/jax/_src/dtypes.py", line 673, in dtype
+    elif issubdtype(getattr(x, 'dtype', None), extended):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/pavlospoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/jax/_src/dtypes.py", line 347, in issubdtype
+    a if isinstance(a, (type, np.dtype, ExtendedDType)) else np.dtype(a),  # type: ignore[arg-type]
+                                                             ^^^^^^^^^^^
+TypeError: Cannot interpret 'torch.float32' as a data type

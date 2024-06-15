@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 102, in <module>
+    main()
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 99, in main
+    trainer.train_val_test()
+  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/trainer.py", line 64, in train_val_test
+    self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: fosi_sgd() got an unexpected keyword argument 'device'
