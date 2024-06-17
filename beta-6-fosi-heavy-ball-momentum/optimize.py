@@ -112,7 +112,7 @@ def main():
             model_name=model_name,
             device=device,
             model_type="bert",
-            optimizer="fosi-heavy-ball",
+            optimizer="fosi-heavy-ball-momentum",
             criterion="cross_entropy",
             task_type="classification",
             mode="hypertuning",
@@ -156,7 +156,7 @@ def main():
 
         # Set up the median stopping rule as the pruning condition.
         study = optuna.create_study(
-            study_name=f'fosi_heavy_ball_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
+            study_name=f'fosi_heavy_ball_momentum_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
             storage=sqlite_url, 
             load_if_exists=True, 
             pruner=optuna.pruners.MedianPruner()
@@ -166,7 +166,7 @@ def main():
         study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
 
         # Save the best params to a text file
-        with open(f"fosi_heavy_ball_best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}.txt", "w") as f:
+        with open(f"fosi_heavy_ball_momentum_best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}.txt", "w") as f:
             f.write(str(study.best_params))
             f.write("\n")
             f.write(str(study.best_value))

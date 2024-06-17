@@ -13,7 +13,7 @@ import copy
 
 class CustomLogger:
     # Datetime as projectname
-    def __init__(self, project_name: str = "Heavy-Ball-Experiments", experiment_name: str = f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}") -> None:
+    def __init__(self, project_name: str = "Heavy-Ball-Momentum-Experiments", experiment_name: str = f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}") -> None:
         self.project_name = project_name
         self.experiment_name = experiment_name
         self.run = None

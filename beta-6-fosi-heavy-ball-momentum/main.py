@@ -89,7 +89,7 @@ def main():
         model_name=model_name,
         device=device,
         model_type="bert",
-        optimizer="fosi",
+        optimizer="fosi-heavy-ball-momentum",
         criterion="cross_entropy",
         task_type="classification",
         mode="training",

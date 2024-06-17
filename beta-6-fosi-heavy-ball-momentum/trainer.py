@@ -33,7 +33,7 @@ class CustomTrainer:
                 logging_steps: int = 2):
         self.original_model = original_model
         self.base_optimizer_lr = base_optimizer_lr
-        self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
+        self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr, momentum=0.9)
         self.num_of_fosi_optimizer_iterations = num_of_fosi_optimizer_iterations
         self.criterion = criterion
         self.train_loader = train_loader
