@@ -5,16 +5,10 @@ from dataset import CustomDataLoader
 from trainer import CustomTrainer
 from utils import set_seed
 from icecream import ic
-import time
 from optuna.exceptions import TrialPruned
-import gc
 import os
 
 ic.enable()
-
-# Do not upload while hypertuning, we have problem with the syncing of optuna and wandb
-os.environ["WANDB_MODE"] = "offline"
-
 
 def get_user_input(prompt, default, cast_type):
     user_input = input(f"\n{prompt} (default is {default}): ")
@@ -47,35 +41,28 @@ def main():
     # Set seed for reproducibility
     set_seed(seed_num)
 
-    
+    # Load model
+    original_model = BertClassifier(
+        model_name=model_name,
+        num_labels=num_classes,
+        device=device
+    )
+
+    # Prepare dataset
+    custom_dataloader = CustomDataLoader(
+        dataset_from=dataset_from,
+        dataset_task=dataset_task,
+        seed_num=seed_num,
+        range_to_select=range_to_select,
+        batch_size=batch_size
+    )
+    train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loaders()
 
     def objective(trial):
         # Define hyperparameters to tune
-        learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-5)
-        # k_approx = trial.suggest_int('k_approx', 1, 2)
-        # num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 300)
-
-        
-        torch.cuda.empty_cache()
-        gc.collect()
-        time.sleep(5)
-
-        # Load model
-        original_model = BertClassifier(
-            model_name=model_name,
-            num_labels=num_classes,
-            device=device
-        )
-
-        # Prepare dataset
-        custom_dataloader = CustomDataLoader(
-            dataset_from=dataset_from,
-            dataset_task=dataset_task,
-            seed_num=seed_num,
-            range_to_select=range_to_select,
-            batch_size=batch_size
-        )
-        train_loader, val_loader, test_loader = custom_dataloader.get_custom_data_loaders()
+        learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-2)
+        # k_approx = trial.suggest_int('k_approx', 0, 20)
+        # num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 400)
 
         # Train model
         trainer = CustomTrainer(
@@ -121,20 +108,9 @@ def main():
 
         try:
             result = trainer.fine_tune(trial=trial, optuna=optuna)  # Return the metric you want to optimize
-            del trainer
-            del custom_dataloader
-            del original_model
-            torch.cuda.empty_cache()
-            time.sleep(5)
             return result
         except Exception as e:
             trainer.clean_if_something_happens()
-            del trainer
-            del custom_dataloader
-            del original_model
-            torch.cuda.empty_cache()
-            time.sleep(5)
-            gc.collect()
             if isinstance(e, TrialPruned):
                 print("\nTrial was pruned...\n")
                 raise e  # Raise the exception to stop the trial

@@ -1,9 +1,0 @@
-Traceback (most recent call last):
-  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 102, in <module>
-    main()
-  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/main.py", line 99, in main
-    trainer.train_val_test()
-  File "/Users/pavlospoulos/Documents/nlp-optimizers/nlp-optimizers-aueb/beta-6-fosi-heavy-ball/trainer.py", line 71, in train_val_test
-    self.opt_state = self.optimizer.init(self.params)
-                     ^^^^^^^^^^^^^^^^^^^
-AttributeError: 'function' object has no attribute 'init'
