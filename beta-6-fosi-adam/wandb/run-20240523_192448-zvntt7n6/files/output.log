@@ -1,0 +1,15 @@
+Returned ESE function. Lanczos order (m) is 8 .
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+  0%|                                                                                           | 0/1209 [00:00<?, ?it/s][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], device='cuda:0', grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 1, 0], device='cuda:0')
+[38mic| loss: tensor(nan, device='cuda:0', grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+  0%|                                                                                           | 0/1209 [00:00<?, ?it/s]

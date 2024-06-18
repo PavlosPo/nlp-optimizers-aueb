@@ -1,0 +1,85 @@
+
+Returned ESE function. Lanczos order (m) is 4 .
+  0%|                                                                                           | 0/1209 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([0, 0, 0, 0])
+/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1517: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 89.1779:  21%|███████████▌                                            | 249/1209 [00:41<02:23,  6.71it/s][38mic| outputs_argmax: tensor([0, 0, 0, 0])
+/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1517: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+[38mic| outputs_argmax: tensor([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,[39m0:01<00:00, 84.14it/s]
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+[38m                            0, 0, 0])
+/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1517: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+Found Better model,
+Saving model checkpoint at ./model_checkpoint.
+Total Validation loss: 59.92181492639967
+[38mic| metrics: {'ACCURACY': 0.32712215320910976,
+[38m              'F1_Macro': 0.0,
+[38m              'LOSS': 59.92181492639967,
+[38m              'MAE': 0.6728778467908902,
+[38m              'MCC': 0.0,
+[38m              'PRECISION': 0.0,
+[38m              'RECALL': 0.0}
+
+
+
+
+
+
+
+
+
+
+Epoch: 1, Loss: 87.0796:  32%|█████████████████▊                                      | 385/1209 [01:16<01:50,  7.42it/s]
+lambda_max: 1.5431032828117062e-38 lrs: tensor([6.4804e+37], device='cuda:0') eigenvals: tensor([1.5431e-38], device='cuda:0')
+**************************************************
+Loss is NaN, retrying to calculate one more time...
+**************************************************
+**************************************************
+Loss is still NaN, raising an error...
+**************************************************
+Epoch: 1, Loss: 43.5322:  32%|█████████████████▉                                      | 386/1209 [01:19<15:28,  1.13s/it][38mic| logits: tensor([[nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan],
+[38m                    [nan, nan]], device='cuda:0', grad_fn=<AddmmBackward0>)
+[38mic| labels: tensor([1, 1, 0, 0], device='cuda:0')
+[38mic| loss: tensor(nan, device='cuda:0', grad_fn=<NllLossBackward0>)
+[38mic| type(loss): <class 'torch.Tensor'>
+Epoch: 1, Loss: 43.5322:  32%|█████████████████▉                                      | 386/1209 [01:19<02:49,  4.86it/s]

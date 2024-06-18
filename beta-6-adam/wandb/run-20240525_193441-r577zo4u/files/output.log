@@ -1,0 +1,50 @@
+
+  0%|                                                                                                                                                                                | 0/3 [00:00<?, ?it/s][38mic| outputs_argmax: tensor([0, 1, 1, 0])
+
+
+
+
+
+
+[38mic| outputs_argmax: tensor([0, 0, 0,  ..., 0, 0, 0])[39m8:  99%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▎| 1412/1422 [00:11<00:00, 120.74it/s]
+/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1517: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+[38mic| metrics: {'ACCURACY': 0.44274406332453825,
+[38m              'F1_Macro': 0.0,
+[38m              'LOSS': 0.7034824000129217,
+[38m              'MAE': 0.5572559366754617,
+[38m              'MCC': 0.0,
+[38m              'PRECISION': 0.0,
+[38m              'RECALL': 0.0}
+Epoch: 1, Loss: 0.7056:  33%|████████████████████████████████████████████████                                                                                                | 1/3 [00:23<00:46, 23.41s/it][38mic| outputs_argmax: tensor([0, 0, 0, 0])
+Found Better model,
+Saving model checkpoint at ./model_checkpoint.
+Total Validation loss: 0.7034824000129217
+/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1517: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+
+
+
+
+
+
+[38mic| outputs_argmax: tensor([0, 0, 0,  ..., 0, 0, 0])[39m3: 100%|█████████████████████████████████████████████████████████████████████████████████████████████████████████▍| 1415/1422 [00:11<00:00, 121.80it/s]
+/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1517: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))
+Total Validation loss: 0.7086052522796786
+[38mic| metrics: {'ACCURACY': 0.44274406332453825,
+[38m              'F1_Macro': 0.0,
+[38m              'LOSS': 0.7086052522796786,
+[38m              'MAE': 0.5572559366754617,
+[38m              'MCC': 0.0,
+[38m              'PRECISION': 0.0,
+[38m              'RECALL': 0.0}
+Epoch: 1, Loss: 0.7520: 100%|████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 3/3 [00:46<00:00, 15.39s/it]
+
+
+
+
+Test Loss: 0.7583: 100%|██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████████| 1422/1422 [00:11<00:00, 120.22it/s]
+[38mic| outputs_argmax: tensor([0, 0, 0,  ..., 0, 0, 0])
+/home/ppoulos/miniconda3/envs/pavlosEnv/lib/python3.11/site-packages/sklearn/metrics/_classification.py:1517: UndefinedMetricWarning: Precision is ill-defined and being set to 0.0 due to no predicted samples. Use `zero_division` parameter to control this behavior.
+  _warn_prf(average, modifier, f"{metric.capitalize()} is", len(result))

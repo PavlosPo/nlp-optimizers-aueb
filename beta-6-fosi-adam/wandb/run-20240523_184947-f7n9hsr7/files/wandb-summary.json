@@ -1,0 +1,1 @@
+{"_wandb": {"runtime": 13}, "LOSS/Train": 0.7882239818572998, "F1_Macro/Train": 0.6666666666666666, "ACCURACY/Train": 0.5, "PRECISION/Train": 0.5, "RECALL/Train": 1.0, "MAE/Train": 0.5, "MCC/Train": 0.0, "_timestamp": 1716479396.6977978, "_runtime": 8.691824674606323, "_step": 1}
