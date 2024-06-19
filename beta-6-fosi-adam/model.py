@@ -10,14 +10,6 @@ class BertClassifier(nn.Module):
         self.model = AutoModelForSequenceClassification.from_pretrained(self.model_name, num_labels=self.num_labels, return_dict=True)
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         self.device = device
-
-    # def forward(self, input_ids, attention_mask):
-    #     outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
-    #     logits = outputs.logits
-    #     probabilities = self.softmax(logits)
-    #     print(f"Probabilities in the forward method: {probabilities}")
-    #     print(f"Probabilities shape in the forward method: {probabilities.shape}")
-    #     return probabilities
     
     def forward(self, input_ids, attention_mask):
         input_ids = input_ids.to(self.device)
@@ -25,11 +17,6 @@ class BertClassifier(nn.Module):
         outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
         logits = outputs.logits.to(self.device)
         return logits
-    
-    # def backward(self, input_ids, attention_mask, labels):
-    #     outputs = self.model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-    #     loss = outputs.loss
-    #     return loss
 
     # Create a function that will check the grad_fn of each tensor in this model
     def check_grad_fn(self):

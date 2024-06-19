@@ -5,7 +5,8 @@ from torch.nn import functional as F
 from torch import Tensor
 from typing import Tuple
 import torchopt
-from fosi import fosi_adam_torch
+from fosi import fosi_sgd_torch
+import optax
 import copy
 from logger import CustomLogger
 from icecream import ic
@@ -22,7 +23,7 @@ class CustomTrainer:
                 test_loader: DataLoader,
                 criterion, 
                 device: torch.device,
-                base_optimizer = torchopt.adam,
+                base_optimizer = torchopt.sgd,
                 base_optimizer_lr: float = 0.0001,
                 num_of_fosi_optimizer_iterations: int = 150,
                 epochs: int = 1,
@@ -32,7 +33,7 @@ class CustomTrainer:
                 logging_steps: int = 2):
         self.original_model = original_model
         self.base_optimizer_lr = base_optimizer_lr
-        self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
+        self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr, momentum=0.9)
         self.num_of_fosi_optimizer_iterations = num_of_fosi_optimizer_iterations
         self.criterion = criterion
         self.train_loader = train_loader
@@ -41,7 +42,7 @@ class CustomTrainer:
         self.epochs = epochs
         self.params = None
         self.buffers = None
-        self.optimizer = fosi_adam_torch
+        self.optimizer = fosi_sgd_torch
         self.num_classes = num_classes
         self.device = device
         self.approx_k = approx_k
@@ -63,10 +64,10 @@ class CustomTrainer:
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
                                         approx_k=self.approx_k , 
-                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
+                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        # self.params = tuple(param.to(self.device) for param in self.params)
-        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         # Train starts here
         self.global_step = 0
@@ -158,10 +159,10 @@ class CustomTrainer:
         data = next(iter(self.train_loader))
         self.optimizer = self.optimizer(self.base_optimizer, self.loss_fn, data, 
                                         approx_k=self.approx_k , 
-                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
+                                        num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        # self.params = tuple(param.to(self.device) for param in self.params)
-        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -208,8 +209,8 @@ class CustomTrainer:
                                         approx_k=self.approx_k , 
                                         num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        # self.params = tuple(param.to(self.device) for param in self.params)
-        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
         self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -278,21 +279,22 @@ class CustomTrainer:
         grads = torch.autograd.grad(loss, params)
         
         # Ensure grads are on the device
-        # grads = tuple(grad.to(self.device) for grad in grads)
+        grads = tuple(grad.to(self.device) for grad in grads)
         
         # Update parameters
         updates, opt_state = self.optimizer.update(grads, opt_state, params)
-        # updates = tuple(update.to(self.device) for update in updates)
+        updates = tuple(update.to(self.device) for update in updates)
+
         params = torchopt.apply_updates(params, updates, inplace=True)
-        # params = tuple(param.to(self.device) for param in params)
+        params = tuple(param.to(self.device) for param in params)
         return params, opt_state, loss, logits
     
     def _loss_fn_with_logits(self, params, buffers, input_ids, attention_mask, labels):
         """Custom loss function in order to return logits too."""
-        # params = tuple(param.to(self.device) for param in params)
-        # buffers = tuple(buffer.to(self.device) for buffer in buffers)
-        # input_ids = input_ids.to(self.device)
-        # attention_mask = attention_mask.to(self.device)
+        params = tuple(param.to(self.device) for param in params)
+        buffers = tuple(buffer.to(self.device) for buffer in buffers)
+        input_ids = input_ids.to(self.device)
+        attention_mask = attention_mask.to(self.device)
         labels = labels.to(self.device)
         logits = self.functional_model(new_params_values=params, new_buffers_values=buffers, input_ids=input_ids, attention_mask=attention_mask)
         loss = torch.nn.CrossEntropyLoss()(logits, labels).to(self.device)

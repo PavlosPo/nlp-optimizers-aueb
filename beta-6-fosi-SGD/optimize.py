@@ -51,7 +51,7 @@ def main():
 
     def objective(trial):
         # Define hyperparameters to tune
-        learning_rate = trial.suggest_float('learning_rate', 1e-8, 1e-5)
+        learning_rate = trial.suggest_float('learning_rate', 1e-6, 1e-2)
         # This learning rate is after hypertuned Adam in seed 1 in mrpc dataset
         k_approx = trial.suggest_int('k_approx', 1, 2)
         num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 1000)
@@ -112,7 +112,7 @@ def main():
             model_name=model_name,
             device=device,
             model_type="bert",
-            optimizer="fosi-adam",
+            optimizer="fosi-sgd",
             criterion="cross_entropy",
             task_type="classification",
             mode="hypertuning",
@@ -156,7 +156,7 @@ def main():
 
         # Set up the median stopping rule as the pruning condition.
         study = optuna.create_study(
-            study_name=f'fosi_adam_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
+            study_name=f'fosi_sgd__{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}', 
             storage=sqlite_url, 
             load_if_exists=True, 
             pruner=optuna.pruners.MedianPruner()
@@ -166,7 +166,7 @@ def main():
         study.optimize(objective, n_trials=30)  # Adjust n_trials as needed
 
         # Save the best params to a text file
-        with open(f"fosi_adam_best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}.txt", "w") as f:
+        with open(f"fosi_sgd_best_params_{dataset_task}_epochs_{train_epoch}_batch_{batch_size}_seed_{seed_num}.txt", "w") as f:
             f.write(str(study.best_params))
             f.write("\n")
             f.write(str(study.best_value))

@@ -30,11 +30,6 @@ class CustomLogger:
     def log_metrics(self, mode, global_step, **metrics):
         self._log_metrics(mode, global_step, metrics)
 
-    # def log_dataset_info(self, **dataset_info):
-    #     self._initialize_run()
-    #     if dataset_info:
-    #         wandb.config.update(dataset_info)
-
     def log_additional_information(self, **additional_info):
         if additional_info:
             self.additional_info = additional_info
@@ -46,8 +41,6 @@ class CustomLogger:
     def custom_log(self, global_step, loss, outputs, labels, mode): # mode = 'train' , 'validation', 'test
         outputs = outputs.clone().detach().cpu().numpy() if torch.is_tensor(outputs) else np.array(outputs)
         labels = labels.clone().detach().cpu().numpy() if torch.is_tensor(labels) else np.array(labels)
-        # ic(outputs)
-        # ic(labels)
 
         outputs_softmax = F.softmax(torch.tensor(outputs), dim=1)
         outputs_argmax = np.argmax(outputs_softmax, axis=1).flatten()

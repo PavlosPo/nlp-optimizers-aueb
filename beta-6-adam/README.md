@@ -1,1 +1,1 @@
-This is the adam version of our code.
+This is the files in order for training , validate and test the Adam optimizer

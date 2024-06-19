@@ -16,8 +16,8 @@ def main():
     seed_num = get_user_input("Enter the seed number", 1, int)
     eval_step = get_user_input("Enter the evaluation steps", 500, int)
     logging_steps = get_user_input("Enter the logging steps", 250, int)
-    k_approx = get_user_input("Enter the number of max eigenvalues to approximate", 20, int)
-    num_of_fosi_iterations = get_user_input("Enter the rate iteration to apply FOSI", 100, int)
+    # k_approx = get_user_input("Enter the number of max eigenvalues to approximate", 20, int)
+    # num_of_fosi_iterations = get_user_input("Enter the rate iteration to apply FOSI", 100, int)
     learning_rate = get_user_input("Enter the learning rate", 5e-5, float)
     range_to_select = get_user_input("Enter the range to select (default is All Dataset)", None, lambda x: int(x) if x else None)
     batch_size = get_user_input("Enter the batch size", 4, int)
@@ -64,9 +64,9 @@ def main():
         epochs=epochs,
         criterion=torch.nn.CrossEntropyLoss(),
         device=device,
-        approx_k=k_approx,
+        # approx_k=k_approx,
         base_optimizer_lr=learning_rate,
-        num_of_fosi_optimizer_iterations=num_of_fosi_iterations,
+        # num_of_fosi_optimizer_iterations=num_of_fosi_iterations,
         eval_steps=eval_step,
         logging_steps=logging_steps
     )
@@ -79,17 +79,17 @@ def main():
         test_dataset_size=len(test_loader.dataset),
         validation_dataset_size=len(val_loader.dataset),
         train_dataset_size=len(train_loader.dataset),
-        k_approx=k_approx,
+        # k_approx=k_approx,
         seed_num=seed_num,
         range_to_select=range_to_select,
         batch_size=batch_size,
         epochs=epochs,
-        num_of_optimizer_iterations=num_of_fosi_iterations,
+        # num_of_optimizer_iterations=num_of_fosi_iterations,
         learning_rate=learning_rate,
         model_name=model_name,
         device=device,
         model_type="bert",
-        optimizer="fosi-adam",
+        optimizer="sgd-momentum",
         criterion="cross_entropy",
         task_type="classification",
         mode="training",
