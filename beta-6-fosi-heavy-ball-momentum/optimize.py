@@ -51,7 +51,8 @@ def main():
 
     def objective(trial):
         # Define hyperparameters to tune
-        learning_rate = trial.suggest_float('learning_rate', 1e-6, 1e-2)
+        # learning_rate = trial.suggest_float('learning_rate', 1e-6, 1e-2)
+        learning_rate = 0.0005675524064510583
         # This learning rate is after hypertuned Adam in seed 1 in mrpc dataset
         k_approx = trial.suggest_int('k_approx', 1, 2)
         num_of_fosi_iterations = trial.suggest_int('num_of_fosi_iterations', 50, 1000)

@@ -33,7 +33,7 @@ class CustomTrainer:
         self.original_model = original_model
         self.base_optimizer_lr = base_optimizer_lr
         self.optimizer = torchopt.sgd(lr=self.base_optimizer_lr, momentum=0.9)
-        self.opt_state = self.optimizer.init(self.original_model.parameters())
+        # self.opt_state = self.optimizer.init(self.original_model.parameters())
         # self.base_optimizer = base_optimizer(lr=self.base_optimizer_lr)
         # self.num_of_fosi_optimizer_iterations = num_of_fosi_optimizer_iterations
         self.criterion = criterion
@@ -67,9 +67,9 @@ class CustomTrainer:
         #                                 approx_k=self.approx_k , 
         #                                 num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        # self.params = tuple(param.to(self.device) for param in self.params)
-        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
-        # self.opt_state = self.optimizer.init(self.params)
+        self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        self.opt_state = self.optimizer.init(self.params)
         # Train starts here
         self.global_step = 0
         for epoch in range(self.epochs):
@@ -162,9 +162,9 @@ class CustomTrainer:
         #                                 approx_k=self.approx_k , 
         #                                 num_iters_to_approx_eigs=self.num_of_fosi_optimizer_iterations, device=self.device)
         self.functional_model, self.params, self.buffers = self.make_functional_with_buffers(self.original_model)
-        # self.params = tuple(param.to(self.device) for param in self.params)
-        # self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
-        # self.opt_state = self.optimizer.init(self.params)
+        self.params = tuple(param.to(self.device) for param in self.params)
+        self.buffers = tuple(buffer.to(self.device) for buffer in self.buffers)
+        self.opt_state = self.optimizer.init(self.params)
         self.global_step = 0
         for epoch in range(self.epochs):
             progress_bar = tqdm(enumerate(self.train_loader, 1), total=len(self.train_loader))

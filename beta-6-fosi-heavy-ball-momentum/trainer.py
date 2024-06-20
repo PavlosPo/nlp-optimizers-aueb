@@ -5,7 +5,7 @@ from torch.nn import functional as F
 from torch import Tensor
 from typing import Tuple
 import torchopt
-from fosi import fosi_sgd_torch
+from fosi import fosi_momentum_torch
 import optax
 import copy
 from logger import CustomLogger
@@ -42,7 +42,7 @@ class CustomTrainer:
         self.epochs = epochs
         self.params = None
         self.buffers = None
-        self.optimizer = fosi_sgd_torch
+        self.optimizer = fosi_momentum_torch
         self.num_classes = num_classes
         self.device = device
         self.approx_k = approx_k

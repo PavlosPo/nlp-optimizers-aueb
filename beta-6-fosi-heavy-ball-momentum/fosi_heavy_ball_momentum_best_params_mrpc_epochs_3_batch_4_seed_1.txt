@@ -1,0 +1,2 @@
+{'k_approx': 1, 'num_of_fosi_iterations': 681}
+0.3504362498402349
