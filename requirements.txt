@@ -1,0 +1,11 @@
+torch
+transformers
+datasets
+icecream
+torchopt
+jax
+optax
+tensorboard
+evaluate
+wandb
+sklearn
